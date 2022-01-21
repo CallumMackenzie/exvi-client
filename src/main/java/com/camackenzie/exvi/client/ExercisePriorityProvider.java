@@ -5,25 +5,22 @@
  */
 package com.camackenzie.exvi.client;
 
-import com.camackenzie.exvi.core.Exercise;
-import com.camackenzie.exvi.core.ExerciseSet;
+import com.camackenzie.exvi.core.model.Exercise;
+import com.camackenzie.exvi.core.model.ExerciseSet;
+import com.camackenzie.exvi.core.model.Workout;
 
 /**
  *
  * @author callum
  */
-public class ExercisePriorityProvider<T> {
+public interface ExercisePriorityProvider<T> {
 
-    public double getPriority(WorkoutGenerator g, int exer) {
-    }
+    public double getPriority(WorkoutGenerator g, int exerciseIndex);
 
-    public T getType() {
-    }
+    public T getType();
 
-    public ExerciseSet generateExerciseSet(WorkoutGenerator g, Exercise ex) {
-    }
+    public ExerciseSet generateExerciseSet(WorkoutGenerator g, Exercise ex);
 
-    public void registerMatch(WorkoutGenerator g, WorkoutRegimen c) {
-    }
+    public void registerMatch(WorkoutGenerator g, Workout c);
 
 }

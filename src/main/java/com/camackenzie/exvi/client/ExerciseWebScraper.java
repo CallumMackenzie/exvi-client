@@ -5,7 +5,7 @@
  */
 package com.camackenzie.exvi.client;
 
-import com.camackenzie.exvi.core.Exercise;
+import com.camackenzie.exvi.core.model.Exercise;
 import java.util.ArrayList;
 import java.util.concurrent.Future;
 
