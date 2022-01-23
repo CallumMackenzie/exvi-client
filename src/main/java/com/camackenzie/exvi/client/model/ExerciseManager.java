@@ -27,30 +27,35 @@ public class ExerciseManager {
 
     private final HashSet<Exercise> exercises;
 
+    public ExerciseManager(String json) {
+        this();
+        this.addAllFromJson(json);
+    }
+
     public ExerciseManager(HashSet<Exercise> exercises) {
         this.exercises = exercises;
     }
 
     public ExerciseManager(Exercise... exs) {
-        this(new HashSet<>() {
-            {
-                for (var ex : exs) {
-                    add(ex);
-                }
-            }
-        });
+        this();
+        this.addAll(exs);
     }
 
     public ExerciseManager() {
         this(new HashSet<>());
     }
 
-    public static ExerciseManager fromJSON(String json) {
-        Exercise[] exs = gson.fromJson(json, Exercise[].class);
-        return new ExerciseManager(exs);
+    public final void addAll(Exercise... exs) {
+        for (var ex : exs) {
+            this.exercises.add(ex);
+        }
     }
 
-    public String toJSON() {
+    public final void addAllFromJson(String json) {
+        this.addAll(gson.fromJson(json, Exercise[].class));
+    }
+
+    public String toJson() {
         return gson.toJson(this.exercises.toArray(sz -> new Exercise[sz]));
     }
 
@@ -88,7 +93,7 @@ public class ExerciseManager {
                 -> exercise.getExerciseTypes().contains(et));
     }
 
-    public ArrayList<Exercise> getExercisesWithMajorMuscle(Muscle m) {
+    public ArrayList<Exercise> getExercisesWithMuscle(Muscle m) {
         return this.getExercisesByFunction(exercise -> exercise.worksMuscle(m));
     }
 

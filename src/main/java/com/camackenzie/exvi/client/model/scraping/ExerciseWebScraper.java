@@ -5,9 +5,13 @@
  */
 package com.camackenzie.exvi.client.model.scraping;
 
+import com.camackenzie.exvi.core.async.FutureWrapper;
 import com.camackenzie.exvi.core.model.Exercise;
-import java.util.ArrayList;
-import java.util.concurrent.Future;
+import com.google.gson.Gson;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 /**
  *
@@ -15,5 +19,12 @@ import java.util.concurrent.Future;
  */
 public interface ExerciseWebScraper {
 
-    Future<ArrayList<Exercise>> scrape();
+    FutureWrapper<List<Exercise>> scrape();
+
+    public default void scrapeAndSaveToFileAsJson(String path) throws IOException {
+        FutureWrapper<List<Exercise>> out = this.scrape();
+        Gson gson = new Gson();
+        Files.writeString(Path.of(path), gson.toJson(out.getFailOnError()
+                .toArray(sz -> new Exercise[sz])));
+    }
 }

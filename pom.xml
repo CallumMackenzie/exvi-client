@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.camackenzie</groupId>
     <artifactId>exvi-client</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <packaging>jar</packaging>
     
     <properties>
@@ -23,6 +23,9 @@
     <profiles>
         <profile>
             <id>fat-jar-release</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -33,6 +36,11 @@
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
+                            <archive>
+                                <manifest>
+                                    <mainClass>com.camackenzie.exvi.client.gui.desktop.AppRunner</mainClass>
+                                </manifest>
+                            </archive>
                         </configuration>
                         <executions>
                             <execution>
@@ -44,11 +52,47 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>2.0.2</version>
+                        <configuration>
+                            <excludes>
+                                <exclude>com/camackenzie/exvi/client/model/scraping/*.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
         <profile>
             <id>exercise-scraper</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>2.0.2</version>
+                        <configuration>
+                            <includes>
+                                <exclude>com/camackenzie/exvi/client/model/scraping/*.java</exclude>
+                            </includes>
+                            <archive>
+                                <manifest>
+                                    <mainClass>com.camackenzie.exvi.client.model.scraping.MuscleAndStrengthExerciseScraper</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <dependency>
+                    <groupId>net.sourceforge.htmlunit</groupId>
+                    <artifactId>htmlunit</artifactId>
+                    <version>2.56.0</version>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 
@@ -65,7 +109,7 @@
         <dependency>
             <groupId>com.github.CallumMackenzie</groupId>
             <artifactId>exvi-core</artifactId>
-            <version>0.0.5</version>
+            <version>ef2edd77e62793eb3814851de545cbc845453f46</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>

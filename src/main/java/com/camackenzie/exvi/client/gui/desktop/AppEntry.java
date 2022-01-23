@@ -5,16 +5,15 @@
  */
 package com.camackenzie.exvi.client.gui.desktop;
 
-import java.awt.EventQueue;
-
 /**
  *
  * @author callum
  */
-public class AppRunner {
+public class AppEntry implements Runnable {
 
-    public static void main(String[] args) {
-        EventQueue.invokeLater(new AppEntry());
+    @Override
+    public void run() {
+        
     }
-
+    
 }
