@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.camackenzie.exvi.client;
+package com.camackenzie.exvi.client.model;
 
 import com.camackenzie.exvi.core.model.Exercise;
 import com.camackenzie.exvi.core.model.ExerciseSet;
