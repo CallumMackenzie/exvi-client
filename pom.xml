@@ -22,10 +22,16 @@
     
     <profiles>
         <profile>
-            <id>fat-jar-release</id>
+            <id>skinny-jar-client</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <properties>
+                <htmlunit.scope>provided</htmlunit.scope>
+            </properties>
+        </profile>
+        <profile>
+            <id>fat-jar-client</id>
             <properties>
                 <htmlunit.scope>provided</htmlunit.scope>
             </properties>
@@ -110,6 +116,11 @@
             <artifactId>htmlunit</artifactId>
             <version>2.56.0</version>
             <scope>${htmlunit.scope}</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.miglayout</groupId>
+            <artifactId>miglayout</artifactId>
+            <version>3.7.4</version>
         </dependency>
         <dependency>
             <groupId>com.github.CallumMackenzie</groupId>

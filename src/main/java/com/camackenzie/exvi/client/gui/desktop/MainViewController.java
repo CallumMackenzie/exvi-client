@@ -10,5 +10,21 @@ package com.camackenzie.exvi.client.gui.desktop;
  * @author callum
  */
 public class MainViewController {
-    
+
+    private final BackendModel model;
+    private final MainView mainView;
+
+    public MainViewController(BackendModel model, MainView mainView) {
+        this.model = model;
+        this.mainView = mainView;
+    }
+
+    public MainView getMainView() {
+        return this.mainView;
+    }
+
+    public BackendModel getModel() {
+        return this.model;
+    }
+
 }

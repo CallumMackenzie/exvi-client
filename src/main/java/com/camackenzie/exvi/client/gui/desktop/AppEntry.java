@@ -13,10 +13,15 @@ public class AppEntry implements Runnable {
 
     @Override
     public void run() {
+
+        BackendModel model = new BackendModel();
+        MainView mainView = new MainView(model);
+        MainViewController mainViewController = new MainViewController(
+                model, mainView
+        );
         
-        MainView mainView = new MainView();
-        MainViewController mainViewController = new MainViewController();
-        
+        mainView.setVisible(true);
+
     }
-    
+
 }
