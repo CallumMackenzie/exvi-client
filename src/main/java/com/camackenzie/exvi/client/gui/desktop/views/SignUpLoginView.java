@@ -6,13 +6,19 @@
 package com.camackenzie.exvi.client.gui.desktop.views;
 
 import java.awt.Component;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import net.miginfocom.layout.CC;
+import net.miginfocom.layout.LC;
+import net.miginfocom.swing.MigLayout;
 
 /**
  *
  * @author callum
  */
-public class SignUpLoginView implements View {
+public class SignUpLoginView extends JPanel implements View {
 
     private static final SignUpLoginView instance = new SignUpLoginView();
 
@@ -20,19 +26,27 @@ public class SignUpLoginView implements View {
         return SignUpLoginView.instance;
     }
 
-    private JPanel viewRoot;
+    private JButton signUpButton,
+            logInButton;
 
     private SignUpLoginView() {
         this.setupComponents();
     }
 
     private void setupComponents() {
-        this.viewRoot = new JPanel();
+        this.setLayout(new MigLayout("fill"));
+
+        this.signUpButton = new JButton("Sign Up");
+        this.add(this.signUpButton, "grow");
+
+        this.logInButton = new JButton("Log In");
+        this.add(this.logInButton, "grow");
+
     }
 
     @Override
     public Component getViewRoot() {
-        return this.viewRoot;
+        return this;
     }
 
     @Override

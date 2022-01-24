@@ -10,6 +10,8 @@ import com.camackenzie.exvi.client.gui.desktop.views.View;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import javax.swing.JFrame;
+import net.miginfocom.layout.CC;
+import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -24,7 +26,7 @@ public class MainView extends JFrame {
     public MainView(BackendModel model) {
         this.model = model;
         this.addWindowListener(new MainViewWindowListener());
-        this.setLayout(new MigLayout());
+        this.setLayout(new MigLayout(new LC().fill()));
         this.setView(SignUpLoginView.getInstance());
         this.pack();
     }
@@ -32,10 +34,11 @@ public class MainView extends JFrame {
     public void setView(View view) {
         if (this.currentView != null) {
             this.currentView.onViewClose();
+            this.getContentPane().remove(this.currentView.getViewRoot());
         }
-        this.getContentPane().remove(view.getViewRoot());
-        this.getContentPane().add(view.getViewRoot());
+        this.getContentPane().add(view.getViewRoot(), new CC().grow());
         view.onViewInit();
+        this.currentView = view;
     }
 
     public BackendModel getModel() {
@@ -46,7 +49,9 @@ public class MainView extends JFrame {
 
         @Override
         public void windowClosed(WindowEvent e) {
-            currentView.onViewClose();
+            if (currentView != null) {
+                currentView.onViewClose();
+            }
         }
 
         @Override
@@ -71,6 +76,7 @@ public class MainView extends JFrame {
 
         @Override
         public void windowClosing(WindowEvent e) {
+            dispose();
         }
 
     }

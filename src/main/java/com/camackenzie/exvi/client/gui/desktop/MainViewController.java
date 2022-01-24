@@ -17,6 +17,7 @@ public class MainViewController {
     public MainViewController(BackendModel model, MainView mainView) {
         this.model = model;
         this.mainView = mainView;
+        this.setupControllers();
     }
 
     public MainView getMainView() {
@@ -25,6 +26,9 @@ public class MainViewController {
 
     public BackendModel getModel() {
         return this.model;
+    }
+
+    private void setupControllers() {
     }
 
 }
