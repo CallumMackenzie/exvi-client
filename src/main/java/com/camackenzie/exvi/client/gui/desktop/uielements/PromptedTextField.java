@@ -5,6 +5,7 @@
  */
 package com.camackenzie.exvi.client.gui.desktop.uielements;
 
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 /**
@@ -28,6 +29,14 @@ public class PromptedTextField<T extends JTextField> {
 
     public T getTextField() {
         return this.textField;
+    }
+
+    public static PromptedTextField<JTextField> textField(String prompt) {
+        return new PromptedTextField<>(new JTextField(), prompt);
+    }
+
+    public static PromptedTextField<JPasswordField> passwordField(String prompt) {
+        return new PromptedTextField<>(new JPasswordField(), prompt);
     }
 
 }

@@ -52,9 +52,9 @@ public class SignUpLoginView extends JPanel implements View {
     }
 
     @Override
-    public void onViewInit(MainView mv) {
-        this.loginView.onViewInit(mv);
-        this.signUpSplashView.onViewInit(mv);
+    public void onViewInit(Class<? extends View> sender, MainView mv) {
+        this.loginView.onViewInit(this.getClass(), mv);
+        this.signUpSplashView.onViewInit(this.getClass(), mv);
     }
 
 }

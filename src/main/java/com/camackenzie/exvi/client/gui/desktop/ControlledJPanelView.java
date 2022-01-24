@@ -36,12 +36,12 @@ public abstract class ControlledJPanelView<T extends ViewController> extends JPa
     }
 
     @Override
-    public void onViewInit(MainView mv) {
+    public void onViewInit(Class<? extends View> sender, MainView mv) {
         this.mainView = mv;
         if (this.controller == null) {
             this.controller = this.createController(mv);
         }
-        this.onWrappedViewInit(mv);
+        this.onWrappedViewInit(sender, mv);
     }
 
     public T getController() {
@@ -52,6 +52,6 @@ public abstract class ControlledJPanelView<T extends ViewController> extends JPa
 
     public abstract void onWrappedViewClose(MainView mv);
 
-    public abstract void onWrappedViewInit(MainView mv);
+    public abstract void onWrappedViewInit(Class<? extends View> sender, MainView mv);
 
 }

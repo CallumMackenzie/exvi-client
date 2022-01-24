@@ -56,7 +56,7 @@ public class SignUpSplashView extends ControlledJPanelView<SignUpSplashViewContr
     }
 
     @Override
-    public void onWrappedViewInit(MainView mv) {
+    public void onWrappedViewInit(Class<? extends View> sender, MainView mv) {
     }
 
 }

@@ -18,6 +18,6 @@ public interface View {
 
     public void onViewClose(MainView mv);
 
-    public void onViewInit(MainView mv);
+    public void onViewInit(Class<? extends View> sender, MainView mv);
 
 }

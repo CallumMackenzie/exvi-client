@@ -5,6 +5,7 @@
  */
 package com.camackenzie.exvi.client.gui.desktop;
 
+import java.awt.Component;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import javax.swing.JFrame;
@@ -16,7 +17,7 @@ import net.miginfocom.swing.MigLayout;
  *
  * @author callum
  */
-public class MainView extends JFrame {
+public class MainView extends JFrame implements View {
 
     private final BackendModel model;
     private View currentView = null;
@@ -26,24 +27,47 @@ public class MainView extends JFrame {
         this.model = model;
         this.addWindowListener(new MainViewWindowListener());
         this.setLayout(new MigLayout(new LC().fill()));
-        this.setView(SignUpLoginView.getInstance());
+        this.setView(MainView.class, SignUpLoginView.getInstance());
         this.pack();
     }
 
-    public void setView(View view) {
+    public void setView(Class<? extends View> senderClass, View view) {
+        System.out.print(senderClass.getSimpleName()
+                + " requests switch to view "
+                + view.getClass().getSimpleName()
+                + ": ");
+
         if (this.currentView != null) {
+            System.out.print("Closing " + this.currentView.getClass().getSimpleName()
+                    + ", ");
             this.currentView.onViewClose(this);
             this.getContentPane().remove(this.currentView.getViewRoot());
         }
         this.getContentPane().add(view.getViewRoot(), new CC().grow());
-        view.onViewInit(this);
+        System.out.print("Opening " + view.getClass().getSimpleName() + ", ");
+        view.onViewInit(senderClass, this);
         this.currentView = view;
 
         this.revalidate();
+
+        System.out.println("Completed");
     }
 
     public BackendModel getModel() {
         return this.model;
+    }
+
+    @Override
+    public Component getViewRoot() {
+        return this.getContentPane();
+    }
+
+    @Override
+    public void onViewClose(MainView mv) {
+    }
+
+    @Override
+    public void onViewInit(Class<? extends View> sender, MainView mv) {
     }
 
     private class MainViewWindowListener implements WindowListener {
@@ -58,6 +82,7 @@ public class MainView extends JFrame {
         @Override
         public void windowClosing(WindowEvent e) {
             MainView.this.dispose();
+            MainView.this.onViewClose(MainView.this);
         }
 
         @Override
@@ -78,6 +103,7 @@ public class MainView extends JFrame {
 
         @Override
         public void windowOpened(WindowEvent e) {
+            MainView.this.onViewInit(MainView.class, MainView.this);
         }
 
     }

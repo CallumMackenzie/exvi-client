@@ -9,9 +9,9 @@ package com.camackenzie.exvi.client.gui.desktop;
  *
  * @author callum
  */
-public class SignUpViewController extends ViewController<SignUpView, BackendModel> {
+public class UserVerificationViewController extends ViewController<UserVerificationView, BackendModel> {
 
-    public SignUpViewController(SignUpView view, BackendModel model) {
+    public UserVerificationViewController(UserVerificationView view, BackendModel model) {
         super(view, model);
         this.setupControllers();
     }
