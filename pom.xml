@@ -26,6 +26,9 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <properties>
+                <htmlunit.scope>provided</htmlunit.scope>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -67,6 +70,9 @@
         </profile>
         <profile>
             <id>exercise-scraper</id>
+            <properties>
+                <htmlunit.scope>compile</htmlunit.scope>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -86,13 +92,6 @@
                     </plugin>
                 </plugins>
             </build>
-            <dependencies>
-                <dependency>
-                    <groupId>net.sourceforge.htmlunit</groupId>
-                    <artifactId>htmlunit</artifactId>
-                    <version>2.56.0</version>
-                </dependency>
-            </dependencies>
         </profile>
     </profiles>
 
@@ -105,11 +104,17 @@
         </repository>
     </distributionManagement>
     
-    <dependencies>
+    <dependencies>                
+        <dependency>
+            <groupId>net.sourceforge.htmlunit</groupId>
+            <artifactId>htmlunit</artifactId>
+            <version>2.56.0</version>
+            <scope>${htmlunit.scope}</scope>
+        </dependency>
         <dependency>
             <groupId>com.github.CallumMackenzie</groupId>
             <artifactId>exvi-core</artifactId>
-            <version>ef2edd77e62793eb3814851de545cbc845453f46</version>
+            <version>6fd5188260cec51100474f62b73f185b8460afa6</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
