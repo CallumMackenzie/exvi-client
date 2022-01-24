@@ -3,16 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.camackenzie.exvi.client.gui.desktop.views;
+package com.camackenzie.exvi.client.gui.desktop;
 
-import java.awt.Component;
-import javax.swing.JPanel;
+import com.camackenzie.exvi.client.gui.desktop.MainView;
 
 /**
  *
  * @author callum
  */
-public class SignUpView extends JPanel implements View {
+public class SignUpView extends ControlledJPanelView<SignUpViewController> {
 
     public static SignUpView getInstance() {
         return SignUpView.INSTANCE;
@@ -24,15 +23,16 @@ public class SignUpView extends JPanel implements View {
     }
 
     @Override
-    public Component getViewRoot() {
-        return this;
+    public SignUpViewController createController(MainView mv) {
+        return new SignUpViewController(this, mv.getModel());
     }
 
     @Override
-    public void onViewClose() {
+    public void onWrappedViewClose(MainView mv) {
     }
 
     @Override
-    public void onViewInit() {
+    public void onWrappedViewInit(MainView mv) {
     }
+
 }

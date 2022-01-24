@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.camackenzie.exvi.client.gui.desktop.views;
+package com.camackenzie.exvi.client.gui.desktop;
 
+import com.camackenzie.exvi.client.gui.desktop.MainView;
 import java.awt.Component;
 
 /**
@@ -15,8 +16,8 @@ public interface View {
 
     public Component getViewRoot();
 
-    public void onViewClose();
+    public void onViewClose(MainView mv);
 
-    public void onViewInit();
+    public void onViewInit(MainView mv);
 
 }

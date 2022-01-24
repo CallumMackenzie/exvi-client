@@ -5,14 +5,16 @@
  */
 package com.camackenzie.exvi.client.gui.desktop;
 
+import com.camackenzie.exvi.client.gui.desktop.BackendModel;
+
 /**
  *
  * @author callum
  */
-public class MainViewController extends ViewController<MainView, BackendModel> {
+public class LogInViewController extends ViewController<LogInView, BackendModel> {
 
-    public MainViewController(BackendModel model, MainView mainView) {
-        super(mainView, model);
+    public LogInViewController(LogInView lv, BackendModel m) {
+        super(lv, m);
         this.setupControllers();
     }
 

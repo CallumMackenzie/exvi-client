@@ -6,6 +6,8 @@
 package com.camackenzie.exvi.client.gui.desktop;
 
 import java.awt.EventQueue;
+import javax.swing.UIManager;
+import com.formdev.flatlaf.FlatDarculaLaf;
 
 /**
  *
@@ -14,6 +16,12 @@ import java.awt.EventQueue;
 public class AppRunner {
 
     public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(new FlatDarculaLaf());
+        } catch (Exception ex) {
+            System.err.println("Failed to initialize LaF: " + ex);
+        }
+
         EventQueue.invokeLater(new AppEntry());
     }
 

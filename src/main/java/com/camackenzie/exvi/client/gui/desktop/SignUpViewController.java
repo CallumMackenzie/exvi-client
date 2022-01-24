@@ -9,10 +9,10 @@ package com.camackenzie.exvi.client.gui.desktop;
  *
  * @author callum
  */
-public class MainViewController extends ViewController<MainView, BackendModel> {
+public class SignUpViewController extends ViewController<SignUpView, BackendModel> {
 
-    public MainViewController(BackendModel model, MainView mainView) {
-        super(mainView, model);
+    public SignUpViewController(SignUpView view, BackendModel model) {
+        super(view, model);
         this.setupControllers();
     }
 

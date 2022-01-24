@@ -3,15 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.camackenzie.exvi.client.gui.desktop.views;
+package com.camackenzie.exvi.client.gui.desktop;
 
+import com.camackenzie.exvi.client.gui.desktop.View;
+import com.camackenzie.exvi.client.gui.desktop.MainView;
 import java.awt.Component;
-import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import net.miginfocom.layout.CC;
-import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -26,21 +23,20 @@ public class SignUpLoginView extends JPanel implements View {
         return SignUpLoginView.instance;
     }
 
-    private JButton signUpButton,
-            logInButton;
+    private View loginView, signUpSplashView;
 
     private SignUpLoginView() {
         this.setupComponents();
     }
 
     private void setupComponents() {
-        this.setLayout(new MigLayout("fill"));
+        this.setLayout(new MigLayout("fill", "20[]20[]20"));
 
-        this.signUpButton = new JButton("Sign Up");
-        this.add(this.signUpButton, "grow");
+        this.loginView = LogInView.getInstance();
+        this.add(this.loginView.getViewRoot(), "growx");
 
-        this.logInButton = new JButton("Log In");
-        this.add(this.logInButton, "grow");
+        this.signUpSplashView = SignUpSplashView.getInsance();
+        this.add(this.signUpSplashView.getViewRoot(), "growx");
 
     }
 
@@ -50,11 +46,15 @@ public class SignUpLoginView extends JPanel implements View {
     }
 
     @Override
-    public void onViewClose() {
+    public void onViewClose(MainView mv) {
+        this.loginView.onViewClose(mv);
+        this.signUpSplashView.onViewClose(mv);
     }
 
     @Override
-    public void onViewInit() {
+    public void onViewInit(MainView mv) {
+        this.loginView.onViewInit(mv);
+        this.signUpSplashView.onViewInit(mv);
     }
 
 }

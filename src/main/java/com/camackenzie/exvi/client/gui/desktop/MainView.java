@@ -5,8 +5,6 @@
  */
 package com.camackenzie.exvi.client.gui.desktop;
 
-import com.camackenzie.exvi.client.gui.desktop.views.SignUpLoginView;
-import com.camackenzie.exvi.client.gui.desktop.views.View;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import javax.swing.JFrame;
@@ -24,6 +22,7 @@ public class MainView extends JFrame {
     private View currentView = null;
 
     public MainView(BackendModel model) {
+        super("Exvi Fitness");
         this.model = model;
         this.addWindowListener(new MainViewWindowListener());
         this.setLayout(new MigLayout(new LC().fill()));
@@ -33,12 +32,14 @@ public class MainView extends JFrame {
 
     public void setView(View view) {
         if (this.currentView != null) {
-            this.currentView.onViewClose();
+            this.currentView.onViewClose(this);
             this.getContentPane().remove(this.currentView.getViewRoot());
         }
         this.getContentPane().add(view.getViewRoot(), new CC().grow());
-        view.onViewInit();
+        view.onViewInit(this);
         this.currentView = view;
+
+        this.revalidate();
     }
 
     public BackendModel getModel() {
@@ -49,9 +50,14 @@ public class MainView extends JFrame {
 
         @Override
         public void windowClosed(WindowEvent e) {
-            if (currentView != null) {
-                currentView.onViewClose();
+            if (MainView.this.currentView != null) {
+                MainView.this.currentView.onViewClose(MainView.this);
             }
+        }
+
+        @Override
+        public void windowClosing(WindowEvent e) {
+            MainView.this.dispose();
         }
 
         @Override
@@ -72,11 +78,6 @@ public class MainView extends JFrame {
 
         @Override
         public void windowOpened(WindowEvent e) {
-        }
-
-        @Override
-        public void windowClosing(WindowEvent e) {
-            dispose();
         }
 
     }
