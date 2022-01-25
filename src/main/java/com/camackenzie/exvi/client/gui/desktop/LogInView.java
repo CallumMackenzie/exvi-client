@@ -6,7 +6,9 @@
 package com.camackenzie.exvi.client.gui.desktop;
 
 import com.camackenzie.exvi.client.gui.desktop.MainView;
+import com.camackenzie.exvi.client.gui.desktop.uielements.PasswordInput;
 import com.camackenzie.exvi.client.gui.desktop.uielements.PromptedTextField;
+import com.camackenzie.exvi.client.gui.desktop.uielements.UsernameInput;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
@@ -28,8 +30,8 @@ public class LogInView extends ControlledJPanelView<LogInViewController> {
     private LogInViewController viewController;
 
     private JLabel pageTitle;
-    private PromptedTextField usernameInputField;
-    private PromptedTextField passwordInputField;
+    private UsernameInput usernameInput;
+    private PasswordInput passwordInput;
     private JButton logInButton;
 
     private LogInView() {
@@ -44,11 +46,11 @@ public class LogInView extends ControlledJPanelView<LogInViewController> {
                 + "</h1></html>");
         this.add(this.pageTitle, "align center, wrap");
 
-        this.usernameInputField = PromptedTextField.textField("Username");
-        this.add(this.usernameInputField.getTextField(), "growx, wrap");
+        this.usernameInput = new UsernameInput();
+        this.add(this.usernameInput.getTextField(), "growx, wrap");
 
-        this.passwordInputField = PromptedTextField.passwordField("Password");
-        this.add(this.passwordInputField.getTextField(), "growx, wrap");
+        this.passwordInput = new PasswordInput();
+        this.add(this.passwordInput.getTextField(), "growx, wrap");
 
         this.logInButton = new JButton("Sign In");
         this.add(this.logInButton, "align center, growx, wrap");

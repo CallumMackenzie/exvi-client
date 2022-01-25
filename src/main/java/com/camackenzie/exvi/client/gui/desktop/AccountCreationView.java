@@ -6,9 +6,13 @@
 package com.camackenzie.exvi.client.gui.desktop;
 
 import com.camackenzie.exvi.client.gui.desktop.MainView;
+import com.camackenzie.exvi.client.gui.desktop.uielements.EmailInput;
 import com.camackenzie.exvi.client.gui.desktop.uielements.LoadingIcon;
+import com.camackenzie.exvi.client.gui.desktop.uielements.PasswordInput;
+import com.camackenzie.exvi.client.gui.desktop.uielements.PhoneInput;
 import com.camackenzie.exvi.client.gui.desktop.uielements.PromptedTextField;
-import com.camackenzie.exvi.core.api.VerificationResult;
+import com.camackenzie.exvi.client.gui.desktop.uielements.UsernameInput;
+import com.camackenzie.exvi.client.gui.desktop.uielements.VerificationCodeInput;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import net.miginfocom.swing.MigLayout;
@@ -19,23 +23,22 @@ import net.miginfocom.swing.MigLayout;
  */
 public class AccountCreationView extends ControlledJPanelView<AccountCreationViewController> {
 
+    private static final AccountCreationView INSTANCE = new AccountCreationView();
+
     public static AccountCreationView getInstance() {
         return AccountCreationView.INSTANCE;
     }
-
-    private static final AccountCreationView INSTANCE = new AccountCreationView();
 
     public JLabel signUpHeader,
             verificationError,
             verificationCodeInputLabel,
             accountCreationError,
             verificationCodeEntryError;
-    public PromptedTextField usernameTextField,
-            emailTextField,
-            phoneTextField,
-            verificationCodeTextField,
-            passwordTextField,
-            passwordVerifyTextField;
+    public PhoneInput phoneInput;
+    public UsernameInput usernameInput;
+    public PasswordInput passwordInput;
+    public VerificationCodeInput codeInput;
+    public EmailInput emailInput;
     public JButton verifyButton,
             toSignUpLoginViewButton,
             createAccountButton;
@@ -53,30 +56,26 @@ public class AccountCreationView extends ControlledJPanelView<AccountCreationVie
                 + "</h1></html>");
         this.add(this.signUpHeader, "align center, spanx 2, wrap");
 
-        this.usernameTextField = PromptedTextField.textField("Username");
-        this.add(this.usernameTextField.getTextField(), "align center, growx, wmax 200");
+        this.usernameInput = new UsernameInput();
+        this.add(this.usernameInput.getTextField(), "align center, growx, wmax 200");
 
         this.verificationCodeInputLabel = new JLabel("Verification Code");
         this.add(this.verificationCodeInputLabel, "align center, wrap");
 
-        this.emailTextField = PromptedTextField.textField("Email");
-        this.add(this.emailTextField.getTextField(), "align center, wmax 200, growx");
+        this.emailInput = new EmailInput();
+        this.add(this.emailInput.getTextField(), "align center, wmax 200, growx");
 
-        this.verificationCodeTextField = PromptedTextField.passwordField("Code");
-        this.add(this.verificationCodeTextField.getTextField(), "align center, wmax 100, growx, wrap");
+        this.codeInput = new VerificationCodeInput();
+        this.add(this.codeInput.getTextField(), "align center, wmax 100, growx, wrap");
 
-        this.phoneTextField = PromptedTextField.textField("Phone number");
-        this.add(this.phoneTextField.getTextField(), "align center, wmax 200, growx");
+        this.phoneInput = new PhoneInput();
+        this.add(this.phoneInput.getTextField(), "align center, wmax 200, growx");
 
-        this.passwordTextField = PromptedTextField.passwordField("Password");
-        this.add(this.passwordTextField.getTextField(), "align center, wmax 200, growx, wrap");
+        this.passwordInput = new PasswordInput();
+        this.add(this.passwordInput.getTextField(), "align center, wmax 200, growx, wrap");
 
         this.verifyButton = new JButton();
-        this.add(this.verifyButton, "align center, wmax 200, growx");
-
-        this.passwordVerifyTextField = PromptedTextField.passwordField("Verify password");
-        this.add(this.passwordVerifyTextField.getTextField(),
-                "align center, wmax 200, growx, wrap");
+        this.add(this.verifyButton, "align center, wmax 200, growx, wrap");
 
         this.loadingIcon = new LoadingIcon();
         this.loadingIcon.setVisible(false);
@@ -92,7 +91,7 @@ public class AccountCreationView extends ControlledJPanelView<AccountCreationVie
         this.accountCreationError = new JLabel();
         this.accountCreationError.setVisible(false);
         this.add(this.accountCreationError, "align center, spanx 2, wrap");
-        
+
         this.verificationCodeEntryError = new JLabel();
         this.verificationCodeEntryError.setVisible(false);
         this.add(this.verificationCodeEntryError, "align center, spanx 2, wrap");
@@ -112,9 +111,11 @@ public class AccountCreationView extends ControlledJPanelView<AccountCreationVie
         this.setNotSendingCode();
         this.getController().registerViewClosed();
         this.verifyButton.setEnabled(true);
-        this.emailTextField.getTextField().setText("");
-        this.usernameTextField.getTextField().setText("");
-        this.phoneTextField.getTextField().setText("");
+        this.emailInput.clear();
+        this.usernameInput.clear();
+        this.codeInput.clear();
+        this.passwordInput.clear();
+        this.phoneInput.clear();
         this.verificationError.setVisible(false);
     }
 
@@ -140,30 +141,20 @@ public class AccountCreationView extends ControlledJPanelView<AccountCreationVie
     public void setSendingCode() {
         this.loadingIcon.setVisible(true);
         this.verifyButton.setText("Sending Verification Code");
-        this.emailTextField.getTextField().setEnabled(false);
-        this.usernameTextField.getTextField().setEnabled(false);
-        this.phoneTextField.getTextField().setEnabled(false);
+        this.emailInput.getTextField().setEnabled(false);
+        this.usernameInput.getTextField().setEnabled(false);
+        this.phoneInput.getTextField().setEnabled(false);
         this.verifyButton.setEnabled(false);
         this.verificationError.setVisible(false);
     }
 
     public void setNotSendingCode() {
         this.loadingIcon.setVisible(false);
-        this.emailTextField.getTextField().setEnabled(true);
-        this.usernameTextField.getTextField().setEnabled(true);
-        this.phoneTextField.getTextField().setEnabled(true);
+        this.emailInput.getTextField().setEnabled(true);
+        this.usernameInput.getTextField().setEnabled(true);
+        this.phoneInput.getTextField().setEnabled(true);
         this.verifyButton.setEnabled(true);
         this.verifyButton.setText("Send Verification Code");
-    }
-
-    public void setCodeSendingError(VerificationResult result) {
-        this.setNotSendingCode();
-        this.verificationError.setText(
-                "<html><font color='red'>"
-                + result.getMessage()
-                + "</font></html>"
-        );
-        this.verificationError.setVisible(true);
     }
 
 }

@@ -23,6 +23,10 @@ public class PromptedTextField<T extends JTextField> {
         this.textPrompt.changeAlpha(0.7f);
     }
 
+    public String getText() {
+        return this.textField.getText();
+    }
+    
     public TextPrompt getPrompt() {
         return this.textPrompt;
     }
