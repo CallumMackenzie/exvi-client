@@ -15,6 +15,7 @@ public class APIEndpoints {
             ROOT = "https://s36irvth41.execute-api.us-east-2.amazonaws.com/",
             STAGE = ROOT + STAGE_NAME,
             VERIFICATION = STAGE + "/verification",
-            SIGN_UP = STAGE + "/signup";
+            SIGN_UP = STAGE + "/signup",
+            LOGIN = STAGE + "/login";
 
 }

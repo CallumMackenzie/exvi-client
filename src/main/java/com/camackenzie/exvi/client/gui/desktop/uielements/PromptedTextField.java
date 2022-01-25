@@ -34,6 +34,10 @@ public class PromptedTextField<T extends JTextField> {
     public T getTextField() {
         return this.textField;
     }
+    
+    public void setEnabled(boolean e) {
+        this.textField.setEnabled(e);
+    }
 
     public static PromptedTextField<JTextField> textField(String prompt) {
         return new PromptedTextField<>(new JTextField(), prompt);

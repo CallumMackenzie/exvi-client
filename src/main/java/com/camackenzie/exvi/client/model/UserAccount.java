@@ -9,6 +9,13 @@ import com.camackenzie.exvi.core.model.BodyStats;
 import com.camackenzie.exvi.core.api.*;
 import com.camackenzie.exvi.core.async.FutureWrapper;
 import com.camackenzie.exvi.core.model.WorkoutManager;
+import com.camackenzie.exvi.core.util.CryptographyUtils;
+import com.camackenzie.exvi.core.util.EncryptionResult;
+import com.google.gson.Gson;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.Future;
 
 /**
@@ -19,6 +26,8 @@ public class UserAccount {
 
     private String username;
     private String accessKey;
+
+    private static final Gson gson = new Gson();
 
     private UserAccount(String username, String accessKey) {
         this.username = username;
@@ -45,6 +54,23 @@ public class UserAccount {
         throw new UnsupportedOperationException();
     }
 
+    private String getCrendentialsString() {
+        String accountJson = gson.toJson(this);
+        EncryptionResult encryptedJson = CryptographyUtils.encryptAES(accountJson);
+        String encryptionResultJson = gson.toJson(encryptedJson);
+        byte[] erjb = encryptionResultJson.getBytes();
+        return CryptographyUtils.bytesToBase64String(erjb);
+    }
+
+    public void saveCredentials() {
+        try {
+            Files.writeString(Path.of("./" + username + ".user"),
+                    this.getCrendentialsString());
+        } catch (IOException e) {
+            System.err.println(e);
+        }
+    }
+
     public static FutureWrapper<APIResult<VerificationResult>>
             requestVerification(String username, String email, String phone) {
         return APIRequest.sendJson(APIEndpoints.VERIFICATION,
@@ -54,10 +80,16 @@ public class UserAccount {
 
     public static FutureWrapper<APIResult<AccountAccessKeyResult>>
             requestSignUp(String username, String verificationCode, String passwordHash) {
-        throw new UnsupportedOperationException();
+        return APIRequest.sendJson(APIEndpoints.SIGN_UP,
+                new AccountCreationRequest(username,
+                        verificationCode,
+                        passwordHash),
+                AccountAccessKeyResult.class
+        );
     }
 
-    public static FutureWrapper<APIResult<AccountAccessKeyResult>> requestLogin(String username, String passwordHash) {
+    public static FutureWrapper<APIResult<AccountAccessKeyResult>> 
+        requestLogin(String username, String passwordHash) {
         throw new UnsupportedOperationException();
     }
 
@@ -71,6 +103,14 @@ public class UserAccount {
 
     public static UserAccount fromLocalData(String username, String passwordHash) {
         throw new UnsupportedOperationException();
+    }
+
+    public static UserAccount fromCrendentialsString(String in) {
+        byte[] encResJsonBytes = CryptographyUtils.bytesFromBase64String(in);
+        String encResJson = new String(encResJsonBytes);
+        EncryptionResult er = gson.fromJson(encResJson, EncryptionResult.class);
+        String userAccountJson = CryptographyUtils.decryptAES(er);
+        return gson.fromJson(userAccountJson, UserAccount.class);
     }
 
 }

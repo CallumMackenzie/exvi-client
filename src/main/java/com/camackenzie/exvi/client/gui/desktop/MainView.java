@@ -5,8 +5,8 @@
  */
 package com.camackenzie.exvi.client.gui.desktop;
 
-import com.camackenzie.exvi.client.model.UserAccountBuilder;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import javax.swing.JFrame;
@@ -28,6 +28,8 @@ public class MainView extends JFrame implements View {
         this.model = model;
         this.addWindowListener(new MainViewWindowListener());
         this.setLayout(new MigLayout(new LC().fill()));
+        this.setMinimumSize(new Dimension(400, 400));
+        
         this.setView(MainView.class, SignUpLoginView.getInstance());
         this.pack();
     }

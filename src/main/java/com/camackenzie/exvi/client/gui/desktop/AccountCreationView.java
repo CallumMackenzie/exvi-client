@@ -10,7 +10,6 @@ import com.camackenzie.exvi.client.gui.desktop.uielements.EmailInput;
 import com.camackenzie.exvi.client.gui.desktop.uielements.LoadingIcon;
 import com.camackenzie.exvi.client.gui.desktop.uielements.PasswordInput;
 import com.camackenzie.exvi.client.gui.desktop.uielements.PhoneInput;
-import com.camackenzie.exvi.client.gui.desktop.uielements.PromptedTextField;
 import com.camackenzie.exvi.client.gui.desktop.uielements.UsernameInput;
 import com.camackenzie.exvi.client.gui.desktop.uielements.VerificationCodeInput;
 import javax.swing.JButton;
@@ -108,7 +107,6 @@ public class AccountCreationView extends ControlledJPanelView<AccountCreationVie
 
     @Override
     public void onWrappedViewClose(MainView mv) {
-        this.setNotSendingCode();
         this.getController().registerViewClosed();
         this.verifyButton.setEnabled(true);
         this.emailInput.clear();
@@ -117,6 +115,8 @@ public class AccountCreationView extends ControlledJPanelView<AccountCreationVie
         this.passwordInput.clear();
         this.phoneInput.clear();
         this.verificationError.setVisible(false);
+        this.setNotSendingCode();
+        this.setNotSendingCreationReq();
     }
 
     @Override
@@ -128,33 +128,48 @@ public class AccountCreationView extends ControlledJPanelView<AccountCreationVie
             this.toSignUpLoginViewButton.setVisible(false);
         }
         this.setNotSendingCode();
-    }
-
-    public void setSendingAccountCreationRequest() {
-
-    }
-
-    public void setNotSendingAccountCreationRequest() {
-
+        this.setNotSendingCreationReq();
     }
 
     public void setSendingCode() {
         this.loadingIcon.setVisible(true);
         this.verifyButton.setText("Sending Verification Code");
-        this.emailInput.getTextField().setEnabled(false);
-        this.usernameInput.getTextField().setEnabled(false);
-        this.phoneInput.getTextField().setEnabled(false);
+        this.emailInput.setEnabled(false);
+        this.usernameInput.setEnabled(false);
+        this.phoneInput.setEnabled(false);
         this.verifyButton.setEnabled(false);
+        this.createAccountButton.setEnabled(false);
         this.verificationError.setVisible(false);
     }
 
     public void setNotSendingCode() {
         this.loadingIcon.setVisible(false);
-        this.emailInput.getTextField().setEnabled(true);
-        this.usernameInput.getTextField().setEnabled(true);
-        this.phoneInput.getTextField().setEnabled(true);
+        this.emailInput.setEnabled(true);
+        this.usernameInput.setEnabled(true);
+        this.phoneInput.setEnabled(true);
         this.verifyButton.setEnabled(true);
         this.verifyButton.setText("Send Verification Code");
+        this.createAccountButton.setEnabled(true);
+    }
+
+    public void setSendingCreationReq() {
+        this.loadingIcon.setVisible(true);
+        this.createAccountButton.setText("Creating Account");
+        this.codeInput.setEnabled(false);
+        this.passwordInput.setEnabled(false);
+        this.createAccountButton.setEnabled(false);
+
+        this.verifyButton.setEnabled(false);
+    }
+
+    public void setNotSendingCreationReq() {
+        this.loadingIcon.setVisible(false);
+        this.createAccountButton.setText("Create Account");
+        this.createAccountButton.setEnabled(true);
+        this.codeInput.setEnabled(true);
+        this.passwordInput.setEnabled(true);
+
+        this.verifyButton.setEnabled(true);
     }
 
 }

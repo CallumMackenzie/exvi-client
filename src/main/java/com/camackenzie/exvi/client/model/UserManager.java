@@ -17,7 +17,6 @@ import com.camackenzie.exvi.core.async.SharedMethodFuture;
 public class UserManager {
 
     private UserAccount activeUser;
-    private UserAccountBuilder accountBuilder;
 
     public FutureWrapper<VerificationResult> sendUserVerificationCode(String username,
             String email,
@@ -29,20 +28,16 @@ public class UserManager {
         ).wrapped();
     }
 
-    public void setUserAccountBuilder(UserAccountBuilder b) {
-        this.accountBuilder = b;
-    }
-
-    public UserAccountBuilder getUserAccountBuilder() {
-        return this.accountBuilder;
-    }
-
     public UserAccount getActiveUser() {
         return this.activeUser;
     }
 
     public boolean hasActiveUser() {
         return this.activeUser != null;
+    }
+
+    public void setActiveUser(UserAccount au) {
+        this.activeUser = au;
     }
 
 }

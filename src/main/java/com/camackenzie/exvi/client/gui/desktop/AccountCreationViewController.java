@@ -5,18 +5,16 @@
  */
 package com.camackenzie.exvi.client.gui.desktop;
 
-import com.camackenzie.exvi.client.model.UserAccountBuilder;
+import com.camackenzie.exvi.client.model.PasswordUtils;
+import com.camackenzie.exvi.client.model.UserAccount;
+import com.camackenzie.exvi.core.api.APIResult;
+import com.camackenzie.exvi.core.api.AccountAccessKeyResult;
 import com.camackenzie.exvi.core.api.VerificationResult;
 import com.camackenzie.exvi.core.async.RunnableFuture;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.concurrent.ExecutionException;
-import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 
 /**
  *
@@ -24,7 +22,7 @@ import javax.swing.event.CaretListener;
  */
 public class AccountCreationViewController extends ViewController<AccountCreationView, BackendModel> {
 
-    private RunnableFuture requestSendCodeFuture;
+    private RunnableFuture requestFuture;
 
     public AccountCreationViewController(AccountCreationView view, BackendModel model) {
         super(view, model);
@@ -38,11 +36,13 @@ public class AccountCreationViewController extends ViewController<AccountCreatio
                 .addActionListener(new SendVerificationCodeAction());
         view.toSignUpLoginViewButton
                 .addActionListener(new ToSignUpLoginViewAction());
+        view.createAccountButton
+                .addActionListener(new CreateAccountAction());
     }
 
     public void registerViewClosed() {
-        if (this.requestSendCodeFuture != null) {
-            this.requestSendCodeFuture.cancel(true);
+        if (this.requestFuture != null) {
+            this.requestFuture.cancel(true);
         }
     }
 
@@ -50,16 +50,16 @@ public class AccountCreationViewController extends ViewController<AccountCreatio
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            AccountCreationView view = AccountCreationViewController.this.getView();
-            BackendModel model = AccountCreationViewController.this.getModel();
-            view.setSendingCode();
+            AccountCreationView view = getView();
+            BackendModel model = getModel();
 
             // Send verification
             String username = view.usernameInput.getText(),
                     email = view.emailInput.getText(),
                     phone = view.phoneInput.getText();
 
-            requestSendCodeFuture = new RunnableFuture(new Runnable() {
+            view.setSendingCode();
+            requestFuture = new RunnableFuture(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -69,19 +69,15 @@ public class AccountCreationViewController extends ViewController<AccountCreatio
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {
-                                if (result.getError() == 0) {
-                                    view.getMainView().setView(AccountCreationView.class,
-                                            AccountCreationView.getInstance());
-                                } else {
-                                    model.getUserManager().setUserAccountBuilder(new UserAccountBuilder(username));
-                                    view.setNotSendingCode();
-                                    view.verificationError.setText(
-                                            "<html><font color='red'>"
-                                            + result.getMessage()
-                                            + "</font></html>"
-                                    );
-                                    view.verificationError.setVisible(true);
-                                }
+                                view.setNotSendingCode();
+                                view.verificationError.setText(
+                                        "<html><font color='"
+                                        + (result.getError() == 0 ? "green" : "red")
+                                        + "'>"
+                                        + result.getMessage()
+                                        + "</font></html>"
+                                );
+                                view.verificationError.setVisible(true);
                             }
                         });
                     } catch (InterruptedException e) {
@@ -91,7 +87,7 @@ public class AccountCreationViewController extends ViewController<AccountCreatio
                     }
                 }
             });
-            requestSendCodeFuture.start();
+            requestFuture.start();
         }
 
     }
@@ -104,6 +100,59 @@ public class AccountCreationViewController extends ViewController<AccountCreatio
                     .getView()
                     .getMainView()
                     .setView(AccountCreationView.class, SignUpLoginView.getInstance());
+        }
+
+    }
+
+    private class CreateAccountAction implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            AccountCreationView view = getView();
+            BackendModel model = getModel();
+
+            String username = view.usernameInput.getUsername(),
+                    verificationCode = view.codeInput.getCode(),
+                    password = view.passwordInput.getPassword();
+            String passwordHash = PasswordUtils.hashPassword(password);
+            view.setSendingCreationReq();
+            requestFuture = new RunnableFuture(new Runnable() {
+                @Override
+                public void run() {
+
+                    try {
+                        APIResult<AccountAccessKeyResult> request
+                                = UserAccount.requestSignUp(username, verificationCode, passwordHash)
+                                        .get();
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (request.getBody().errorOccured()
+                                        || request.getStatusCode() != 200) {
+                                    System.err.println(request.getBody().getMessage());
+                                    view.setNotSendingCreationReq();
+                                } else {
+                                    model.getUserManager().setActiveUser(
+                                            UserAccount.fromAccessKey(username,
+                                                    request.getBody().getAccessKey())
+                                    );
+                                    model.getUserManager().getActiveUser().saveCredentials();
+                                    view.getMainView().setView(AccountCreationView.class,
+                                            HomepageView.getInstance());
+                                }
+                            }
+                        });
+                    } catch (InterruptedException ex) {
+                        return;
+                    } catch (ExecutionException ex) {
+                        System.err.println(ex);
+                    } catch (Exception ex) {
+                        System.err.println(ex);
+                    }
+                }
+            }
+            );
+            requestFuture.start();
         }
 
     }
