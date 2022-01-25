@@ -5,7 +5,7 @@
  */
 package com.camackenzie.exvi.client.gui.desktop;
 
-import com.camackenzie.exvi.client.model.UserAccount;
+import com.camackenzie.exvi.client.model.UserManager;
 
 /**
  *
@@ -13,17 +13,14 @@ import com.camackenzie.exvi.client.model.UserAccount;
  */
 public class BackendModel {
 
-    private UserAccount activeUser;
+    private UserManager accountManager;
 
     public BackendModel() {
+        this.accountManager = new UserManager();
     }
 
-    public UserAccount getActiveUser() {
-        return this.activeUser;
-    }
-
-    public boolean hasActiveUser() {
-        return this.activeUser != null;
+    public UserManager getUserManager() {
+        return this.accountManager;
     }
 
 }

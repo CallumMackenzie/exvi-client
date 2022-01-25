@@ -7,6 +7,7 @@ package com.camackenzie.exvi.client.model;
 
 import com.camackenzie.exvi.core.model.BodyStats;
 import com.camackenzie.exvi.core.api.*;
+import com.camackenzie.exvi.core.async.FutureWrapper;
 import com.camackenzie.exvi.core.model.WorkoutManager;
 import java.util.concurrent.Future;
 
@@ -44,23 +45,23 @@ public class UserAccount {
         throw new UnsupportedOperationException();
     }
 
-    public static Future<APIResult<VerificationResult>>
+    public static FutureWrapper<APIResult<VerificationResult>>
             requestVerification(String username, String email, String phone) {
         return APIRequest.sendJson(APIEndpoints.VERIFICATION,
                 new VerificationRequest(username, email, phone),
                 VerificationResult.class);
     }
 
-    public static Future<APIResult<AccountAccessKeyResult>>
+    public static FutureWrapper<APIResult<AccountAccessKeyResult>>
             requestSignUp(String username, String verificationCode, String passwordHash) {
         throw new UnsupportedOperationException();
     }
 
-    public static Future<APIResult<AccountAccessKeyResult>> requestLogin(String username, String passwordHash) {
+    public static FutureWrapper<APIResult<AccountAccessKeyResult>> requestLogin(String username, String passwordHash) {
         throw new UnsupportedOperationException();
     }
 
-    public static <T> Future<APIResult<DataResult<T>>> requestData(String username, String accessKey, APIRequest<?> req) {
+    public static <T> FutureWrapper<APIResult<DataResult<T>>> requestData(String username, String accessKey, APIRequest<?> req) {
         throw new UnsupportedOperationException();
     }
 

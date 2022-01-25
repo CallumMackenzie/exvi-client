@@ -6,7 +6,9 @@
 package com.camackenzie.exvi.client.gui.desktop;
 
 import com.camackenzie.exvi.client.gui.desktop.MainView;
+import com.camackenzie.exvi.client.gui.desktop.uielements.LoadingIcon;
 import com.camackenzie.exvi.client.gui.desktop.uielements.PromptedTextField;
+import com.camackenzie.exvi.core.api.VerificationResult;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import net.miginfocom.swing.MigLayout;
@@ -23,12 +25,14 @@ public class UserVerificationView extends ControlledJPanelView<UserVerificationV
 
     private static final UserVerificationView INSTANCE = new UserVerificationView();
 
-    private JLabel signUpHeader;
+    private JLabel signUpHeader,
+            verificationError;
     private PromptedTextField usernameTextField,
             emailTextField,
             phoneTextField;
     private JButton verifyButton,
             toSignUpLoginViewButton;
+    private LoadingIcon loadingIcon;
 
     private UserVerificationView() {
         this.setupComponents();
@@ -49,10 +53,20 @@ public class UserVerificationView extends ControlledJPanelView<UserVerificationV
         this.phoneTextField = PromptedTextField.textField("Phone");
         this.add(this.phoneTextField.getTextField(), "align center, wmax 200, growx, wrap");
 
-        this.verifyButton = new JButton("Send Verification Code");
+        this.verifyButton = new JButton();
         this.add(this.verifyButton, "align center, wmax 200, growx, wrap");
 
-        this.toSignUpLoginViewButton = new JButton("Back to login page");
+        this.toSignUpLoginViewButton = new JButton("Back to Login Page");
+        this.toSignUpLoginViewButton.setVisible(false);
+        this.add(this.toSignUpLoginViewButton, "dock north");
+
+        this.loadingIcon = new LoadingIcon();
+        this.loadingIcon.setVisible(false);
+        this.add(this.loadingIcon, "align center, wrap");
+
+        this.verificationError = new JLabel();
+        this.verificationError.setVisible(false);
+        this.add(verificationError, "align center, wrap");
     }
 
     @Override
@@ -62,16 +76,24 @@ public class UserVerificationView extends ControlledJPanelView<UserVerificationV
 
     @Override
     public void onWrappedViewClose(MainView mv) {
+        this.setNotSendingCode();
+        this.getController().registerViewClosed();
+        this.verifyButton.setEnabled(true);
+        this.emailTextField.getTextField().setText("");
+        this.usernameTextField.getTextField().setText("");
+        this.phoneTextField.getTextField().setText("");
+        this.verificationError.setVisible(false);
     }
 
     @Override
     public void onWrappedViewInit(Class<? extends View> sender, MainView mv) {
         if (sender == SignUpLoginView.class
                 || sender == SignUpSplashView.class) {
-            this.add(this.toSignUpLoginViewButton, "dock north");
+            this.toSignUpLoginViewButton.setVisible(true);
         } else {
-            this.remove(this.toSignUpLoginViewButton);
+            this.toSignUpLoginViewButton.setVisible(false);
         }
+        this.setNotSendingCode();
     }
 
     public PromptedTextField getUsernameTextField() {
@@ -92,6 +114,35 @@ public class UserVerificationView extends ControlledJPanelView<UserVerificationV
 
     public JButton getToSignUpLoginViewButton() {
         return this.toSignUpLoginViewButton;
+    }
+
+    public void setSendingCode() {
+        this.loadingIcon.setVisible(true);
+        this.verifyButton.setText("Sending Verification Code");
+        this.emailTextField.getTextField().setEnabled(false);
+        this.usernameTextField.getTextField().setEnabled(false);
+        this.phoneTextField.getTextField().setEnabled(false);
+        this.verifyButton.setEnabled(false);
+        this.verificationError.setVisible(false);
+    }
+
+    public void setNotSendingCode() {
+        this.loadingIcon.setVisible(false);
+        this.emailTextField.getTextField().setEnabled(true);
+        this.usernameTextField.getTextField().setEnabled(true);
+        this.phoneTextField.getTextField().setEnabled(true);
+        this.verifyButton.setEnabled(true);
+        this.verifyButton.setText("Send Verification Code");
+    }
+
+    public void setCodeSendingError(VerificationResult result) {
+        this.setNotSendingCode();
+        this.verificationError.setText(
+                "<html><font color='red'>"
+                + result.getMessage()
+                + "</font></html>"
+        );
+        this.verificationError.setVisible(true);
     }
 
 }

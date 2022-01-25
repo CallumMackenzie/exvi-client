@@ -5,6 +5,7 @@
  */
 package com.camackenzie.exvi.client.gui.desktop;
 
+import com.camackenzie.exvi.client.model.UserAccountBuilder;
 import java.awt.Component;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -27,7 +28,10 @@ public class MainView extends JFrame implements View {
         this.model = model;
         this.addWindowListener(new MainViewWindowListener());
         this.setLayout(new MigLayout(new LC().fill()));
-        this.setView(MainView.class, SignUpLoginView.getInstance());
+//        this.setView(MainView.class, SignUpLoginView.getInstance());
+        this.model.getUserManager().setUserAccountBuilder(new UserAccountBuilder("callum"));
+        this.setView(MainView.class, AccountCreationView.getInstance());
+
         this.pack();
     }
 
@@ -48,10 +52,14 @@ public class MainView extends JFrame implements View {
         view.onViewInit(senderClass, this);
         this.currentView = view;
 
-        this.revalidate();
-        this.repaint();
+        this.refresh();
 
         System.out.println("Completed switch.");
+    }
+
+    public void refresh() {
+        this.revalidate();
+        this.repaint();
     }
 
     public BackendModel getModel() {

@@ -5,9 +5,9 @@
  */
 package com.camackenzie.exvi.client.gui.desktop;
 
-import java.awt.EventQueue;
 import javax.swing.UIManager;
 import com.formdev.flatlaf.FlatDarculaLaf;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -22,7 +22,7 @@ public class AppRunner {
             System.err.println("Failed to initialize LaF: " + ex);
         }
 
-        EventQueue.invokeLater(new AppEntry());
+        SwingUtilities.invokeLater(new AppEntry());
     }
 
 }
