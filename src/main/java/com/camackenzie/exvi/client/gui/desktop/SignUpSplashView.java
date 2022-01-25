@@ -32,7 +32,9 @@ public class SignUpSplashView extends ControlledJPanelView<SignUpSplashViewContr
     private void setupComponents() {
         this.setLayout(new MigLayout("fill"));
 
-        this.newUserHeader = new JLabel("<html><h1>Create an Account</h1></html>");
+        this.newUserHeader = new JLabel("<html><h1 style=\"text-align:center;\">"
+                + "Create an Account"
+                + "</h1></html>");
         this.add(this.newUserHeader, "align center, wrap");
 
         this.signUpText = new JLabel("<html><h3>Join Exvi Fitness to take your strength to the next level!</h3></html>");

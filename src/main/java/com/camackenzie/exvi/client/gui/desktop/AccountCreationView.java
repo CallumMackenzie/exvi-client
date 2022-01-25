@@ -5,32 +5,41 @@
  */
 package com.camackenzie.exvi.client.gui.desktop;
 
+import com.camackenzie.exvi.client.gui.desktop.MainView;
+import com.camackenzie.exvi.client.gui.desktop.uielements.LoadingIcon;
 import com.camackenzie.exvi.client.gui.desktop.uielements.PromptedTextField;
+import com.camackenzie.exvi.core.api.VerificationResult;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPasswordField;
 import net.miginfocom.swing.MigLayout;
 
 /**
  *
  * @author callum
  */
-public class AccountCreationView
-        extends ControlledJPanelView<AccountCreationViewController> {
-
-    private static final AccountCreationView instance = new AccountCreationView();
+public class AccountCreationView extends ControlledJPanelView<AccountCreationViewController> {
 
     public static AccountCreationView getInstance() {
-        return AccountCreationView.instance;
+        return AccountCreationView.INSTANCE;
     }
 
-    private JLabel createAccountHeader,
-            inputCodeLabel,
-            accountCreateError;
-    private JPasswordField codeTextArea;
-    private PromptedTextField passwordInputField,
-            passwordValidationField;
-    private JButton createAccountButton;
+    private static final AccountCreationView INSTANCE = new AccountCreationView();
+
+    public JLabel signUpHeader,
+            verificationError,
+            verificationCodeInputLabel,
+            accountCreationError,
+            verificationCodeEntryError;
+    public PromptedTextField usernameTextField,
+            emailTextField,
+            phoneTextField,
+            verificationCodeTextField,
+            passwordTextField,
+            passwordVerifyTextField;
+    public JButton verifyButton,
+            toSignUpLoginViewButton,
+            createAccountButton;
+    public LoadingIcon loadingIcon;
 
     private AccountCreationView() {
         this.setupComponents();
@@ -39,28 +48,58 @@ public class AccountCreationView
     private void setupComponents() {
         this.setLayout(new MigLayout("fill"));
 
-        this.createAccountHeader = new JLabel();
-        this.add(this.createAccountHeader, "align center, wrap");
+        this.signUpHeader = new JLabel("<html><h1 style=\"text-align:center;\">"
+                + "Create an Exvi Fitness Account"
+                + "</h1></html>");
+        this.add(this.signUpHeader, "align center, spanx 2, wrap");
 
-        this.inputCodeLabel = new JLabel("Verification Code");
-        this.add(this.inputCodeLabel, "align center, wrap");
+        this.usernameTextField = PromptedTextField.textField("Username");
+        this.add(this.usernameTextField.getTextField(), "align center, growx, wmax 200");
 
-        this.codeTextArea = new JPasswordField(6);
-        this.add(this.codeTextArea, "align center, wrap");
+        this.verificationCodeInputLabel = new JLabel("Verification Code");
+        this.add(this.verificationCodeInputLabel, "align center, wrap");
 
-        this.passwordInputField = new PromptedTextField(new JPasswordField(),
-                "Password");
-        this.add(this.passwordInputField.getTextField(), "align center, growx, wrap");
+        this.emailTextField = PromptedTextField.textField("Email");
+        this.add(this.emailTextField.getTextField(), "align center, wmax 200, growx");
 
-        this.passwordValidationField = new PromptedTextField(new JPasswordField(),
-                "Verify Password");
-        this.add(this.passwordValidationField.getTextField(), "align center, growx, wrap");
+        this.verificationCodeTextField = PromptedTextField.passwordField("Code");
+        this.add(this.verificationCodeTextField.getTextField(), "align center, wmax 100, growx, wrap");
+
+        this.phoneTextField = PromptedTextField.textField("Phone number");
+        this.add(this.phoneTextField.getTextField(), "align center, wmax 200, growx");
+
+        this.passwordTextField = PromptedTextField.passwordField("Password");
+        this.add(this.passwordTextField.getTextField(), "align center, wmax 200, growx, wrap");
+
+        this.verifyButton = new JButton();
+        this.add(this.verifyButton, "align center, wmax 200, growx");
+
+        this.passwordVerifyTextField = PromptedTextField.passwordField("Verify password");
+        this.add(this.passwordVerifyTextField.getTextField(),
+                "align center, wmax 200, growx, wrap");
+
+        this.loadingIcon = new LoadingIcon();
+        this.loadingIcon.setVisible(false);
+        this.add(this.loadingIcon, "align center, spanx 2, wrap");
 
         this.createAccountButton = new JButton("Create Account");
-        this.add(this.createAccountButton, "align center, growx, wrap");
+        this.add(this.createAccountButton, "align center, growx, spanx 2, wrap");
 
-        this.accountCreateError = new JLabel();
-        this.add(this.accountCreateError, "align center, growx, wrap");
+        this.verificationError = new JLabel();
+        this.verificationError.setVisible(false);
+        this.add(this.verificationError, "align center, spanx 2, wrap");
+
+        this.accountCreationError = new JLabel();
+        this.accountCreationError.setVisible(false);
+        this.add(this.accountCreationError, "align center, spanx 2, wrap");
+        
+        this.verificationCodeEntryError = new JLabel();
+        this.verificationCodeEntryError.setVisible(false);
+        this.add(this.verificationCodeEntryError, "align center, spanx 2, wrap");
+
+        this.toSignUpLoginViewButton = new JButton("Back to Login Page");
+        this.toSignUpLoginViewButton.setVisible(false);
+        this.add(this.toSignUpLoginViewButton, "dock north");
     }
 
     @Override
@@ -70,30 +109,61 @@ public class AccountCreationView
 
     @Override
     public void onWrappedViewClose(MainView mv) {
+        this.setNotSendingCode();
+        this.getController().registerViewClosed();
+        this.verifyButton.setEnabled(true);
+        this.emailTextField.getTextField().setText("");
+        this.usernameTextField.getTextField().setText("");
+        this.phoneTextField.getTextField().setText("");
+        this.verificationError.setVisible(false);
     }
 
     @Override
     public void onWrappedViewInit(Class<? extends View> sender, MainView mv) {
-        this.createAccountHeader.setText("<html><h1>Hello "
-                + mv.getModel().getUserManager().getUserAccountBuilder().getFormattedUsername()
-                + "!</h1><br/><h3>Enter Your Account Data Below</h3></html>");
-        this.accountCreateError.setVisible(false);
+        if (sender == SignUpLoginView.class
+                || sender == SignUpSplashView.class) {
+            this.toSignUpLoginViewButton.setVisible(true);
+        } else {
+            this.toSignUpLoginViewButton.setVisible(false);
+        }
+        this.setNotSendingCode();
     }
 
-    public JPasswordField getCodeTextArea() {
-        return this.codeTextArea;
+    public void setSendingAccountCreationRequest() {
+
     }
 
-    public PromptedTextField getPasswordInputField() {
-        return this.passwordInputField;
+    public void setNotSendingAccountCreationRequest() {
+
     }
 
-    public PromptedTextField getPasswordValidationField() {
-        return this.passwordValidationField;
+    public void setSendingCode() {
+        this.loadingIcon.setVisible(true);
+        this.verifyButton.setText("Sending Verification Code");
+        this.emailTextField.getTextField().setEnabled(false);
+        this.usernameTextField.getTextField().setEnabled(false);
+        this.phoneTextField.getTextField().setEnabled(false);
+        this.verifyButton.setEnabled(false);
+        this.verificationError.setVisible(false);
     }
 
-    public JButton getCreateAccountButton() {
-        return this.createAccountButton;
+    public void setNotSendingCode() {
+        this.loadingIcon.setVisible(false);
+        this.emailTextField.getTextField().setEnabled(true);
+        this.usernameTextField.getTextField().setEnabled(true);
+        this.phoneTextField.getTextField().setEnabled(true);
+        this.verifyButton.setEnabled(true);
+        this.verifyButton.setText("Send Verification Code");
+    }
+
+    public void setCodeSendingError(VerificationResult result) {
+        this.setNotSendingCode();
+        this.verificationError.setText(
+                "<html><font color='red'>"
+                + result.getMessage()
+                + "</font></html>"
+        );
+        this.verificationError.setVisible(true);
     }
 
 }

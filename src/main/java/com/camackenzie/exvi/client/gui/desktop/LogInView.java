@@ -39,7 +39,9 @@ public class LogInView extends ControlledJPanelView<LogInViewController> {
     private void setupComponents() {
         this.setLayout(new MigLayout("fill"));
 
-        this.pageTitle = new JLabel("<html><h1>Login to Your Account</h1></html>");
+        this.pageTitle = new JLabel("<html><h1 style=\"text-align:center;\">"
+                + "Login to Your Account"
+                + "</h1></html>");
         this.add(this.pageTitle, "align center, wrap");
 
         this.usernameInputField = PromptedTextField.textField("Username");
