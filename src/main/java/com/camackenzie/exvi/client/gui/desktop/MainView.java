@@ -51,7 +51,7 @@ public class MainView extends JFrame implements View {
         this.revalidate();
         this.repaint();
 
-        System.out.println("Completed");
+        System.out.println("Completed switch.");
     }
 
     public BackendModel getModel() {
