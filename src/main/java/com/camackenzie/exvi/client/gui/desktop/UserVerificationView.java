@@ -27,7 +27,8 @@ public class UserVerificationView extends ControlledJPanelView<UserVerificationV
     private PromptedTextField usernameTextField,
             emailTextField,
             phoneTextField;
-    private JButton verifyButton;
+    private JButton verifyButton,
+            toSignUpLoginViewButton;
 
     private UserVerificationView() {
         this.setupComponents();
@@ -50,6 +51,8 @@ public class UserVerificationView extends ControlledJPanelView<UserVerificationV
 
         this.verifyButton = new JButton("Send Verification Code");
         this.add(this.verifyButton, "align center, wmax 200, growx, wrap");
+
+        this.toSignUpLoginViewButton = new JButton("Back to login page");
     }
 
     @Override
@@ -63,6 +66,32 @@ public class UserVerificationView extends ControlledJPanelView<UserVerificationV
 
     @Override
     public void onWrappedViewInit(Class<? extends View> sender, MainView mv) {
+        if (sender == SignUpLoginView.class
+                || sender == SignUpSplashView.class) {
+            this.add(this.toSignUpLoginViewButton, "dock north");
+        } else {
+            this.remove(this.toSignUpLoginViewButton);
+        }
+    }
+
+    public PromptedTextField getUsernameTextField() {
+        return this.usernameTextField;
+    }
+
+    public PromptedTextField getEmailTextField() {
+        return this.emailTextField;
+    }
+
+    public PromptedTextField getPhoneTextField() {
+        return this.phoneTextField;
+    }
+
+    public JButton getVerifyButton() {
+        return this.verifyButton;
+    }
+
+    public JButton getToSignUpLoginViewButton() {
+        return this.toSignUpLoginViewButton;
     }
 
 }

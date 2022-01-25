@@ -49,6 +49,7 @@ public class MainView extends JFrame implements View {
         this.currentView = view;
 
         this.revalidate();
+        this.repaint();
 
         System.out.println("Completed");
     }
