@@ -19,6 +19,8 @@ import java.nio.file.Path;
  */
 public class UserManager {
 
+    private static final String USER_DATA_DIR = "./";
+
     private UserAccount activeUser;
     private UserAccount[] loggedInUsers;
 
@@ -35,8 +37,11 @@ public class UserManager {
 
     public final void checkForLoggedInUsers() {
         try {
-            this.loggedInUsers = Files.walk(Path.of("./"))
-                    .filter(p -> p.endsWith(".user"))
+            this.loggedInUsers = Files.walk(Path.of(USER_DATA_DIR))
+                    .filter(p -> {
+                        String path = p.toString();
+                        return path.substring(path.lastIndexOf(".")).equalsIgnoreCase(".user");
+                    })
                     .map(path -> {
                         try {
                             return UserAccount.fromCrendentialsString(Files.readString(path));
@@ -47,9 +52,11 @@ public class UserManager {
                     })
                     .filter(u -> u != null)
                     .filter(user -> {
-                        for (var lu : this.loggedInUsers) {
-                            if (user.getUsername().equals(lu.getUsername())) {
-                                return false;
+                        if (this.loggedInUsers != null) {
+                            for (var lu : this.loggedInUsers) {
+                                if (user.getUsername().equals(lu.getUsername())) {
+                                    return false;
+                                }
                             }
                         }
                         return true;
