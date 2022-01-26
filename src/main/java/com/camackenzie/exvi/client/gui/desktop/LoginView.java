@@ -6,6 +6,7 @@
 package com.camackenzie.exvi.client.gui.desktop;
 
 import com.camackenzie.exvi.client.gui.desktop.MainView;
+import com.camackenzie.exvi.client.gui.desktop.uielements.LoadingIcon;
 import com.camackenzie.exvi.client.gui.desktop.uielements.PasswordInput;
 import com.camackenzie.exvi.client.gui.desktop.uielements.UsernameInput;
 import javax.swing.JButton;
@@ -22,6 +23,7 @@ public class LoginView extends ControlledView<LoginViewController> {
     public UsernameInput usernameInput;
     public PasswordInput passwordInput;
     public JButton logInButton;
+    public LoadingIcon loadingIcon;
 
     public LoginView() {
         this.setupComponents();
@@ -43,6 +45,10 @@ public class LoginView extends ControlledView<LoginViewController> {
 
         this.logInButton = new JButton("Sign In");
         this.add(this.logInButton, "align center, growx, wrap");
+
+        this.loadingIcon = new LoadingIcon();
+        this.loadingIcon.setVisible(false);
+        this.add(this.loadingIcon, "align center, growx, wrap");
 
         this.loginError = new JLabel();
         this.loginError.setVisible(false);

@@ -23,10 +23,8 @@ import net.miginfocom.swing.MigLayout;
 public class SignUpView extends ControlledView<SignUpViewController> {
 
     public JLabel signUpHeader,
-            verificationError,
             verificationCodeInputLabel,
-            accountCreationError,
-            verificationCodeEntryError;
+            signupError;
     public PhoneInput phoneInput;
     public UsernameInput usernameInput;
     public PasswordInput passwordInput;
@@ -77,17 +75,9 @@ public class SignUpView extends ControlledView<SignUpViewController> {
         this.createAccountButton = new JButton("Create Account");
         this.add(this.createAccountButton, "align center, growx, spanx 2, wrap");
 
-        this.verificationError = new JLabel();
-        this.verificationError.setVisible(false);
-        this.add(this.verificationError, "align center, spanx 2, wrap");
-
-        this.accountCreationError = new JLabel();
-        this.accountCreationError.setVisible(false);
-        this.add(this.accountCreationError, "align center, spanx 2, wrap");
-
-        this.verificationCodeEntryError = new JLabel();
-        this.verificationCodeEntryError.setVisible(false);
-        this.add(this.verificationCodeEntryError, "align center, spanx 2, wrap");
+        this.signupError = new JLabel();
+        this.signupError.setVisible(false);
+        this.add(this.signupError, "align center, spanx 2, wrap");
 
         this.toSignUpLoginViewButton = new JButton("Back to Login Page");
         this.toSignUpLoginViewButton.setVisible(false);
@@ -124,7 +114,7 @@ public class SignUpView extends ControlledView<SignUpViewController> {
         this.phoneInput.setEnabled(false);
         this.verifyButton.setEnabled(false);
         this.createAccountButton.setEnabled(false);
-        this.verificationError.setVisible(false);
+        this.signupError.setVisible(false);
     }
 
     public void setNotSendingCode() {

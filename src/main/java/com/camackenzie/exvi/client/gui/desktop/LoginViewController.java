@@ -65,6 +65,8 @@ public class LoginViewController extends ViewController<LoginView, BackendModel>
             String username = view.usernameInput.getUsername(),
                     password = view.passwordInput.getPassword();
 
+            setSendingLoginReq();
+
             runningFuture = new RunnableFuture(new Runnable() {
                 @Override
                 public void run() {
@@ -73,8 +75,12 @@ public class LoginViewController extends ViewController<LoginView, BackendModel>
                                 .requestUserSalt(username).get();
                         if (saltResponse.getStatusCode() != 200
                                 || saltResponse.getBody().getError() != 0) {
-                            view.loginError.setText(saltResponse.getBody().getMessage());
-                            view.loginError.setVisible(true);
+                            SwingUtilities.invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    setLoginFaliure(saltResponse.getBody().getMessage());
+                                }
+                            });
                         } else {
                             String decryptedSalt = new String(CryptographyUtils
                                     .bytesFromBase64String(saltResponse.getBody().getSalt()),
@@ -82,12 +88,17 @@ public class LoginViewController extends ViewController<LoginView, BackendModel>
                             String finalPassword = PasswordUtils.hashAndSaltAndEncryptPassword(
                                     password,
                                     decryptedSalt);
+                            
                             APIResult<AccountAccessKeyResult> accessKey = UserAccount
                                     .requestLogin(username, finalPassword).get();
                             if (accessKey.getStatusCode() != 200
                                     || accessKey.getBody().getError() != 0) {
-                                view.loginError.setText(accessKey.getBody().getMessage());
-                                view.loginError.setVisible(true);
+                                SwingUtilities.invokeLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setLoginFaliure(accessKey.getBody().getMessage());
+                                    }
+                                });
                             } else {
                                 getModel().getUserManager().setActiveUser(
                                         UserAccount.fromAccessKey(username,
@@ -102,10 +113,14 @@ public class LoginViewController extends ViewController<LoginView, BackendModel>
                                 });
                             }
                         }
-                    } catch (InterruptedException ex) {
-                        return;
                     } catch (Exception ex) {
                         System.err.println(ex);
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                setLoginFaliure("Failed to login");
+                            }
+                        });
                         return;
                     }
                 }
@@ -114,6 +129,23 @@ public class LoginViewController extends ViewController<LoginView, BackendModel>
 
         }
 
+    }
+
+    private void setSendingLoginReq() {
+        getView().loadingIcon.setVisible(true);
+        getView().logInButton.setEnabled(false);
+        getView().passwordInput.setEnabled(false);
+        getView().usernameInput.setEnabled(false);
+        getView().loginError.setVisible(false);
+    }
+
+    private void setLoginFaliure(String msg) {
+        getView().loadingIcon.setVisible(false);
+        getView().logInButton.setEnabled(true);
+        getView().passwordInput.setEnabled(true);
+        getView().usernameInput.setEnabled(true);
+        getView().loginError.setText("<html><font color='red'>" + msg + "</font></html>");
+        getView().loginError.setVisible(true);
     }
 
 }

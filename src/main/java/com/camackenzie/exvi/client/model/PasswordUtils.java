@@ -15,12 +15,13 @@ import java.nio.charset.StandardCharsets;
 public class PasswordUtils {
 
     public static String hashPassword(String password) {
-        return CryptographyUtils.hashSHA256("fitness"
-                + CryptographyUtils.hashSHA256(";,,nJ4+#(^T[ZX8t" + password + "exvi"));
+        return CryptographyUtils.hashSHA256("123ib13b2i3"
+                + CryptographyUtils.hashSHA256(";,,nJ4+#(^T[ZX8t" + password + "3b2b3b32"));
     }
 
     public static String hashAndEncryptPassword(String password) {
-        return CryptographyUtils.bytesToBase64String(password.getBytes(StandardCharsets.UTF_8));
+        return CryptographyUtils.bytesToBase64String(
+                PasswordUtils.hashPassword(password).getBytes(StandardCharsets.UTF_8));
     }
 
     public static String hashAndSaltPassword(String password, String salt) {

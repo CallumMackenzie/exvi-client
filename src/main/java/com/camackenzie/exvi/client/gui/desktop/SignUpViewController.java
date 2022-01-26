@@ -58,19 +58,16 @@ public class SignUpViewController extends ViewController<SignUpView, BackendMode
                     email = view.emailInput.getText(),
                     phone = view.phoneInput.getText();
 
-            view.verificationError.setVisible(false);
+            view.signupError.setVisible(false);
 
             if (!view.usernameInput.isUsernameValid()) {
-                view.verificationError.setText(view.usernameInput.getUsernameError());
-                view.verificationError.setVisible(true);
+                registerError(view.usernameInput.getUsernameError());
                 return;
             } else if (!view.emailInput.isEmailValid()) {
-                view.verificationError.setText(view.emailInput.getEmailError());
-                view.verificationError.setVisible(true);
+                registerError(view.emailInput.getEmailError());
                 return;
             } else if (!view.phoneInput.isPhoneValid()) {
-                view.verificationError.setText(view.phoneInput.getPhoneError());
-                view.verificationError.setVisible(true);
+                registerError(view.phoneInput.getPhoneError());
                 return;
             }
 
@@ -86,14 +83,12 @@ public class SignUpViewController extends ViewController<SignUpView, BackendMode
                             @Override
                             public void run() {
                                 view.setNotSendingCode();
-                                view.verificationError.setText(
-                                        "<html><font color='"
-                                        + (result.getError() == 0 ? "green" : "red")
-                                        + "'>"
-                                        + result.getMessage()
-                                        + "</font></html>"
-                                );
-                                view.verificationError.setVisible(true);
+                                if (result.errorOccured()) {
+                                    registerError(result.getMessage());
+                                } else {
+                                    view.verifyButton.setText("Resend Verification Code");
+                                    view.signupError.setVisible(false);
+                                }
                             }
                         });
                     } catch (InterruptedException e) {
@@ -131,19 +126,16 @@ public class SignUpViewController extends ViewController<SignUpView, BackendMode
                     verificationCode = view.codeInput.getCode(),
                     password = view.passwordInput.getPassword();
 
-            view.accountCreationError.setVisible(false);
+            view.signupError.setVisible(false);
 
             if (!view.usernameInput.isUsernameValid()) {
-                view.accountCreationError.setText(view.usernameInput.getUsernameError());
-                view.accountCreationError.setVisible(true);
+                registerError(view.usernameInput.getUsernameError());
                 return;
             } else if (!view.passwordInput.isPasswordValid()) {
-                view.accountCreationError.setText(view.passwordInput.getPasswordError());
-                view.accountCreationError.setVisible(true);
+                registerError(view.passwordInput.getPasswordError());
                 return;
             } else if (!view.codeInput.isCodeValid()) {
-                view.accountCreationError.setText(view.codeInput.getCodeError());
-                view.accountCreationError.setVisible(true);
+                registerError(view.codeInput.getCodeError());
                 return;
             }
 
@@ -164,10 +156,7 @@ public class SignUpViewController extends ViewController<SignUpView, BackendMode
                                         || request.getStatusCode() != 200) {
                                     System.err.println(request.getBody().getMessage());
                                     view.setNotSendingCreationReq();
-                                    view.accountCreationError.setText("<html><font color='red'>"
-                                            + request.getBody().getMessage()
-                                            + "</font></html>");
-                                    view.accountCreationError.setVisible(true);
+                                    registerError(request.getBody().getMessage());
                                 } else {
                                     model.getUserManager().setActiveUser(
                                             UserAccount.fromAccessKey(username,
@@ -192,6 +181,11 @@ public class SignUpViewController extends ViewController<SignUpView, BackendMode
             requestFuture.start();
         }
 
+    }
+
+    private void registerError(String msg) {
+        getView().signupError.setText("<html><font color='red'>" + msg + "</font></html>");
+        getView().signupError.setVisible(true);
     }
 
 }
