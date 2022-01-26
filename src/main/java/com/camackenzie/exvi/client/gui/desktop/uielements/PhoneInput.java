@@ -17,7 +17,7 @@ import javax.swing.event.CaretListener;
  */
 public class PhoneInput extends PromptedTextField {
 
-    private String phoneError;
+    private String phoneError = "Please enter a phone number";
 
     public PhoneInput() {
         super(new JTextField(), "Phone number");

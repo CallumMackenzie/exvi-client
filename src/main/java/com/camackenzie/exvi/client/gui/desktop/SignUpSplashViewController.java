@@ -31,7 +31,7 @@ public class SignUpSplashViewController extends ViewController<SignUpSplashView,
                     .getView()
                     .getMainView()
                     .setView(SignUpSplashViewController.this.getView().getClass(),
-                            AccountCreationView.getInstance());
+                            new SignUpView());
         }
 
     }

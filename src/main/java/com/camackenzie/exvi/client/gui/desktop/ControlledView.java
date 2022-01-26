@@ -12,7 +12,7 @@ import javax.swing.JPanel;
  *
  * @author callum
  */
-public abstract class ControlledJPanelView<T extends ViewController> extends JPanel implements View {
+public abstract class ControlledView<T extends ViewController> extends JPanel implements View {
 
     private MainView mainView;
     private T controller;

@@ -17,25 +17,19 @@ import net.miginfocom.swing.MigLayout;
  */
 public class SignUpLoginView extends JPanel implements View {
 
-    private static final SignUpLoginView instance = new SignUpLoginView();
-
-    public static SignUpLoginView getInstance() {
-        return SignUpLoginView.instance;
-    }
-
     private View loginView, signUpSplashView;
 
-    private SignUpLoginView() {
+    public SignUpLoginView() {
         this.setupComponents();
     }
 
     private void setupComponents() {
         this.setLayout(new MigLayout("fill", "20[]20[]20"));
 
-        this.loginView = LogInView.getInstance();
+        this.loginView = new LoginView();
         this.add(this.loginView.getViewRoot(), "growx");
 
-        this.signUpSplashView = SignUpSplashView.getInsance();
+        this.signUpSplashView = new SignUpSplashView();
         this.add(this.signUpSplashView.getViewRoot(), "growx");
 
     }

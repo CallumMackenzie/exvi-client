@@ -8,6 +8,8 @@ package com.camackenzie.exvi.client.gui.desktop.uielements;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.JTextField;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 
 /**
  *
@@ -15,17 +17,18 @@ import javax.swing.JTextField;
  */
 public class UsernameInput extends PromptedTextField {
 
-    private String usernameError;
+    private String usernameError = "Please enter a username";
 
     public UsernameInput() {
         super(new JTextField(), "Username");
         this.getTextField().addKeyListener(new UsernameKeyListener());
+        this.getTextField().addCaretListener(new UsernameCaretListener());
     }
 
     public boolean isUsernameValid() {
         return this.usernameError.equals("");
     }
-    
+
     public String getUsername() {
         return this.getText();
     }
@@ -33,7 +36,7 @@ public class UsernameInput extends PromptedTextField {
     public String getUsernameError() {
         return this.usernameError;
     }
-    
+
     public void clear() {
         this.getTextField().setText("");
     }
@@ -54,6 +57,15 @@ public class UsernameInput extends PromptedTextField {
                 e.consume();
             }
 
+        }
+
+    }
+
+    private class UsernameCaretListener implements CaretListener {
+
+        @Override
+        public void caretUpdate(CaretEvent arg0) {
+            usernameError = "";
         }
 
     }

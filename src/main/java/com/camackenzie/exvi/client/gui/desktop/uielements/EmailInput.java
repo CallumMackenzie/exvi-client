@@ -17,7 +17,7 @@ import javax.swing.event.CaretListener;
  */
 public class EmailInput extends PromptedTextField {
 
-    private String emailError;
+    private String emailError = "Please enter an email address";
 
     public EmailInput() {
         super(new JTextField(), "Email");
@@ -30,6 +30,9 @@ public class EmailInput extends PromptedTextField {
     }
 
     public boolean isEmailValid() {
+        if (this.emailError == null) {
+            return false;
+        }
         return this.emailError.equals("");
     }
 

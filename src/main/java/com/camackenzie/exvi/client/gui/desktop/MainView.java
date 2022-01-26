@@ -29,8 +29,15 @@ public class MainView extends JFrame implements View {
         this.addWindowListener(new MainViewWindowListener());
         this.setLayout(new MigLayout(new LC().fill()));
         this.setMinimumSize(new Dimension(400, 400));
-        
-        this.setView(MainView.class, SignUpLoginView.getInstance());
+
+        if (model.getUserManager().hasActiveUser()) {
+            this.setView(MainView.class, new HomepageView());
+        } else if (model.getUserManager().hasLoggedInUsers()) {
+            this.setView(MainView.class, new UserSelectorView());
+        } else {
+            this.setView(MainView.class, new SignUpLoginView());
+        }
+
         this.pack();
     }
 

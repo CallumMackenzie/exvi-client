@@ -7,34 +7,23 @@ package com.camackenzie.exvi.client.gui.desktop;
 
 import com.camackenzie.exvi.client.gui.desktop.MainView;
 import com.camackenzie.exvi.client.gui.desktop.uielements.PasswordInput;
-import com.camackenzie.exvi.client.gui.desktop.uielements.PromptedTextField;
 import com.camackenzie.exvi.client.gui.desktop.uielements.UsernameInput;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
 import net.miginfocom.swing.MigLayout;
 
 /**
  *
  * @author callum
  */
-public class LogInView extends ControlledJPanelView<LogInViewController> {
+public class LoginView extends ControlledView<LoginViewController> {
 
-    private static final LogInView instance = new LogInView();
+    public JLabel pageTitle, loginError;
+    public UsernameInput usernameInput;
+    public PasswordInput passwordInput;
+    public JButton logInButton;
 
-    public static LogInView getInstance() {
-        return LogInView.instance;
-    }
-
-    private LogInViewController viewController;
-
-    private JLabel pageTitle;
-    private UsernameInput usernameInput;
-    private PasswordInput passwordInput;
-    private JButton logInButton;
-
-    private LogInView() {
+    public LoginView() {
         this.setupComponents();
     }
 
@@ -54,15 +43,20 @@ public class LogInView extends ControlledJPanelView<LogInViewController> {
 
         this.logInButton = new JButton("Sign In");
         this.add(this.logInButton, "align center, growx, wrap");
+
+        this.loginError = new JLabel();
+        this.loginError.setVisible(false);
+        this.add(this.loginError, "align center, wrap");
     }
 
     @Override
-    public LogInViewController createController(MainView mv) {
-        return new LogInViewController(this, mv.getModel());
+    public LoginViewController createController(MainView mv) {
+        return new LoginViewController(this, mv.getModel());
     }
 
     @Override
     public void onWrappedViewClose(MainView mv) {
+        this.getController().registerViewClose();
     }
 
     @Override

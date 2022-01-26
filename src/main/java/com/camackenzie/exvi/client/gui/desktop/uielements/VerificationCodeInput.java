@@ -5,8 +5,6 @@
  */
 package com.camackenzie.exvi.client.gui.desktop.uielements;
 
-import com.camackenzie.exvi.client.gui.desktop.AccountCreationView;
-import com.camackenzie.exvi.client.gui.desktop.AccountCreationViewController;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.JPasswordField;
@@ -19,7 +17,7 @@ import javax.swing.event.CaretListener;
  */
 public class VerificationCodeInput extends PromptedTextField {
 
-    private String codeError;
+    private String codeError = "Please enter a verification code";
 
     public VerificationCodeInput() {
         super(new JPasswordField(), "Code");

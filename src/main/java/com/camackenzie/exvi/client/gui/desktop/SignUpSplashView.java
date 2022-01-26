@@ -13,19 +13,13 @@ import net.miginfocom.swing.MigLayout;
  *
  * @author callum
  */
-public class SignUpSplashView extends ControlledJPanelView<SignUpSplashViewController> {
-
-    private static final SignUpSplashView instance = new SignUpSplashView();
-
-    public static SignUpSplashView getInsance() {
-        return SignUpSplashView.instance;
-    }
+public class SignUpSplashView extends ControlledView<SignUpSplashViewController> {
 
     private JLabel newUserHeader,
             signUpText;
     private JButton signUpButton;
 
-    private SignUpSplashView() {
+    public SignUpSplashView() {
         this.setupComponents();
     }
 

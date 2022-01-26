@@ -16,6 +16,7 @@ public class APIEndpoints {
             STAGE = ROOT + STAGE_NAME,
             VERIFICATION = STAGE + "/verification",
             SIGN_UP = STAGE + "/signup",
-            LOGIN = STAGE + "/login";
+            LOGIN = STAGE + "/login",
+            GET_SALT = STAGE + "/salt";
 
 }

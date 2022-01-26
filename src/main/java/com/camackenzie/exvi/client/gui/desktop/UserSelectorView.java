@@ -9,9 +9,9 @@ package com.camackenzie.exvi.client.gui.desktop;
  *
  * @author callum
  */
-public class HomepageView extends ControlledView<HomepageViewController> {
+public class UserSelectorView extends ControlledView<UserSelectorViewController> {
 
-    public HomepageView() {
+    public UserSelectorView() {
         this.setupComponents();
     }
 
@@ -19,8 +19,8 @@ public class HomepageView extends ControlledView<HomepageViewController> {
     }
 
     @Override
-    public HomepageViewController createController(MainView mv) {
-        return new HomepageViewController(this, mv.getModel());
+    public UserSelectorViewController createController(MainView mv) {
+        return new UserSelectorViewController(this, mv.getModel());
     }
 
     @Override

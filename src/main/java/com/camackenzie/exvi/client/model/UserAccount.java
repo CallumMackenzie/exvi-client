@@ -64,7 +64,7 @@ public class UserAccount {
 
     public void saveCredentials() {
         try {
-            Files.writeString(Path.of("./" + username + ".user"),
+            Files.writeString(Path.of("./" + this.username + ".user"),
                     this.getCrendentialsString());
         } catch (IOException e) {
             System.err.println(e);
@@ -88,21 +88,22 @@ public class UserAccount {
         );
     }
 
-    public static FutureWrapper<APIResult<AccountAccessKeyResult>> 
-        requestLogin(String username, String passwordHash) {
-        throw new UnsupportedOperationException();
+    public static FutureWrapper<APIResult<AccountAccessKeyResult>>
+            requestLogin(String username, String passwordHash) {
+        return APIRequest.sendJson(APIEndpoints.LOGIN,
+                new LoginRequest(username, passwordHash),
+                AccountAccessKeyResult.class);
     }
 
-    public static <T> FutureWrapper<APIResult<DataResult<T>>> requestData(String username, String accessKey, APIRequest<?> req) {
-        throw new UnsupportedOperationException();
+    public static FutureWrapper<APIResult<AccountSaltResult>>
+            requestUserSalt(String username) {
+        return APIRequest.sendJson(APIEndpoints.GET_SALT,
+                new RetrieveSaltRequest(username),
+                AccountSaltResult.class);
     }
 
     public static UserAccount fromAccessKey(String username, String accessKey) {
         return new UserAccount(username, accessKey);
-    }
-
-    public static UserAccount fromLocalData(String username, String passwordHash) {
-        throw new UnsupportedOperationException();
     }
 
     public static UserAccount fromCrendentialsString(String in) {

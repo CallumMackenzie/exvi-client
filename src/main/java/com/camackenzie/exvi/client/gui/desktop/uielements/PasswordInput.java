@@ -17,7 +17,7 @@ import javax.swing.event.CaretListener;
  */
 public class PasswordInput extends PromptedTextField {
 
-    private String errorMessage;
+    private String errorMessage = "Please enter a password";
 
     public PasswordInput() {
         super(new JPasswordField(), "Password");

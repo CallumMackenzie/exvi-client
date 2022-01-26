@@ -20,13 +20,7 @@ import net.miginfocom.swing.MigLayout;
  *
  * @author callum
  */
-public class AccountCreationView extends ControlledJPanelView<AccountCreationViewController> {
-
-    private static final AccountCreationView INSTANCE = new AccountCreationView();
-
-    public static AccountCreationView getInstance() {
-        return AccountCreationView.INSTANCE;
-    }
+public class SignUpView extends ControlledView<SignUpViewController> {
 
     public JLabel signUpHeader,
             verificationError,
@@ -43,7 +37,7 @@ public class AccountCreationView extends ControlledJPanelView<AccountCreationVie
             createAccountButton;
     public LoadingIcon loadingIcon;
 
-    private AccountCreationView() {
+    public SignUpView() {
         this.setupComponents();
     }
 
@@ -101,22 +95,13 @@ public class AccountCreationView extends ControlledJPanelView<AccountCreationVie
     }
 
     @Override
-    public AccountCreationViewController createController(MainView mv) {
-        return new AccountCreationViewController(this, mv.getModel());
+    public SignUpViewController createController(MainView mv) {
+        return new SignUpViewController(this, mv.getModel());
     }
 
     @Override
     public void onWrappedViewClose(MainView mv) {
         this.getController().registerViewClosed();
-        this.verifyButton.setEnabled(true);
-        this.emailInput.clear();
-        this.usernameInput.clear();
-        this.codeInput.clear();
-        this.passwordInput.clear();
-        this.phoneInput.clear();
-        this.verificationError.setVisible(false);
-        this.setNotSendingCode();
-        this.setNotSendingCreationReq();
     }
 
     @Override
@@ -158,6 +143,9 @@ public class AccountCreationView extends ControlledJPanelView<AccountCreationVie
         this.codeInput.setEnabled(false);
         this.passwordInput.setEnabled(false);
         this.createAccountButton.setEnabled(false);
+        this.usernameInput.setEnabled(false);
+        this.emailInput.setEnabled(false);
+        this.phoneInput.setEnabled(false);
 
         this.verifyButton.setEnabled(false);
     }
@@ -168,6 +156,9 @@ public class AccountCreationView extends ControlledJPanelView<AccountCreationVie
         this.createAccountButton.setEnabled(true);
         this.codeInput.setEnabled(true);
         this.passwordInput.setEnabled(true);
+        this.usernameInput.setEnabled(true);
+        this.emailInput.setEnabled(true);
+        this.phoneInput.setEnabled(true);
 
         this.verifyButton.setEnabled(true);
     }
