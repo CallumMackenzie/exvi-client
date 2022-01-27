@@ -23,10 +23,48 @@ import java.util.concurrent.Future;
  */
 public class UserAccount {
 
+    private static final Gson gson = new Gson();
+
+    public static FutureWrapper<APIResult<VerificationResult>>
+            requestVerification(String username, String email, String phone) {
+        return APIRequest.sendJson(APIEndpoints.VERIFICATION,
+                new VerificationRequest(username, email, phone),
+                VerificationResult.class);
+    }
+
+    public static FutureWrapper<APIResult<AccountAccessKeyResult>>
+            requestSignUp(String username, String verificationCode, String passwordHash) {
+        return APIRequest.sendJson(APIEndpoints.SIGN_UP,
+                new AccountCreationRequest(username,
+                        verificationCode,
+                        passwordHash),
+                AccountAccessKeyResult.class
+        );
+    }
+
+    public static FutureWrapper<APIResult<AccountAccessKeyResult>>
+            requestLogin(String username, String passwordHash) {
+        return APIRequest.sendJson(APIEndpoints.LOGIN,
+                new LoginRequest(username, passwordHash),
+                AccountAccessKeyResult.class);
+    }
+
+    public static FutureWrapper<APIResult<AccountSaltResult>>
+            requestUserSalt(String username) {
+        return APIRequest.sendJson(APIEndpoints.GET_SALT,
+                new RetrieveSaltRequest(username),
+                AccountSaltResult.class);
+    }
+
+    public static UserAccount fromAccessKey(String username, String accessKey) {
+        return new UserAccount(username, accessKey);
+    }
+
+    public static UserAccount fromCrendentialsString(String in) {
+        return gson.fromJson(CryptographyUtils.decodeString(in), UserAccount.class);
+    }
     private String username;
     private String accessKey;
-
-    private static final Gson gson = new Gson();
 
     private UserAccount(String username, String accessKey) {
         this.username = username;
@@ -94,11 +132,7 @@ public class UserAccount {
     }
 
     private String getCrendentialsString() {
-        String accountJson = gson.toJson(this);
-        EncryptionResult encryptedJson = CryptographyUtils.encryptAES(accountJson);
-        String encryptionResultJson = gson.toJson(encryptedJson);
-        byte[] erjb = encryptionResultJson.getBytes();
-        return CryptographyUtils.bytesToBase64String(erjb);
+        return CryptographyUtils.encodeString(gson.toJson(this));
     }
 
     public void saveCredentials(String path) {
@@ -108,49 +142,6 @@ public class UserAccount {
         } catch (IOException e) {
             System.err.println(e);
         }
-    }
-
-    public static FutureWrapper<APIResult<VerificationResult>>
-            requestVerification(String username, String email, String phone) {
-        return APIRequest.sendJson(APIEndpoints.VERIFICATION,
-                new VerificationRequest(username, email, phone),
-                VerificationResult.class);
-    }
-
-    public static FutureWrapper<APIResult<AccountAccessKeyResult>>
-            requestSignUp(String username, String verificationCode, String passwordHash) {
-        return APIRequest.sendJson(APIEndpoints.SIGN_UP,
-                new AccountCreationRequest(username,
-                        verificationCode,
-                        passwordHash),
-                AccountAccessKeyResult.class
-        );
-    }
-
-    public static FutureWrapper<APIResult<AccountAccessKeyResult>>
-            requestLogin(String username, String passwordHash) {
-        return APIRequest.sendJson(APIEndpoints.LOGIN,
-                new LoginRequest(username, passwordHash),
-                AccountAccessKeyResult.class);
-    }
-
-    public static FutureWrapper<APIResult<AccountSaltResult>>
-            requestUserSalt(String username) {
-        return APIRequest.sendJson(APIEndpoints.GET_SALT,
-                new RetrieveSaltRequest(username),
-                AccountSaltResult.class);
-    }
-
-    public static UserAccount fromAccessKey(String username, String accessKey) {
-        return new UserAccount(username, accessKey);
-    }
-
-    public static UserAccount fromCrendentialsString(String in) {
-        byte[] encResJsonBytes = CryptographyUtils.bytesFromBase64String(in);
-        String encResJson = new String(encResJsonBytes);
-        EncryptionResult er = gson.fromJson(encResJson, EncryptionResult.class);
-        String userAccountJson = CryptographyUtils.decryptAES(er);
-        return gson.fromJson(userAccountJson, UserAccount.class);
     }
 
 }
