@@ -16,11 +16,11 @@ public class SignUpSplashViewController extends ViewController<SignUpSplashView,
 
     public SignUpSplashViewController(SignUpSplashView view, BackendModel model) {
         super(view, model);
-        this.setupControllers();
     }
 
-    private void setupControllers() {
-        this.getView().getSignUpButton().addActionListener(new ToSignUpViewAction());
+    @Override
+    public void onViewInit(Class<? extends View> sender) {
+        getView().signUpButton.addActionListener(new ToSignUpViewAction());
     }
 
     private class ToSignUpViewAction implements ActionListener {

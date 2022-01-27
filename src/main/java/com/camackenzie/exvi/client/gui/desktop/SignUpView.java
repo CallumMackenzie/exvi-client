@@ -89,23 +89,6 @@ public class SignUpView extends ControlledView<SignUpViewController> {
         return new SignUpViewController(this, mv.getModel());
     }
 
-    @Override
-    public void onWrappedViewClose(MainView mv) {
-        this.getController().registerViewClosed();
-    }
-
-    @Override
-    public void onWrappedViewInit(Class<? extends View> sender, MainView mv) {
-        if (sender == SignUpLoginView.class
-                || sender == SignUpSplashView.class) {
-            this.toSignUpLoginViewButton.setVisible(true);
-        } else {
-            this.toSignUpLoginViewButton.setVisible(false);
-        }
-        this.setNotSendingCode();
-        this.setNotSendingCreationReq();
-    }
-
     public void setSendingCode() {
         this.loadingIcon.setVisible(true);
         this.verifyButton.setText("Sending Verification Code");

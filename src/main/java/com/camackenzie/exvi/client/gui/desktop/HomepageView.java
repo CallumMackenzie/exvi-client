@@ -20,6 +20,7 @@ public class HomepageView extends ControlledView<HomepageViewController> {
 
     JLabel greetingsLabel;
     NavbarView navbar;
+    WorkoutListView workoutsView;
 
     private void setupComponents() {
         this.setLayout(new MigLayout("fill"));
@@ -27,26 +28,15 @@ public class HomepageView extends ControlledView<HomepageViewController> {
         this.navbar = new NavbarView();
         this.add(this.navbar, "dock north");
 
-        this.greetingsLabel = new JLabel();
-        this.add(this.greetingsLabel);
+        this.greetingsLabel = new JLabel("Welcome!");
+        this.add(this.greetingsLabel, "wrap");
+
+        this.workoutsView = new WorkoutListView();
+        this.add(this.workoutsView, "grow, wrap");
     }
 
     @Override
     public HomepageViewController createController(MainView mv) {
         return new HomepageViewController(this, mv.getModel());
     }
-
-    @Override
-    public void onWrappedViewClose(MainView mv) {
-        this.navbar.onViewClose(mv);
-    }
-
-    @Override
-    public void onWrappedViewInit(Class<? extends View> sender, MainView mv) {
-        this.navbar.onViewInit(sender, mv);
-        this.greetingsLabel.setText("<html><h1>Welcome, "
-                + mv.getModel().getUserManager().getActiveUser().getUsernameFormatted()
-                + "!</h1></html>");
-    }
-
 }

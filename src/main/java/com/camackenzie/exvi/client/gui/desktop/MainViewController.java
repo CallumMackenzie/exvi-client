@@ -19,4 +19,12 @@ public class MainViewController extends ViewController<MainView, BackendModel> {
     private void setupControllers() {
     }
 
+    @Override
+    public void onViewInit(Class<? extends View> sender) {
+    }
+
+    @Override
+    public void onViewClose() {
+    }
+
 }

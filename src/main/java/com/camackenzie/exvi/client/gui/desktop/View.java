@@ -20,4 +20,13 @@ public interface View {
 
     public void onViewInit(Class<? extends View> sender, MainView mv);
 
+    public default void onViewClose(ViewController<? extends ControlledView, ?> vc) {
+        this.onViewClose(vc.getView().getMainView());
+    }
+
+    public default void onViewInit(Class<? extends View> sender,
+            ViewController<? extends ControlledView, ?> vc) {
+        this.onViewInit(sender, vc.getView().getMainView());
+    }
+
 }

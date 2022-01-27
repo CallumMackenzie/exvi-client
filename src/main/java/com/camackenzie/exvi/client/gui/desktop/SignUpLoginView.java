@@ -15,7 +15,7 @@ import net.miginfocom.swing.MigLayout;
  *
  * @author callum
  */
-public class SignUpLoginView extends JPanel implements View {
+public class SignUpLoginView extends ControlledView<SignUpLoginViewController> {
 
     View loginView, signUpSplashView;
 
@@ -40,15 +40,8 @@ public class SignUpLoginView extends JPanel implements View {
     }
 
     @Override
-    public void onViewClose(MainView mv) {
-        this.loginView.onViewClose(mv);
-        this.signUpSplashView.onViewClose(mv);
-    }
-
-    @Override
-    public void onViewInit(Class<? extends View> sender, MainView mv) {
-        this.loginView.onViewInit(this.getClass(), mv);
-        this.signUpSplashView.onViewInit(this.getClass(), mv);
+    public SignUpLoginViewController createController(MainView mv) {
+        return new SignUpLoginViewController(this, mv.getModel());
     }
 
 }

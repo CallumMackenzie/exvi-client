@@ -13,10 +13,6 @@ public class UserSelectorViewController extends ViewController<UserSelectorView,
 
     public UserSelectorViewController(UserSelectorView v, BackendModel m) {
         super(v, m);
-        this.setupControllers();
-    }
-
-    private void setupControllers() {
     }
 
 }

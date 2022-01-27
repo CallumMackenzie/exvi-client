@@ -38,21 +38,9 @@ public class SignUpSplashView extends ControlledView<SignUpSplashViewController>
         this.add(this.signUpButton, "growx, wrap");
     }
 
-    public JButton getSignUpButton() {
-        return this.signUpButton;
-    }
-
     @Override
     public SignUpSplashViewController createController(MainView mv) {
         return new SignUpSplashViewController(this, mv.getModel());
-    }
-
-    @Override
-    public void onWrappedViewClose(MainView mv) {
-    }
-
-    @Override
-    public void onWrappedViewInit(Class<? extends View> sender, MainView mv) {
     }
 
 }

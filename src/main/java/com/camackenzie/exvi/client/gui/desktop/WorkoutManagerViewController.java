@@ -9,28 +9,20 @@ package com.camackenzie.exvi.client.gui.desktop;
  *
  * @author callum
  */
-public abstract class ViewController<VIEW, MODEL> {
+public class WorkoutManagerViewController extends ViewController<WorkoutManagerView, BackendModel> {
 
-    private final VIEW view;
-    private final MODEL model;
-
-    public ViewController(VIEW view, MODEL model) {
-        this.view = view;
-        this.model = model;
+    public WorkoutManagerViewController(WorkoutManagerView v, BackendModel m) {
+        super(v, m);
     }
 
-    public MODEL getModel() {
-        return this.model;
-    }
-
-    public VIEW getView() {
-        return this.view;
-    }
-
+    @Override
     public void onViewInit(Class<? extends View> sender) {
+        getView().workoutListView.onViewInit(sender, this);
     }
 
+    @Override
     public void onViewClose() {
+        getView().workoutListView.onViewClose(this);
     }
 
 }

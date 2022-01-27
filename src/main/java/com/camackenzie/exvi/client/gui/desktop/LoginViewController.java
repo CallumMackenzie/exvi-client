@@ -35,7 +35,12 @@ public class LoginViewController extends ViewController<LoginView, BackendModel>
         this.getView().logInButton.addActionListener(new LoginAction());
     }
 
-    public void registerViewClose() {
+    @Override
+    public void onViewInit(Class<? extends View> sender) {
+    }
+
+    @Override
+    public void onViewClose() {
         if (this.runningFuture != null) {
             this.runningFuture.cancel(true);
         }
@@ -88,7 +93,7 @@ public class LoginViewController extends ViewController<LoginView, BackendModel>
                             String finalPassword = PasswordUtils.hashAndSaltAndEncryptPassword(
                                     password,
                                     decryptedSalt);
-                            
+
                             APIResult<AccountAccessKeyResult> accessKey = UserAccount
                                     .requestLogin(username, finalPassword).get();
                             if (accessKey.getStatusCode() != 200

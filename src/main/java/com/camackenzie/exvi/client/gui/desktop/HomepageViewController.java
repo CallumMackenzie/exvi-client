@@ -17,7 +17,21 @@ public class HomepageViewController extends ViewController<HomepageView, Backend
     }
 
     private void setupControllers() {
+    }
 
+    @Override
+    public void onViewInit(Class<? extends View> sender) {
+        getView().navbar.onViewInit(sender, this);
+        getView().workoutsView.onViewInit(sender, this);
+        getView().greetingsLabel.setText("<html><h1>Welcome, "
+                + getModel().getUserManager().getActiveUser().getUsernameFormatted()
+                + "!</h1></html>");
+    }
+
+    @Override
+    public void onViewClose() {
+        getView().navbar.onViewClose(this);
+        getView().workoutsView.onViewClose(this);
     }
 
 }

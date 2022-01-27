@@ -60,13 +60,4 @@ public class LoginView extends ControlledView<LoginViewController> {
         return new LoginViewController(this, mv.getModel());
     }
 
-    @Override
-    public void onWrappedViewClose(MainView mv) {
-        this.getController().registerViewClose();
-    }
-
-    @Override
-    public void onWrappedViewInit(Class<? extends View> sender, MainView mv) {
-    }
-
 }

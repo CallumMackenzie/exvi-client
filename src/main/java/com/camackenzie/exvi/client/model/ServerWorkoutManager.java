@@ -33,9 +33,9 @@ public class ServerWorkoutManager {
     }
 
     public FutureWrapper<Workout[]> getWorkouts() {
-        GenericDataRequest request = new GenericDataRequest(this.username,
-                this.accessKey, new WorkoutListRequest(
-                        WorkoutListRequest.Type.LIST_ALL));
+        GenericDataRequest<WorkoutListRequest> request
+                = new GenericDataRequest(this.username, this.accessKey,
+                        new WorkoutListRequest(WorkoutListRequest.Type.LIST_ALL));
         FutureWrapper<APIResult<WorkoutListResult>> apiFuture
                 = APIRequest.sendJson(APIEndpoints.GET_DATA,
                         request,

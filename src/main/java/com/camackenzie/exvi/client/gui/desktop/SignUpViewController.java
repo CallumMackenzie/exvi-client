@@ -26,21 +26,20 @@ public class SignUpViewController extends ViewController<SignUpView, BackendMode
 
     public SignUpViewController(SignUpView view, BackendModel model) {
         super(view, model);
-        this.setupControllers();
     }
 
-    private void setupControllers() {
-        SignUpView view = this.getView();
-
-        view.verifyButton
+    @Override
+    public void onViewInit(Class<? extends View> sender) {
+        getView().verifyButton
                 .addActionListener(new SendVerificationCodeAction());
-        view.toSignUpLoginViewButton
+        getView().toSignUpLoginViewButton
                 .addActionListener(new ToSignUpLoginViewAction());
-        view.createAccountButton
+        getView().createAccountButton
                 .addActionListener(new CreateAccountAction());
     }
 
-    public void registerViewClosed() {
+    @Override
+    public void onViewClose() {
         if (this.requestFuture != null) {
             this.requestFuture.cancel(true);
         }

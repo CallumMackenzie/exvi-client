@@ -71,8 +71,8 @@ public class UserAccount {
         this.accessKey = accessKey;
     }
 
-    public WorkoutManager getWorkoutManager() {
-        throw new UnsupportedOperationException();
+    public ServerWorkoutManager getWorkoutManager() {
+        return new ServerWorkoutManager(this.username, this.accessKey);
     }
 
     public Future<BodyStats> getBodyStats() {

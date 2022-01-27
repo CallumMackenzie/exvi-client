@@ -25,6 +25,14 @@ public class NavbarViewController extends ViewController<NavbarView, BackendMode
         this.getView().switchAccountButton.addActionListener(new ToUserSelectorAction());
     }
 
+    @Override
+    public void onViewInit(Class<? extends View> sender) {
+    }
+
+    @Override
+    public void onViewClose() {
+    }
+
     private class ToUserSelectorAction implements ActionListener {
 
         @Override
