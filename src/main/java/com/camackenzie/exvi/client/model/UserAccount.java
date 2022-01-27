@@ -12,7 +12,6 @@ import com.camackenzie.exvi.core.model.WorkoutManager;
 import com.camackenzie.exvi.core.util.CryptographyUtils;
 import com.camackenzie.exvi.core.util.EncryptionResult;
 import com.google.gson.Gson;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,12 +45,52 @@ public class UserAccount {
         return this.username;
     }
 
+    public String getUsernameFormatted() {
+        return this.username.substring(0, 1).toUpperCase()
+                + this.username.substring(1);
+    }
+
     public Future<String> getEmail() {
         throw new UnsupportedOperationException();
     }
 
     public Future<String> getPhone() {
         throw new UnsupportedOperationException();
+    }
+
+    private String getFileName() {
+        return CryptographyUtils.hashSHA256(this.username)
+                + this.username
+                + ".user";
+    }
+
+    public void signOut(String userPath) {
+        try {
+            Files.walk(Path.of(userPath))
+                    .filter(ex -> {
+                        return ex.toString().endsWith(this.getFileName());
+                    })
+                    .findFirst().ifPresent(file -> {
+                        try {
+                            Files.delete(file);
+                        } catch (IOException ex) {
+                            System.err.println("Error deleting file: " + ex);
+                        }
+                    });
+        } catch (IOException ex) {
+            System.err.println("Error signing out: " + ex);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return new StringBuilder()
+                .append("User: ")
+                .append(this.username)
+                .append(": ")
+                .append(this.accessKey.substring(0, 4))
+                .append("...")
+                .toString();
     }
 
     private String getCrendentialsString() {
@@ -62,9 +101,9 @@ public class UserAccount {
         return CryptographyUtils.bytesToBase64String(erjb);
     }
 
-    public void saveCredentials() {
+    public void saveCredentials(String path) {
         try {
-            Files.writeString(Path.of("./" + this.username + ".user"),
+            Files.writeString(Path.of(path + this.getFileName()),
                     this.getCrendentialsString());
         } catch (IOException e) {
             System.err.println(e);

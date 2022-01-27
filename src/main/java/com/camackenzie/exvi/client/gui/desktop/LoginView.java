@@ -19,11 +19,11 @@ import net.miginfocom.swing.MigLayout;
  */
 public class LoginView extends ControlledView<LoginViewController> {
 
-    public JLabel pageTitle, loginError;
-    public UsernameInput usernameInput;
-    public PasswordInput passwordInput;
-    public JButton logInButton;
-    public LoadingIcon loadingIcon;
+    JLabel pageTitle, loginError;
+    UsernameInput usernameInput;
+    PasswordInput passwordInput;
+    JButton logInButton;
+    LoadingIcon loadingIcon;
 
     public LoginView() {
         this.setupComponents();

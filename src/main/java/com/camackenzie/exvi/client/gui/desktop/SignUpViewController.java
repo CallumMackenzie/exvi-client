@@ -162,7 +162,7 @@ public class SignUpViewController extends ViewController<SignUpView, BackendMode
                                             UserAccount.fromAccessKey(username,
                                                     request.getBody().getAccessKey())
                                     );
-                                    model.getUserManager().getActiveUser().saveCredentials();
+                                    model.getUserManager().saveActiveUserCredentials();
                                     view.getMainView().setView(SignUpView.class,
                                             new HomepageView());
                                 }

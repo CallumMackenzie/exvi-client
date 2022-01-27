@@ -35,6 +35,16 @@ public class UserManager {
         }
     }
 
+    public void signOutActiveUser() {
+        this.activeUser.signOut(USER_DATA_DIR);
+        this.activeUser = null;
+        this.checkForLoggedInUsers();
+    }
+
+    public void saveActiveUserCredentials() {
+        this.activeUser.saveCredentials(USER_DATA_DIR);
+    }
+
     public final void checkForLoggedInUsers() {
         try {
             this.loggedInUsers = Files.walk(Path.of(USER_DATA_DIR))

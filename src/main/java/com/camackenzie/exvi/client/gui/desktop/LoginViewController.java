@@ -103,7 +103,7 @@ public class LoginViewController extends ViewController<LoginView, BackendModel>
                                 getModel().getUserManager().setActiveUser(
                                         UserAccount.fromAccessKey(username,
                                                 accessKey.getBody().getAccessKey()));
-                                getModel().getUserManager().getActiveUser().saveCredentials();
+                                getModel().getUserManager().saveActiveUserCredentials();
                                 SwingUtilities.invokeLater(new Runnable() {
                                     @Override
                                     public void run() {

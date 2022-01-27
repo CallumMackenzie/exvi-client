@@ -17,7 +17,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class SignUpLoginView extends JPanel implements View {
 
-    private View loginView, signUpSplashView;
+    View loginView, signUpSplashView;
 
     public SignUpLoginView() {
         this.setupComponents();

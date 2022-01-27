@@ -15,9 +15,9 @@ import net.miginfocom.swing.MigLayout;
  */
 public class SignUpSplashView extends ControlledView<SignUpSplashViewController> {
 
-    private JLabel newUserHeader,
+    JLabel newUserHeader,
             signUpText;
-    private JButton signUpButton;
+    JButton signUpButton;
 
     public SignUpSplashView() {
         this.setupComponents();

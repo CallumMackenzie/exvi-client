@@ -22,18 +22,18 @@ import net.miginfocom.swing.MigLayout;
  */
 public class SignUpView extends ControlledView<SignUpViewController> {
 
-    public JLabel signUpHeader,
+    JLabel signUpHeader,
             verificationCodeInputLabel,
             signupError;
-    public PhoneInput phoneInput;
-    public UsernameInput usernameInput;
-    public PasswordInput passwordInput;
-    public VerificationCodeInput codeInput;
-    public EmailInput emailInput;
-    public JButton verifyButton,
+    PhoneInput phoneInput;
+    UsernameInput usernameInput;
+    PasswordInput passwordInput;
+    VerificationCodeInput codeInput;
+    EmailInput emailInput;
+    JButton verifyButton,
             toSignUpLoginViewButton,
             createAccountButton;
-    public LoadingIcon loadingIcon;
+    LoadingIcon loadingIcon;
 
     public SignUpView() {
         this.setupComponents();
