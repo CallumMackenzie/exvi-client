@@ -5,7 +5,6 @@
  */
 package com.camackenzie.exvi.client.gui.desktop;
 
-import com.camackenzie.exvi.client.gui.desktop.BackendModel;
 import com.camackenzie.exvi.client.model.PasswordUtils;
 import com.camackenzie.exvi.client.model.UserAccount;
 import com.camackenzie.exvi.core.api.APIResult;
@@ -88,7 +87,7 @@ public class LoginViewController extends ViewController<LoginView, BackendModel>
                         String finalPassword = PasswordUtils.hashAndSaltAndEncryptPassword(
                                 password,
                                 decryptedSalt);
-                        
+
                         APIResult<AccountAccessKeyResult> accessKey = UserAccount
                                 .requestLogin(username, finalPassword).get();
                         if (accessKey.getStatusCode() != 200
