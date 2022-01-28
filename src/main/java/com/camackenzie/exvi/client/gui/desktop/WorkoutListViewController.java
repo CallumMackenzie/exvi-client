@@ -61,8 +61,11 @@ public class WorkoutListViewController extends ViewController<WorkoutListView, B
                             public void run() {
                                 if (workouts != null) {
                                     for (var workout : workouts) {
+                                        System.out.println(workout.getName());
                                         getView().listModel.addElement(workout);
                                     }
+                                } else {
+                                    System.err.println("WARNING: workout list request response was null");
                                 }
                                 getView().loadingIcon.setVisible(false);
                             }

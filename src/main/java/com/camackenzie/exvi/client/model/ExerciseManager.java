@@ -82,10 +82,16 @@ public class ExerciseManager {
         return null;
     }
 
-    public Exercise getNamedExercise(String name) {
+    public Exercise getNamedExercise(String in) {
+        final String name = in.trim();
         return this.getFirstExerciseByFunction(
-                exercise -> exercise.getName()
+                exercise -> exercise.getName().trim()
                         .equalsIgnoreCase(name));
+    }
+
+    public Exercise getExerciseNameContaining(String n) {
+        return this.getFirstExerciseByFunction(ex -> ex.getName()
+                .toLowerCase().contains(n.toLowerCase()));
     }
 
     public ArrayList<Exercise> getExercisesOfType(ExerciseType et) {

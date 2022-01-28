@@ -9,6 +9,7 @@ import com.camackenzie.exvi.core.api.APIRequest;
 import com.camackenzie.exvi.core.api.APIResult;
 import com.camackenzie.exvi.core.api.DataResult;
 import com.camackenzie.exvi.core.api.GenericDataRequest;
+import com.camackenzie.exvi.core.api.GenericDataResult;
 import com.camackenzie.exvi.core.api.WorkoutListRequest;
 import com.camackenzie.exvi.core.api.WorkoutListResult;
 import com.camackenzie.exvi.core.api.WorkoutPutRequest;
@@ -36,18 +37,21 @@ public class ServerWorkoutManager {
         GenericDataRequest<WorkoutListRequest> request
                 = new GenericDataRequest(this.username, this.accessKey,
                         new WorkoutListRequest(WorkoutListRequest.Type.LIST_ALL));
-        FutureWrapper<APIResult<WorkoutListResult>> apiFuture
+        FutureWrapper<APIResult<GenericDataResult>> apiFuture
                 = APIRequest.sendJson(APIEndpoints.GET_DATA,
                         request,
-                        WorkoutListResult.class);
+                        GenericDataResult.class);
         return new SharedMethodFuture(apiFuture,
                 () -> {
-                    APIResult<WorkoutListResult> res = apiFuture.getFailOnError();
-                    if (res.getStatusCode() != 200) {
+                    APIResult<GenericDataResult> res = apiFuture.getFailOnError();
+                    System.out.println(new com.google.gson.Gson().toJson(res));
+                    if (res.getStatusCode() != 200
+                    || res.getBody().errorOccured()) {
                         System.err.println("Status code: " + res.getStatusCode());
                         return null;
                     }
-                    return res.getBody().getWorkouts();
+                    return ((WorkoutListResult) res.getBody().getResult())
+                            .getWorkouts();
                 }).wrapped();
     }
 
