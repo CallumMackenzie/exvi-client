@@ -71,30 +71,24 @@ public class SignUpViewController extends ViewController<SignUpView, BackendMode
             }
 
             view.setSendingCode();
-            requestFuture = new RunnableFuture(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        VerificationResult result
-                                = model.getUserManager().sendUserVerificationCode(username, email, phone)
-                                        .get();
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                view.setNotSendingCode();
-                                if (result.errorOccured()) {
-                                    registerError(result.getMessage());
-                                } else {
-                                    view.verifyButton.setText("Resend Verification Code");
-                                    view.signupError.setVisible(false);
-                                }
-                            }
-                        });
-                    } catch (InterruptedException e) {
-                        return;
-                    } catch (ExecutionException ex) {
-                        System.err.println(ex);
-                    }
+            requestFuture = new RunnableFuture(() -> {
+                try {
+                    VerificationResult result
+                            = model.getUserManager().sendUserVerificationCode(username, email, phone)
+                                    .get();
+                    SwingUtilities.invokeLater(() -> {
+                        view.setNotSendingCode();
+                        if (result.errorOccured()) {
+                            registerError(result.getMessage());
+                        } else {
+                            view.verifyButton.setText("Resend Verification Code");
+                            view.signupError.setVisible(false);
+                        }
+                    });
+                } catch (InterruptedException e1) {
+                    return;
+                }catch (ExecutionException ex) {
+                    System.err.println(ex);
                 }
             });
             requestFuture.start();
@@ -140,43 +134,35 @@ public class SignUpViewController extends ViewController<SignUpView, BackendMode
 
             String passwordHash = PasswordUtils.hashAndEncryptPassword(password);
             view.setSendingCreationReq();
-            requestFuture = new RunnableFuture(new Runnable() {
-                @Override
-                public void run() {
-
-                    try {
-                        APIResult<AccountAccessKeyResult> request
-                                = UserAccount.requestSignUp(username, verificationCode, passwordHash)
-                                        .get();
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (request.getBody().errorOccured()
-                                        || request.getStatusCode() != 200) {
-                                    System.err.println(request.getBody().getMessage());
-                                    view.setNotSendingCreationReq();
-                                    registerError(request.getBody().getMessage());
-                                } else {
-                                    model.getUserManager().setActiveUser(
-                                            UserAccount.fromAccessKey(username,
-                                                    request.getBody().getAccessKey())
-                                    );
-                                    model.getUserManager().saveActiveUserCredentials();
-                                    view.getMainView().setView(SignUpView.class,
-                                            new HomepageView());
-                                }
-                            }
-                        });
-                    } catch (InterruptedException ex) {
-                        return;
-                    } catch (ExecutionException ex) {
-                        System.err.println(ex);
-                    } catch (Exception ex) {
-                        System.err.println(ex);
-                    }
+            requestFuture = new RunnableFuture(() -> {
+                try {
+                    APIResult<AccountAccessKeyResult> request
+                            = UserAccount.requestSignUp(username, verificationCode, passwordHash)
+                                    .get();
+                    SwingUtilities.invokeLater(() -> {
+                        if (request.getBody().errorOccured()
+                                || request.getStatusCode() != 200) {
+                            System.err.println(request.getBody().getMessage());
+                            view.setNotSendingCreationReq();
+                            registerError(request.getBody().getMessage());
+                        } else {
+                            model.getUserManager().setActiveUser(
+                                    UserAccount.fromAccessKey(username,
+                                            request.getBody().getAccessKey())
+                            );
+                            model.getUserManager().saveActiveUserCredentials();
+                            view.getMainView().setView(SignUpView.class,
+                                    new HomepageView());
+                        }
+                    });
+                } catch (InterruptedException ex) {
+                    return;
+                } catch (ExecutionException ex) {
+                    System.err.println(ex);
+                } catch (Exception ex) {
+                    System.err.println(ex);
                 }
-            }
-            );
+            });
             requestFuture.start();
         }
 

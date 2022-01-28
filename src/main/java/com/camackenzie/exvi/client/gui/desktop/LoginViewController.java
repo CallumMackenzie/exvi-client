@@ -72,66 +72,49 @@ public class LoginViewController extends ViewController<LoginView, BackendModel>
 
             setSendingLoginReq();
 
-            runningFuture = new RunnableFuture(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        APIResult<AccountSaltResult> saltResponse = UserAccount
-                                .requestUserSalt(username).get();
-                        if (saltResponse.getStatusCode() != 200
-                                || saltResponse.getBody().getError() != 0) {
-                            SwingUtilities.invokeLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    setLoginFaliure(saltResponse.getBody().getMessage());
-                                }
+            runningFuture = new RunnableFuture(() -> {
+                try {
+                    APIResult<AccountSaltResult> saltResponse = UserAccount
+                            .requestUserSalt(username).get();
+                    if (saltResponse.getStatusCode() != 200
+                            || saltResponse.getBody().getError() != 0) {
+                        SwingUtilities.invokeLater(() -> {
+                            setLoginFaliure(saltResponse.getBody().getMessage());
+                        });
+                    } else {
+                        String decryptedSalt = new String(CryptographyUtils
+                                .bytesFromBase64String(saltResponse.getBody().getSalt()),
+                                StandardCharsets.UTF_8);
+                        String finalPassword = PasswordUtils.hashAndSaltAndEncryptPassword(
+                                password,
+                                decryptedSalt);
+                        
+                        APIResult<AccountAccessKeyResult> accessKey = UserAccount
+                                .requestLogin(username, finalPassword).get();
+                        if (accessKey.getStatusCode() != 200
+                                || accessKey.getBody().getError() != 0) {
+                            SwingUtilities.invokeLater(() -> {
+                                setLoginFaliure(accessKey.getBody().getMessage());
                             });
                         } else {
-                            String decryptedSalt = new String(CryptographyUtils
-                                    .bytesFromBase64String(saltResponse.getBody().getSalt()),
-                                    StandardCharsets.UTF_8);
-                            String finalPassword = PasswordUtils.hashAndSaltAndEncryptPassword(
-                                    password,
-                                    decryptedSalt);
-
-                            APIResult<AccountAccessKeyResult> accessKey = UserAccount
-                                    .requestLogin(username, finalPassword).get();
-                            if (accessKey.getStatusCode() != 200
-                                    || accessKey.getBody().getError() != 0) {
-                                SwingUtilities.invokeLater(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        setLoginFaliure(accessKey.getBody().getMessage());
-                                    }
-                                });
-                            } else {
-                                getModel().getUserManager().setActiveUser(
-                                        UserAccount.fromAccessKey(username,
-                                                accessKey.getBody().getAccessKey()));
-                                getModel().getUserManager().saveActiveUserCredentials();
-                                SwingUtilities.invokeLater(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        getView().getMainView()
-                                                .setView(LoginView.class, new HomepageView());
-                                    }
-                                });
-                            }
+                            getModel().getUserManager().setActiveUser(
+                                    UserAccount.fromAccessKey(username,
+                                            accessKey.getBody().getAccessKey()));
+                            getModel().getUserManager().saveActiveUserCredentials();
+                            SwingUtilities.invokeLater(() -> {
+                                getView().getMainView()
+                                        .setView(LoginView.class, new HomepageView());
+                            });
                         }
-                    } catch (Exception ex) {
-                        System.err.println(ex);
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                setLoginFaliure("Failed to login");
-                            }
-                        });
-                        return;
                     }
+                } catch (Exception ex) {
+                    System.err.println(ex);
+                    SwingUtilities.invokeLater(() -> {
+                        setLoginFaliure("Failed to login");
+                    });
                 }
             });
             runningFuture.start();
-
         }
 
     }
