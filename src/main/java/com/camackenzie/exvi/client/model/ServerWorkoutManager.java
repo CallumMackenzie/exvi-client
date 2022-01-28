@@ -44,6 +44,7 @@ public class ServerWorkoutManager {
                 () -> {
                     APIResult<WorkoutListResult> res = apiFuture.getFailOnError();
                     if (res.getStatusCode() != 200) {
+                        System.err.println("Status code: " + res.getStatusCode());
                         return null;
                     }
                     return res.getBody().getWorkouts();

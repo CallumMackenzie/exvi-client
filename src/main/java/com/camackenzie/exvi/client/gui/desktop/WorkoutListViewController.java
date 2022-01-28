@@ -59,8 +59,10 @@ public class WorkoutListViewController extends ViewController<WorkoutListView, B
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {
-                                for (var workout : workouts) {
-                                    getView().listModel.addElement(workout);
+                                if (workouts != null) {
+                                    for (var workout : workouts) {
+                                        getView().listModel.addElement(workout);
+                                    }
                                 }
                                 getView().loadingIcon.setVisible(false);
                             }
@@ -80,6 +82,7 @@ public class WorkoutListViewController extends ViewController<WorkoutListView, B
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            getView().getMainView().setView(WorkoutListView.class, new WorkoutCreationView());
         }
 
     }
