@@ -46,32 +46,29 @@ public class WorkoutListViewController extends ViewController<WorkoutListView, B
         public void actionPerformed(ActionEvent e) {
             getView().loadingIcon.setVisible(true);
 
-            workoutSyncFuture = new RunnableFuture(new Runnable() {
-                @Override
-                public void run() {
-                    FutureWrapper<Workout[]> workoutFuture
-                            = getModel().getUserManager()
-                                    .getActiveUser()
-                                    .getWorkoutManager()
-                                    .getWorkouts();
-                    try {
-                        Workout[] workouts = workoutFuture.get();
-                        SwingUtilities.invokeLater(() -> {
-                            if (workouts != null) {
-                                for (var workout : workouts) {
-                                    System.out.println(workout.getName());
-                                    getView().listModel.addElement(workout);
-                                }
-                            } else {
-                                System.err.println("WARNING: workout list request response was null");
+            workoutSyncFuture = new RunnableFuture(() -> {
+                FutureWrapper<Workout[]> workoutFuture
+                        = getModel().getUserManager()
+                                .getActiveUser()
+                                .getWorkoutManager()
+                                .getWorkouts();
+                try {
+                    Workout[] workouts = workoutFuture.get();
+                    SwingUtilities.invokeLater(() -> {
+                        if (workouts != null) {
+                            for (var workout : workouts) {
+                                System.out.println(workout.getName());
+                                getView().listModel.addElement(workout);
                             }
-                            getView().loadingIcon.setVisible(false);
-                        });
-                    } catch (InterruptedException ex) {
-                        return;
-                    } catch (Exception ex) {
-                        System.err.println(ex);
-                    }
+                        } else {
+                            System.err.println("WARNING: workout list request response was null");
+                        }
+                        getView().loadingIcon.setVisible(false);
+                    });
+                } catch (InterruptedException ex) {
+                    return;
+                } catch (Exception ex) {
+                    System.err.println(ex);
                 }
             });
             workoutSyncFuture.start();
