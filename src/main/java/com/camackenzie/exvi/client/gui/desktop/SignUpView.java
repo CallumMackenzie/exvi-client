@@ -65,7 +65,7 @@ public class SignUpView extends ControlledView<SignUpViewController> {
         this.passwordInput = new PasswordInput();
         this.add(this.passwordInput.getTextField(), "align center, wmax 200, growx, wrap");
 
-        this.verifyButton = new JButton();
+        this.verifyButton = new JButton("Send Verification Code");
         this.add(this.verifyButton, "align center, wmax 200, growx, wrap");
 
         this.loadingIcon = new LoadingIcon();

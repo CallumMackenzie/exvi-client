@@ -36,6 +36,10 @@ public class SignUpViewController extends ViewController<SignUpView, BackendMode
                 .addActionListener(new ToSignUpLoginViewAction());
         getView().createAccountButton
                 .addActionListener(new CreateAccountAction());
+
+        if (sender == SignUpSplashView.class) {
+            getView().toSignUpLoginViewButton.setVisible(true);
+        }
     }
 
     @Override
@@ -43,6 +47,11 @@ public class SignUpViewController extends ViewController<SignUpView, BackendMode
         if (this.requestFuture != null) {
             this.requestFuture.cancel(true);
         }
+    }
+
+    private void registerError(String msg) {
+        getView().signupError.setText("<html><font color='red'>" + msg + "</font></html>");
+        getView().signupError.setVisible(true);
     }
 
     private class SendVerificationCodeAction implements ActionListener {
@@ -87,7 +96,7 @@ public class SignUpViewController extends ViewController<SignUpView, BackendMode
                     });
                 } catch (InterruptedException e1) {
                     return;
-                }catch (ExecutionException ex) {
+                } catch (ExecutionException ex) {
                     System.err.println(ex);
                 }
             });
@@ -166,11 +175,6 @@ public class SignUpViewController extends ViewController<SignUpView, BackendMode
             requestFuture.start();
         }
 
-    }
-
-    private void registerError(String msg) {
-        getView().signupError.setText("<html><font color='red'>" + msg + "</font></html>");
-        getView().signupError.setVisible(true);
     }
 
 }
