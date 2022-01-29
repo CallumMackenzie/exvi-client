@@ -5,7 +5,11 @@
  */
 package com.camackenzie.exvi.client.gui.desktop.javafx;
 
+import java.net.URL;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
@@ -20,6 +24,10 @@ public class AppRunner extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        Parent root = FXMLLoader.load(this.getClass().getResource("/fxml/LoginSignupView.fxml"));
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
     }
 
 }
