@@ -48,60 +48,6 @@
             </build>
         </profile>
         <profile>
-            <id>swing</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.formdev</groupId>
-                    <artifactId>flatlaf</artifactId>
-                    <version>2.0</version>
-                </dependency>
-                <dependency>
-                    <groupId>com.miglayout</groupId>
-                    <artifactId>miglayout</artifactId>
-                    <version>3.7.4</version>
-                </dependency>
-            </dependencies>
-            <build>
-                <plugins>                    
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>2.0.2</version>
-                        <configuration>
-                            <excludes>
-                                <exclude>com/camackenzie/exvi/client/model/scraping/*.java</exclude>
-                                <exclude>com/camackenzie/exvi/client/gui/desktop/javafx/*.java</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <version>3.1.1</version>
-                        <configuration>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                            <archive>
-                                <manifest>
-                                    <mainClass>com.camackenzie.exvi.client.gui.desktop.swing.AppRunner</mainClass>
-                                </manifest>
-                            </archive>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>make-assembly</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
             <id>javafx</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
