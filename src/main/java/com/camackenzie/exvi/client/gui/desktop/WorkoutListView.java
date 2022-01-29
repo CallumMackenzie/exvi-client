@@ -35,7 +35,10 @@ public class WorkoutListView extends ControlledView<WorkoutListViewController> {
         this.add(this.newWorkoutButton, "growx, wrap");
 
         this.listModel = new DefaultListModel();
+
         this.list = new JList(this.listModel);
+        this.list.setVisibleRowCount(-1);
+
         this.listScroller = new JScrollPane(this.list);
         this.add(this.listScroller, "grow, wrap");
 

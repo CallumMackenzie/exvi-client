@@ -31,6 +31,10 @@ public class WorkoutGenerator {
         this.exerciseManager = exman;
     }
 
+    public WorkoutGenerator(ExerciseManager exman) {
+        this(new WorkoutGeneratorParams(), exman);
+    }
+
     public WorkoutGeneratorParams getWorkoutGeneratorParams() {
         return this.params;
     }
@@ -119,7 +123,7 @@ public class WorkoutGenerator {
 
             // Add exercise set to workout & remove the exercise from the exercises array to
             // avoid repeats
-            exs.add(this.blendExerciseSets(generated));
+            exs.add(this.blendExerciseSets(selectedExer.getExercise(), generated));
             exercises.remove(selectedExer.getExercise());
 
             // Register a match for each priority provider
@@ -137,7 +141,12 @@ public class WorkoutGenerator {
         return wkr;
     }
 
-    public ExerciseSet blendExerciseSets(ExerciseSet... exs) {
+    public ExerciseSet blendExerciseSets(Exercise exercise,
+            ExerciseSet... exs) {
+
+        if (exs.length == 0) {
+            return new ExerciseSet(exercise, "rep", 8, 8, 8);
+        }
 
         // Find the most used unit
         HashMap<String, Integer> unitTypeCount = new HashMap<>();
@@ -183,11 +192,8 @@ public class WorkoutGenerator {
             sets[i] /= nValidSets;
         }
 
-        // Retrieve the common exercise
-        Exercise ex = exs.length == 0 ? null : exs[0].getExercise();
-
         // Compose & return data
-        return new ExerciseSet(ex, unit, sets);
+        return new ExerciseSet(exercise, unit, sets);
     }
 
     private class ExercisePriorityTracker {

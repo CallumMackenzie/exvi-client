@@ -126,4 +126,5 @@ public class ExerciseManager {
     public ArrayList<Exercise> getExercisesWithExperienceLevel(ExerciseExperienceLevel exp) {
         return this.getExercisesByFunction(ex -> ex.getExperienceLevel() == exp);
     }
+
 }
