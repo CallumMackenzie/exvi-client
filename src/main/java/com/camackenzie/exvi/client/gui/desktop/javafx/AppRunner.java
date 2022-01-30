@@ -10,6 +10,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 /**
@@ -26,6 +27,7 @@ public class AppRunner extends Application {
     public void start(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(this.getClass().getResource("/fxml/LoginSignupView.fxml"));
         stage.setTitle("Exvi Fitness");
+        stage.getIcons().add(new Image(this.getClass().getResourceAsStream("/image/Logo.png")));
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();

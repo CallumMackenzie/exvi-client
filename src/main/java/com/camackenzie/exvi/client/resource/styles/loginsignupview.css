@@ -1,14 +1,25 @@
 
+@import "/styles/style.css";
+
 .mainFxmlClass {
     -fx-alignment: center;
+    -fx-background-color: -exvi-base-light;
+}
+
+.outerPane {
+    -fx-alignment: center;
+    -fx-border-color: -exvi-accent-light;
+    -fx-border-width: 0.5em;
 }
 
 .outerGrid {
     -fx-alignment: center;
-    -fx-padding: 20px;
+    -fx-padding: 2em;
 }
 
 .titleText {
     -fx-alignment: center;
-    -fx-font-size: 10%;
+    -fx-font-size: 200%;
+    -fx-padding: 1em;
 }
+

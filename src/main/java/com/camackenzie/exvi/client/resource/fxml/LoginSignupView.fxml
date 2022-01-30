@@ -7,22 +7,44 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+<?import org.tbee.javafx.scene.layout.fxml.MigPane?>
 
-<GridPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.camackenzie.exvi.client.gui.desktop.javafx.LoginSignupViewController">
+<MigPane id="AnchorPane" 
+         prefHeight="400.0" 
+         prefWidth="600.0" 
+         styleClass="mainFxmlClass" 
+         xmlns:fx="http://javafx.com/fxml/1" 
+         fx:controller="com.camackenzie.exvi.client.gui.desktop.javafx.LoginSignupViewController"
+         layout="fill"
+>
+    
     <stylesheets>
         <URL value="@/styles/loginsignupview.css"/>
+        <URL value="@/styles/style.css"/>
     </stylesheets>
     
-    <GridPane styleClass="outerGrid"
-              GridPane.columnIndex="0" GridPane.rowIndex="0">
-        <Text styleClass="titleText"
-              text="Log in to Your Account"/>
-    </GridPane>
-    <GridPane styleClass="outerGrid"
-              GridPane.columnIndex="1" GridPane.rowIndex="0">
-        <Text styleClass="titleText"
-              text="Create an Exvi Fitness Account"/>
-        <Text text="Join Exvi fitness to take your strength to the next level!"/>
-    </GridPane>
+    <MigPane styleClass="outerPane"
+             layout="fill"
+             MigPane.cc="align center, grow">
+        <MigPane styleClass="outerGrid"
+                 layout="fill"
+                 MigPane.cc="align center, growx, sg comp">
+            <Text styleClass="titleText"
+                  MigPane.cc="align center"
+                  text="Log in to Your Account"/>
+        </MigPane>
+        <MigPane styleClass="outerGrid"
+                 layout="fill"
+                 MigPane.cc="align center, growx, sg comp">
+            <Text styleClass="titleText"
+                  text="Create an Exvi Fitness Account"
+                  MigPane.cc="align center, wrap"/>
+            <Text text="Join Exvi fitness to take your strength to the next level!"
+                  MigPane.cc="align center, wrap"/>
+            <Button styleClass="button-accent"
+                    text="Sign Up"
+                    MigPane.cc="align center, growx, wrap"/>
+        </MigPane>
+    </MigPane>
     
-</GridPane>
+</MigPane>
