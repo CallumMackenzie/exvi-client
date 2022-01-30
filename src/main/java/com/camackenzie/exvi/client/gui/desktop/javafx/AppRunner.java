@@ -25,6 +25,7 @@ public class AppRunner extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(this.getClass().getResource("/fxml/LoginSignupView.fxml"));
+        stage.setTitle("Exvi Fitness");
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();

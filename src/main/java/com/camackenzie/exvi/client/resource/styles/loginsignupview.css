@@ -1,4 +1,14 @@
 
 .mainFxmlClass {
+    -fx-alignment: center;
+}
 
+.outerGrid {
+    -fx-alignment: center;
+    -fx-padding: 20px;
+}
+
+.titleText {
+    -fx-alignment: center;
+    -fx-font-size: 10%;
 }
