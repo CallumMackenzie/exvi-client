@@ -35,41 +35,73 @@ and open the template in the editor.
 .button {
     -fx-border-radius: 0.4em;
     -fx-background-radius: 0.4em;
-    -fx-border-width: 0em;
+    -fx-background-insets: 0.1em;
+    -fx-border-insets: -0.2em;
     -fx-alignment: center;
-    -fx-max-width: 100px;
-    -fx-border-insets: 0.2em 0em 0em 0.2em
+    -fx-border-style: hidden;
+}
+.button:focused {
+    -fx-border-width: 0.2em;
+    -fx-border-style: solid;
 }
 
-.button-base {
+.base {
     -fx-text-fill: -exvi-black;
     -fx-background-color: -exvi-base-light;
+    -fx-border-color: -exvi-base;
+    -fx-highlight-fill: -exvi-contrast;
+    -fx-highlight-text-fill: -exvi-base;
 }
-.button-base:hover {
+.base:hover {
     -fx-background-color: -exvi-base;
 }
-.button-base:disabled {
+.base:disabled {
     -fx-background-color: -exvi-base-gray;
 }
+.base:pressed {
+    -fx-background-color: -exvi-base-dark;
+}
 
-.button-accent {
+.accent {
     -fx-background-color: -exvi-accent-light;
     -fx-text-fill: -exvi-white;
+    -fx-border-color: -exvi-accent;
+    -fx-highlight-fill: -exvi-base;
+    -fx-highlight-text-fill: -exvi-accent;
 }
-.button-accent:hover {
+.accent:hover {
     -fx-background-color: -exvi-accent;
 }
-.button-accent:disabled {
+.accent:disabled {
     -fx-background-color: -exvi-accent-gray;
 }
+.accent:pressed {
+    -fx-background-color: -exvi-accent-dark;
+}
 
-.button-contrast {
+.contrast {
     -fx-text-fill: -exvi-white;
     -fx-background-color: -exvi-contrast-light;
+    -fx-border-color: -exvi-contrast;
+    -fx-highlight-fill: -exvi-base;
+    -fx-hightlight-text-fill: -exvi-contrast;
 }
-.button-contrast:hover {
+.contrast:hover {
     -fx-background-color: -exvi-contrast;
 }
-.button-contrast:disabled {
+.contrast:disabled {
     -fx-background-color: -exvi-contrast-gray;
+}
+.contrast:pressed {
+    -fx-background-color: -exvi-contrast-dark;
+}
+
+.text {
+    -fx-font-family: "monspace";
+}
+
+.h1 {
+    -fx-alignment: center;
+    -fx-font-size: 200%;
+    -fx-padding: 1em;
 }

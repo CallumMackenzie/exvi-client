@@ -7,15 +7,21 @@ package com.camackenzie.exvi.client.model;
 
 import com.camackenzie.exvi.core.model.BodyStats;
 import com.camackenzie.exvi.core.api.*;
+import com.camackenzie.exvi.core.async.Computation;
+import com.camackenzie.exvi.core.async.ComputationFuture;
 import com.camackenzie.exvi.core.async.FutureWrapper;
 import com.camackenzie.exvi.core.model.WorkoutManager;
 import com.camackenzie.exvi.core.util.CryptographyUtils;
 import com.camackenzie.exvi.core.util.EncryptionResult;
 import com.google.gson.Gson;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -33,7 +39,8 @@ public class UserAccount {
     }
 
     public static FutureWrapper<APIResult<AccountAccessKeyResult>>
-            requestSignUp(String username, String verificationCode, String passwordHash) {
+            requestSignUp(String username, String verificationCode, String passwordRaw) {
+        String passwordHash = PasswordUtils.hashAndEncryptPassword(passwordRaw);
         return APIRequest.sendJson(APIEndpoints.SIGN_UP,
                 new AccountCreationRequest(username,
                         verificationCode,
@@ -42,14 +49,14 @@ public class UserAccount {
         );
     }
 
-    public static FutureWrapper<APIResult<AccountAccessKeyResult>>
-            requestLogin(String username, String passwordHash) {
+    private static FutureWrapper<APIResult<AccountAccessKeyResult>>
+            requestLoginRaw(String username, String passwordHash) {
         return APIRequest.sendJson(APIEndpoints.LOGIN,
                 new LoginRequest(username, passwordHash),
                 AccountAccessKeyResult.class);
     }
 
-    public static FutureWrapper<APIResult<AccountSaltResult>>
+    private static FutureWrapper<APIResult<AccountSaltResult>>
             requestUserSalt(String username) {
         return APIRequest.sendJson(APIEndpoints.GET_SALT,
                 new RetrieveSaltRequest(username),
@@ -58,6 +65,46 @@ public class UserAccount {
 
     public static UserAccount fromAccessKey(String username, String accessKey) {
         return new UserAccount(username, accessKey);
+    }
+
+    public static FutureWrapper<APIResult<AccountAccessKeyResult>>
+            requestLogin(String username, String passwordRaw) {
+        var ret = new ComputationFuture<APIResult<AccountAccessKeyResult>>(new Computation() {
+            APIResult<AccountAccessKeyResult> result;
+
+            @Override
+            public APIResult<AccountAccessKeyResult> getResult() {
+                return this.result;
+            }
+
+            @Override
+            public void run() {
+                try {
+                    APIResult<AccountSaltResult> saltResponse = UserAccount
+                            .requestUserSalt(username).get();
+                    if (saltResponse.getStatusCode() != 200
+                            || saltResponse.getBody().getError() != 0) {
+                        this.result = new APIResult(saltResponse, null);
+                    } else {
+                        String decryptedSalt = new String(CryptographyUtils
+                                .bytesFromBase64String(saltResponse.getBody().getSalt()),
+                                StandardCharsets.UTF_8);
+                        String finalPassword = PasswordUtils.hashAndSaltAndEncryptPassword(
+                                passwordRaw,
+                                decryptedSalt);
+                        APIResult<AccountAccessKeyResult> accessKeyResult = UserAccount
+                                .requestLoginRaw(username, finalPassword).get();
+                        this.result = accessKeyResult;
+                    }
+                } catch (InterruptedException ex) {
+                    System.err.println("Login future interrupted: " + ex);
+                } catch (ExecutionException ex) {
+                    System.err.println(ex);
+                }
+            }
+        });
+        ret.startComputation();
+        return ret.wrapped();
     }
 
     public static UserAccount fromCrendentialsString(String in) {

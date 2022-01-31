@@ -17,9 +17,6 @@
     -fx-padding: 2em;
 }
 
-.titleText {
-    -fx-alignment: center;
-    -fx-font-size: 200%;
-    -fx-padding: 1em;
+.button {
+    -fx-max-width: 20em;
 }
-
