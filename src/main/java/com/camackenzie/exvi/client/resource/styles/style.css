@@ -1,4 +1,4 @@
-/*
+
 * {
     -exvi-white: #ffffff;
     -exvi-black: #000000;
@@ -26,78 +26,22 @@
 .button {
     -fx-border-radius: 0.4em;
     -fx-background-radius: 0.4em;
-    -fx-background-insets: 0.1em;
-    -fx-border-insets: -0.2em;
     -fx-alignment: center;
+    -fx-background-insets: 0.2em;
     -fx-border-style: hidden;
+    -fx-background-color: -exvi-gray;
 }
 .button:focused {
-    -fx-border-width: 0.2em;
     -fx-border-style: solid;
 }
-
-.base {
-    -fx-text-fill: -exvi-black;
-    -fx-background-color: -exvi-base-light;
-    -fx-border-color: -exvi-base;
-    -fx-highlight-fill: -exvi-contrast;
-    -fx-highlight-text-fill: -exvi-base;
-    -fx-focus-color: -exvi-base-gray;
+.button:hover {
+    -fx-background-color: -exvi-gray-light;
 }
-.base:hover {
-    -fx-background-color: -exvi-base;
+.button:disabled {
+    -fx-background-color: -exvi-white;
 }
-.base:disabled {
-    -fx-background-color: -exvi-base-gray;
-}
-.base:pressed {
-    -fx-background-color: -exvi-base-dark;
-}
-.base:focused {
-    -fx-background-color: -exvi-base;
-}
-
-.accent {
-    -fx-background-color: -exvi-accent-light;
-    -fx-text-fill: -exvi-white;
-    -fx-border-color: -exvi-accent;
-    -fx-highlight-fill: -exvi-base;
-    -fx-highlight-text-fill: -exvi-accent;
-    -fx-focus-color: -exvi-accent-gray;
-}
-
-.accent:hover {
-    -fx-background-color: -exvi-accent;
-}
-.accent:disabled {
-    -fx-background-color: -exvi-accent-gray;
-}
-.accent:pressed {
-    -fx-background-color: -exvi-accent-dark;
-}
-.accent:focused {
-    -fx-background-color: -exvi-accent;
-}
-
-.contrast {
-    -fx-text-fill: -exvi-white;
-    -fx-background-color: -exvi-contrast-light;
-    -fx-border-color: -exvi-contrast;
-    -fx-highlight-fill: -exvi-base;
-    -fx-hightlight-text-fill: -exvi-contrast;
-    -fx-focus-color: -exvi-contrast-gray;
-}
-.contrast:hover {
-    -fx-background-color: -exvi-contrast;
-}
-.contrast:disabled {
-    -fx-background-color: -exvi-contrast-gray;
-}
-.contrast:pressed {
-    -fx-background-color: -exvi-contrast-dark;
-}
-.contrast:focused {
-    -fx-background-color: -exvi-contrast;
+.button:pressed {
+    -fx-background-color: -exvi-gray-dark;
 }
 
 .text {
@@ -108,4 +52,4 @@
     -fx-alignment: center;
     -fx-font-size: 200%;
     -fx-padding: 1em;
-}*/
+}

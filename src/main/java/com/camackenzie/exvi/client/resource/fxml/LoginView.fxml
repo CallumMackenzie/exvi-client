@@ -47,7 +47,7 @@
                     text="Login"
                     MigPane.cc="align center, growx, spanx 2, wrap"/>
             <Label fx:id="errorText"
-                   MigPane.cc="align center" 
+                   MigPane.cc="align center, spanx2, wrap" 
                    visible="false"/>
         </MigPane>
         <MigPane styleClass="outerGrid"
