@@ -6,6 +6,8 @@
 package com.camackenzie.exvi.client.gui.desktop.javafx;
 
 import com.camackenzie.exvi.client.gui.desktop.javafx.elements.PasswordInput;
+import com.camackenzie.exvi.client.gui.desktop.javafx.elements.TextFieldContentListener;
+import com.camackenzie.exvi.client.gui.desktop.javafx.elements.TextFieldLengthListener;
 import com.camackenzie.exvi.client.gui.desktop.javafx.elements.UsernameInput;
 import com.camackenzie.exvi.client.model.UserAccount;
 import com.camackenzie.exvi.core.api.APIResult;
@@ -16,8 +18,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -64,16 +64,31 @@ public class SignupViewController implements Initializable {
         toLoginPageButton.setOnAction(new ToLoginPageAction());
         sendCodeButton.setOnAction(new SendVerificationCodeAction());
         signupButton.setOnAction(new CreateAccountAction());
+
+        codeInput.lengthProperty()
+                .addListener(new TextFieldLengthListener(codeInput, 6));
+        codeInput.textProperty()
+                .addListener(new TextFieldContentListener(codeInput, "([0-9])*"));
+
+        phoneInput.lengthProperty()
+                .addListener(new TextFieldLengthListener(phoneInput, 20));
+        phoneInput.textProperty()
+                .addListener(new TextFieldContentListener(phoneInput, "\\+?([0-9])*"));
+
+        emailInput.lengthProperty()
+                .addListener(new TextFieldLengthListener(emailInput, 40));
+        emailInput.textProperty()
+                .addListener(new TextFieldContentListener(emailInput, "([0-9a-zA-Z]|[.\\-_])*@?([0-9a-zA-Z]|[.\\-_])*"));
     }
 
     private class ToLoginPageAction implements EventHandler<ActionEvent> {
 
         @Override
         public void handle(ActionEvent e) {
-            if (signupFuture != null) {
-                signupFuture.cancel(true);
-            }
             try {
+                if (signupFuture != null) {
+                    signupFuture.cancel(true);
+                }
                 Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
                 Parent root = FXMLLoader.load(getClass().getResource("/fxml/LoginView.fxml"));
                 stage.getScene().setRoot(root);
@@ -88,48 +103,58 @@ public class SignupViewController implements Initializable {
 
         @Override
         public void handle(ActionEvent e) {
-            sendCodeButton.setDisable(true);
-            signupButton.setDisable(true);
-            emailInput.setDisable(true);
-            usernameInput.setDisable(true);
-            phoneInput.setDisable(true);
+            if (usernameInput.getText().length() == 0) {
+                errorText.setText("Please enter a username");
+                errorText.setVisible(true);
+            } else if (emailInput.getText().length() == 0) {
+                errorText.setText("Please enter an email");
+                errorText.setVisible(true);
+            } else if (phoneInput.getText().length() == 0) {
+                errorText.setText("Please enter a phone number");
+                errorText.setVisible(true);
+            } else {
+                sendCodeButton.setDisable(true);
+                signupButton.setDisable(true);
+                emailInput.setDisable(true);
+                usernameInput.setDisable(true);
+                phoneInput.setDisable(true);
+                signupFuture = new RunnableFuture(() -> {
+                    try {
+                        APIResult<VerificationResult> result
+                                = UserAccount.requestVerification(usernameInput.getText(),
+                                        emailInput.getText(),
+                                        phoneInput.getText()).get();
 
-            signupFuture = new RunnableFuture(() -> {
-                try {
-                    APIResult<VerificationResult> result
-                            = UserAccount.requestVerification(usernameInput.getText(),
-                                    emailInput.getText(),
-                                    phoneInput.getText()).get();
-
-                    if (result.failed()
-                            || result.getBody().errorOccured()) {
+                        if (result.failed()
+                                || result.getBody().errorOccured()) {
+                            Platform.runLater(() -> {
+                                errorText.setText(result.getBody() == null
+                                        ? ("Status code " + result.getStatusCode())
+                                        : result.getBody().getMessage());
+                                errorText.setVisible(true);
+                            });
+                        } else {
+                            Platform.runLater(() -> {
+                                errorText.setVisible(false);
+                                sendCodeButton.setText("Resend Verification Code");
+                            });
+                        }
+                    } catch (InterruptedException ex) {
+                        System.out.println("Verification interrupted: " + ex);
+                    } catch (ExecutionException ex) {
+                        System.err.println(ex);
+                    } finally {
                         Platform.runLater(() -> {
-                            errorText.setText(result.getBody() == null
-                                    ? ("Status code " + result.getStatusCode())
-                                    : result.getBody().getMessage());
-                            errorText.setVisible(true);
-                        });
-                    } else {
-                        Platform.runLater(() -> {
-                            errorText.setVisible(false);
-                            sendCodeButton.setText("Resend Verification Code");
+                            sendCodeButton.setDisable(false);
+                            signupButton.setDisable(false);
+                            emailInput.setDisable(false);
+                            usernameInput.setDisable(false);
+                            phoneInput.setDisable(false);
                         });
                     }
-                } catch (InterruptedException ex) {
-                    System.out.println("Verification interrupted: " + ex);
-                } catch (ExecutionException ex) {
-                    System.err.println(ex);
-                } finally {
-                    Platform.runLater(() -> {
-                        sendCodeButton.setDisable(false);
-                        signupButton.setDisable(false);
-                        emailInput.setDisable(false);
-                        usernameInput.setDisable(false);
-                        phoneInput.setDisable(false);
-                    });
-                }
-            });
-            signupFuture.start();
+                });
+                signupFuture.start();
+            }
         }
 
     }
@@ -138,50 +163,71 @@ public class SignupViewController implements Initializable {
 
         @Override
         public void handle(ActionEvent e) {
-            sendCodeButton.setDisable(true);
-            signupButton.setDisable(true);
-            emailInput.setDisable(true);
-            phoneInput.setDisable(true);
-            usernameInput.setDisable(true);
-            codeInput.setDisable(true);
-            passwordInput.setDisable(true);
-
-            signupFuture = new RunnableFuture(() -> {
-                try {
-                    APIResult<AccountAccessKeyResult> result
-                            = UserAccount.requestSignUp(usernameInput.getText(),
-                                    codeInput.getText(),
-                                    passwordInput.getText()).get();
-                    if (result.failed()
-                            || result.getBody().errorOccured()) {
+            if (codeInput.getText().length() != 6) {
+                errorText.setText("Verification code must be 6 numbers");
+                errorText.setVisible(true);
+            } else if (passwordInput.getText().length() < 8) {
+                errorText.setText("Password must be at least 8 characters");
+                errorText.setVisible(true);
+            } else if (usernameInput.getText().length() == 0) {
+                errorText.setText("Please enter a username");
+                errorText.setVisible(true);
+            } else {
+                sendCodeButton.setDisable(true);
+                signupButton.setDisable(true);
+                emailInput.setDisable(true);
+                phoneInput.setDisable(true);
+                usernameInput.setDisable(true);
+                codeInput.setDisable(true);
+                passwordInput.setDisable(true);
+                signupFuture = new RunnableFuture(() -> {
+                    try {
+                        APIResult<AccountAccessKeyResult> result
+                                = UserAccount.requestSignUp(usernameInput.getText(),
+                                        codeInput.getText(),
+                                        passwordInput.getText()).get();
+                        if (result.failed()
+                                || result.getBody().errorOccured()) {
+                            Platform.runLater(() -> {
+                                errorText.setText(result.getBody() == null
+                                        ? ("Status code " + result.getStatusCode())
+                                        : result.getBody().getMessage());
+                                errorText.setVisible(true);
+                            });
+                        } else {
+                            Platform.runLater(() -> {
+                                try {
+                                    Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
+                                    UserAccount user = UserAccount.fromAccessKey(usernameInput.getText(),
+                                            result.getBody().getAccessKey());
+                                    ((BackendModel) stage.getUserData())
+                                            .getUserManager()
+                                            .setActiveUser(user);
+                                    Parent homepage = FXMLLoader.load(getClass().getResource("/fxml/HomepageView.fxml"));
+                                    stage.getScene().setRoot(homepage);
+                                } catch (IOException ex) {
+                                    System.err.println(ex);
+                                }
+                            });
+                        }
+                    } catch (InterruptedException ex) {
+                        System.out.println("Create account action interrupted: " + ex);
+                    } catch (ExecutionException ex) {
+                        System.err.println(ex);
+                    } finally {
                         Platform.runLater(() -> {
-                            errorText.setText(result.getBody() == null
-                                    ? ("Status code " + result.getStatusCode())
-                                    : result.getBody().getMessage());
-                            errorText.setVisible(true);
-                        });
-                    } else {
-                        Platform.runLater(() -> {
-                            // Switch to homepage view
+                            sendCodeButton.setDisable(false);
+                            signupButton.setDisable(false);
+                            emailInput.setDisable(false);
+                            phoneInput.setDisable(false);
+                            usernameInput.setDisable(false);
+                            codeInput.setDisable(false);
+                            passwordInput.setDisable(false);
                         });
                     }
-                } catch (InterruptedException ex) {
-                    System.out.println("Create account action interrupted: " + ex);
-                } catch (ExecutionException ex) {
-                    System.err.println(ex);
-                } finally {
-                    Platform.runLater(() -> {
-                        sendCodeButton.setDisable(false);
-                        signupButton.setDisable(false);
-                        emailInput.setDisable(false);
-                        phoneInput.setDisable(false);
-                        usernameInput.setDisable(false);
-                        codeInput.setDisable(false);
-                        passwordInput.setDisable(false);
-                    });
-                }
-            });
-            signupFuture.start();
+                });
+                signupFuture.start();
+            }
         }
 
     }

@@ -25,7 +25,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
@@ -80,7 +79,17 @@ public class LoginViewController implements Initializable {
                         });
                     } else {
                         Platform.runLater(() -> {
-                            // Switch to homepage view
+                            try {
+                                Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
+                                UserAccount user = UserAccount.fromAccessKey(usernameField.getText(),
+                                        result.getBody().getAccessKey());
+                                ((BackendModel) stage.getUserData()).getUserManager()
+                                        .setActiveUser(user);
+                                Parent homepage = FXMLLoader.load(getClass().getResource("/fxml/HomepageView.fxml"));
+                                stage.getScene().setRoot(homepage);
+                            } catch (IOException ex) {
+                                System.err.println(ex);
+                            }
                         });
                     }
                 } catch (InterruptedException ex) {
@@ -104,10 +113,10 @@ public class LoginViewController implements Initializable {
 
         @Override
         public void handle(ActionEvent e) {
-            if (loginFuture != null) {
-                loginFuture.cancel(true);
-            }
             try {
+                if (loginFuture != null) {
+                    loginFuture.cancel(true);
+                }
                 Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
                 Parent root = FXMLLoader.load(getClass().getResource("/fxml/SignupView.fxml"));
                 stage.getScene().setRoot(root);

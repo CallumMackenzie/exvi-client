@@ -1,13 +1,4 @@
 /*
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
-*/
-/* 
-    Created on : Jan 29, 2022, 6:56:56 PM
-    Author     : callum
-*/
-
 * {
     -exvi-white: #ffffff;
     -exvi-black: #000000;
@@ -51,6 +42,7 @@ and open the template in the editor.
     -fx-border-color: -exvi-base;
     -fx-highlight-fill: -exvi-contrast;
     -fx-highlight-text-fill: -exvi-base;
+    -fx-focus-color: -exvi-base-gray;
 }
 .base:hover {
     -fx-background-color: -exvi-base;
@@ -61,6 +53,9 @@ and open the template in the editor.
 .base:pressed {
     -fx-background-color: -exvi-base-dark;
 }
+.base:focused {
+    -fx-background-color: -exvi-base;
+}
 
 .accent {
     -fx-background-color: -exvi-accent-light;
@@ -68,7 +63,9 @@ and open the template in the editor.
     -fx-border-color: -exvi-accent;
     -fx-highlight-fill: -exvi-base;
     -fx-highlight-text-fill: -exvi-accent;
+    -fx-focus-color: -exvi-accent-gray;
 }
+
 .accent:hover {
     -fx-background-color: -exvi-accent;
 }
@@ -78,6 +75,9 @@ and open the template in the editor.
 .accent:pressed {
     -fx-background-color: -exvi-accent-dark;
 }
+.accent:focused {
+    -fx-background-color: -exvi-accent;
+}
 
 .contrast {
     -fx-text-fill: -exvi-white;
@@ -85,6 +85,7 @@ and open the template in the editor.
     -fx-border-color: -exvi-contrast;
     -fx-highlight-fill: -exvi-base;
     -fx-hightlight-text-fill: -exvi-contrast;
+    -fx-focus-color: -exvi-contrast-gray;
 }
 .contrast:hover {
     -fx-background-color: -exvi-contrast;
@@ -95,6 +96,9 @@ and open the template in the editor.
 .contrast:pressed {
     -fx-background-color: -exvi-contrast-dark;
 }
+.contrast:focused {
+    -fx-background-color: -exvi-contrast;
+}
 
 .text {
     -fx-font-family: "monspace";
@@ -104,4 +108,4 @@ and open the template in the editor.
     -fx-alignment: center;
     -fx-font-size: 200%;
     -fx-padding: 1em;
-}
+}*/

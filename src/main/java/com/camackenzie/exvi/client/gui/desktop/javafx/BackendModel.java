@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.camackenzie.exvi.client.gui.desktop;
+package com.camackenzie.exvi.client.gui.desktop.javafx;
 
 import com.camackenzie.exvi.client.model.ExerciseManager;
 import com.camackenzie.exvi.client.model.UserManager;

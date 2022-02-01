@@ -42,7 +42,9 @@ public class UserManager {
     }
 
     public void saveActiveUserCredentials() {
-        this.activeUser.saveCredentials(USER_DATA_DIR);
+        if (this.activeUser != null) {
+            this.activeUser.saveCredentials(USER_DATA_DIR);
+        }
     }
 
     public final void checkForLoggedInUsers() {
@@ -104,7 +106,9 @@ public class UserManager {
     }
 
     public void setActiveUser(UserAccount au) {
+        this.saveActiveUserCredentials();
         this.activeUser = au;
+        this.saveActiveUserCredentials();
     }
 
 }

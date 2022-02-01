@@ -5,10 +5,9 @@
  */
 package com.camackenzie.exvi.client.gui.desktop.javafx;
 
-import java.net.URL;
+import java.io.IOException;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -25,9 +24,23 @@ public class AppRunner extends Application {
         Application.launch();
     }
 
+    BackendModel model;
+
     @Override
     public void start(Stage stage) throws Exception {
 
+        this.setupModel();
+        this.setupStage(stage);
+        this.setInitialView(stage);
+
+        stage.show();
+    }
+
+    private void setupModel() {
+        this.model = new BackendModel();
+    }
+
+    private void setupStage(Stage stage) {
         stage.setTitle("Exvi Fitness");
         stage.getIcons().add(new Image(this.getClass().getResourceAsStream("/image/Logo.png")));
         stage.setOnCloseRequest(e -> {
@@ -35,12 +48,18 @@ public class AppRunner extends Application {
             System.exit(0);
         });
 
-        Parent root = FXMLLoader.load(this.getClass().getResource("/fxml/LoginView.fxml"));
+        stage.setUserData(this.model);
+    }
+
+    private void setInitialView(Stage stage) throws IOException {
+        Parent root;
+        if (model.getUserManager().hasActiveUser()) {
+            root = FXMLLoader.load(getClass().getResource("/fxml/HomepageView.fxml"));
+        } else {
+            root = FXMLLoader.load(getClass().getResource("/fxml/LoginView.fxml"));
+        }
         Scene scene = new Scene(root);
-
         stage.setScene(scene);
-
-        stage.show();
     }
 
 }

@@ -26,7 +26,7 @@
     <Button fx:id="toLoginPageButton"
             text="Back to Login Page"
             styleClass="accent"
-            MigPane.cc="dock north, align center, pad 10, growx"/>
+            MigPane.cc="dock north, align center, growx"/>
     
     <MigPane
         MigPane.cc="align center">

@@ -1,9 +1,5 @@
 /*@import "/styles/style.css";
 
-.mainFxmlClass {
+#rootPane {
     -fx-background-color: -exvi-base-light;
-}
-
-#errorText {
-    -fx-text-fill: red;
 }*/
