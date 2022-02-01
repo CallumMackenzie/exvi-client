@@ -43,6 +43,7 @@ public class HomepageViewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         signOutItem.setOnAction(new SignOutAction());
+        workoutManagerItem.setOnAction(new ToWorkoutManagerAction());
     }
 
     private class SignOutAction implements EventHandler<ActionEvent> {
@@ -55,6 +56,21 @@ public class HomepageViewController implements Initializable {
                 model.getUserManager().signOutActiveUser();
                 Parent signinPage = FXMLLoader.load(getClass().getResource("/fxml/LoginView.fxml"));
                 stage.getScene().setRoot(signinPage);
+            } catch (IOException ex) {
+                System.err.println(ex);
+            }
+        }
+
+    }
+
+    private class ToWorkoutManagerAction implements EventHandler<ActionEvent> {
+
+        @Override
+        public void handle(ActionEvent e) {
+            try {
+                Stage stage = (Stage) menuBar.getScene().getWindow();
+                Parent workoutManagerPage = FXMLLoader.load(getClass().getResource("/fxml/WorkoutManagerView.fxml"));
+                stage.getScene().setRoot(workoutManagerPage);
             } catch (IOException ex) {
                 System.err.println(ex);
             }
