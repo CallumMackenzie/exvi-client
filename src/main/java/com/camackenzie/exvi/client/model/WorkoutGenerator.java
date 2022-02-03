@@ -51,6 +51,14 @@ public class WorkoutGenerator {
         this.exerciseManager = exm;
     }
 
+    public Workout regenerateWorkout(Workout w, int... indexesToReplace) {
+        if (w == null) {
+            return this.generateNextWorkout("New Workout");
+        } else {
+            return this.generateNextWorkout(w.getName());
+        }
+    }
+
     public Workout generateNextWorkout(String name) {
         // Create a new workout
         Workout wkr = new Workout(name, "", new ArrayList<>());

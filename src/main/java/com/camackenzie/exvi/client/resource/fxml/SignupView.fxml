@@ -20,7 +20,6 @@
     
     <stylesheets>
         <URL value="@/styles/style.css"/>
-        <URL value="@/styles/signupview.css"/>
     </stylesheets>
     
     <Button fx:id="toLoginPageButton"

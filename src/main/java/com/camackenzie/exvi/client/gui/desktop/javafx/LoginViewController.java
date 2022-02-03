@@ -11,20 +11,16 @@ import com.camackenzie.exvi.client.gui.desktop.javafx.elements.UsernameInput;
 import com.camackenzie.exvi.core.api.APIResult;
 import com.camackenzie.exvi.core.api.AccountAccessKeyResult;
 import com.camackenzie.exvi.core.async.RunnableFuture;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
@@ -34,7 +30,7 @@ import javafx.stage.Stage;
  *
  * @author callum
  */
-public class LoginViewController implements Initializable {
+public class LoginViewController extends Controller {
 
     @FXML
     Button loginButton;
@@ -54,6 +50,8 @@ public class LoginViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        this.cacheFXML("signup", "/fxml/SignupView.fxml",
+                "home", "/fxml/HomepageView.fxml");
         loginButton.setOnAction(new LoginAction());
         signupButton.setOnAction(new SignupAction());
     }
@@ -90,17 +88,13 @@ public class LoginViewController implements Initializable {
                             });
                         } else {
                             Platform.runLater(() -> {
-                                try {
-                                    Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
-                                    UserAccount user = UserAccount.fromAccessKey(usernameField.getText(),
-                                            result.getBody().getAccessKey());
-                                    ((BackendModel) stage.getUserData()).getUserManager()
-                                            .setActiveUser(user);
-                                    Parent homepage = FXMLLoader.load(getClass().getResource("/fxml/HomepageView.fxml"));
-                                    stage.getScene().setRoot(homepage);
-                                } catch (IOException ex) {
-                                    System.err.println(ex);
-                                }
+                                Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
+                                UserAccount user = UserAccount.fromAccessKey(usernameField.getText(),
+                                        result.getBody().getAccessKey());
+                                ((BackendModel) stage.getUserData()).getUserManager()
+                                        .setActiveUser(user);
+
+                                setView("home", stage);
                             });
                         }
                     } catch (InterruptedException ex) {
@@ -125,16 +119,10 @@ public class LoginViewController implements Initializable {
 
         @Override
         public void handle(ActionEvent e) {
-            try {
-                if (loginFuture != null) {
-                    loginFuture.cancel(true);
-                }
-                Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
-                Parent root = FXMLLoader.load(getClass().getResource("/fxml/SignupView.fxml"));
-                stage.getScene().setRoot(root);
-            } catch (IOException ex) {
-                System.err.println(ex);
+            if (loginFuture != null) {
+                loginFuture.cancel(true);
             }
+            setView("signup", (Node) e.getSource());
         }
 
     }

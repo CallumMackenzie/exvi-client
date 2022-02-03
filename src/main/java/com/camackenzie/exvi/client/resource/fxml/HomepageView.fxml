@@ -17,16 +17,17 @@
          layout="fill">
     <stylesheets>
         <URL value="@/styles/style.css"/>
-        <URL value="@/styles/homepageview.css"/>
     </stylesheets>
     
     <MenuBar fx:id="menuBar"
-        MigPane.cc="dock north, align center, growx">
+             MigPane.cc="dock north, align center, growx">
         <menus>
             <Menu text="Workouts">
                 <items>
                     <MenuItem fx:id="workoutManagerItem"
                               text="Open Workout Manager"/>
+                    <MenuItem fx:id="workoutCreationItem"
+                              text="Create New Workout"/>
                 </items>
             </Menu>
             <Menu text="Account">

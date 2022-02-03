@@ -5,18 +5,11 @@
  */
 package com.camackenzie.exvi.client.gui.desktop.javafx;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Stage;
@@ -26,13 +19,16 @@ import javafx.stage.Stage;
  *
  * @author callum
  */
-public class HomepageViewController implements Initializable {
+public class HomepageViewController extends Controller {
 
     @FXML
     MenuBar menuBar;
 
     @FXML
     MenuItem workoutManagerItem;
+
+    @FXML
+    MenuItem workoutCreationItem;
 
     @FXML
     MenuItem signOutItem;
@@ -42,38 +38,30 @@ public class HomepageViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        this.cacheFXML("createWorkout", "/fxml/WorkoutCreationView.fxml",
+                "login", "/fxml/LoginView.fxml");
         signOutItem.setOnAction(new SignOutAction());
-        workoutManagerItem.setOnAction(new ToWorkoutManagerAction());
+        workoutCreationItem.setOnAction(new ToWorkoutCreationAction());
     }
 
     private class SignOutAction implements EventHandler<ActionEvent> {
 
         @Override
         public void handle(ActionEvent e) {
-            try {
-                Stage stage = (Stage) menuBar.getScene().getWindow();
-                BackendModel model = (BackendModel) stage.getUserData();
-                model.getUserManager().signOutActiveUser();
-                Parent signinPage = FXMLLoader.load(getClass().getResource("/fxml/LoginView.fxml"));
-                stage.getScene().setRoot(signinPage);
-            } catch (IOException ex) {
-                System.err.println(ex);
-            }
+            Stage stage = (Stage) menuBar.getScene().getWindow();
+            BackendModel model = (BackendModel) stage.getUserData();
+            model.getUserManager().signOutActiveUser();
+
+            setView("login", stage);
         }
 
     }
 
-    private class ToWorkoutManagerAction implements EventHandler<ActionEvent> {
+    private class ToWorkoutCreationAction implements EventHandler<ActionEvent> {
 
         @Override
         public void handle(ActionEvent e) {
-            try {
-                Stage stage = (Stage) menuBar.getScene().getWindow();
-                Parent workoutManagerPage = FXMLLoader.load(getClass().getResource("/fxml/WorkoutManagerView.fxml"));
-                stage.getScene().setRoot(workoutManagerPage);
-            } catch (IOException ex) {
-                System.err.println(ex);
-            }
+            setView("createWorkout", menuBar);
         }
 
     }

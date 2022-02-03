@@ -25,15 +25,22 @@ public class AppRunner extends Application {
     }
 
     BackendModel model;
+    ViewManager viewManager;
 
     @Override
     public void start(Stage stage) throws Exception {
 
+        this.setupViewCaching();
         this.setupModel();
         this.setupStage(stage);
         this.setInitialView(stage);
 
         stage.show();
+    }
+
+    private void setupViewCaching() {
+        this.viewManager = new ViewManager("login", "/fxml/LoginView.fxml",
+                "home", "/fxml/HomepageView.fxml");
     }
 
     private void setupModel() {
@@ -54,9 +61,9 @@ public class AppRunner extends Application {
     private void setInitialView(Stage stage) throws IOException {
         Parent root;
         if (model.getUserManager().hasActiveUser()) {
-            root = FXMLLoader.load(getClass().getResource("/fxml/HomepageView.fxml"));
+            root = viewManager.getFXML("home");
         } else {
-            root = FXMLLoader.load(getClass().getResource("/fxml/LoginView.fxml"));
+            root = viewManager.getFXML("login");
         }
         Scene scene = new Scene(root);
         stage.setScene(scene);

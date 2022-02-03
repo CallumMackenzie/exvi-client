@@ -36,7 +36,7 @@ import javafx.stage.Stage;
  *
  * @author callum
  */
-public class SignupViewController implements Initializable {
+public class SignupViewController extends Controller {
 
     @FXML
     Button toLoginPageButton;
@@ -61,6 +61,9 @@ public class SignupViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        this.cacheFXML("login", "/fxml/LoginView.fxml",
+                "home", "/fxml/HomepageView.fxml");
+
         toLoginPageButton.setOnAction(new ToLoginPageAction());
         sendCodeButton.setOnAction(new SendVerificationCodeAction());
         signupButton.setOnAction(new CreateAccountAction());
@@ -85,16 +88,10 @@ public class SignupViewController implements Initializable {
 
         @Override
         public void handle(ActionEvent e) {
-            try {
-                if (signupFuture != null) {
-                    signupFuture.cancel(true);
-                }
-                Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
-                Parent root = FXMLLoader.load(getClass().getResource("/fxml/LoginView.fxml"));
-                stage.getScene().setRoot(root);
-            } catch (IOException ex) {
-                System.err.println(ex);
+            if (signupFuture != null) {
+                signupFuture.cancel(true);
             }
+            setView("login", (Node) e.getSource());
         }
 
     }
@@ -196,18 +193,14 @@ public class SignupViewController implements Initializable {
                             });
                         } else {
                             Platform.runLater(() -> {
-                                try {
-                                    Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
-                                    UserAccount user = UserAccount.fromAccessKey(usernameInput.getText(),
-                                            result.getBody().getAccessKey());
-                                    ((BackendModel) stage.getUserData())
-                                            .getUserManager()
-                                            .setActiveUser(user);
-                                    Parent homepage = FXMLLoader.load(getClass().getResource("/fxml/HomepageView.fxml"));
-                                    stage.getScene().setRoot(homepage);
-                                } catch (IOException ex) {
-                                    System.err.println(ex);
-                                }
+                                Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
+                                UserAccount user = UserAccount.fromAccessKey(usernameInput.getText(),
+                                        result.getBody().getAccessKey());
+                                ((BackendModel) stage.getUserData())
+                                        .getUserManager()
+                                        .setActiveUser(user);
+
+                                setView("home", stage);
                             });
                         }
                     } catch (InterruptedException ex) {

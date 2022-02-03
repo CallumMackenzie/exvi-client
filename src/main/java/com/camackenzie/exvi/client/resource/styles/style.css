@@ -23,7 +23,7 @@
     -exvi-contrast-gray: #6a736f;
 }
 
-.button {
+/*.button {
     -fx-border-radius: 0.4em;
     -fx-background-radius: 0.4em;
     -fx-alignment: center;
@@ -42,7 +42,7 @@
 }
 .button:pressed {
     -fx-background-color: -exvi-gray-dark;
-}
+}*/
 
 .text {
     -fx-font-family: "monspace";

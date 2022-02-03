@@ -19,7 +19,6 @@
          layout="fill">
     
     <stylesheets>
-        <URL value="@/styles/loginview.css"/>
         <URL value="@/styles/style.css"/>
     </stylesheets>
     
