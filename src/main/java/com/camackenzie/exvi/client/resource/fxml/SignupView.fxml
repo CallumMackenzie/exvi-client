@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import com.camackenzie.exvi.client.gui.desktop.javafx.elements.*?>
+<?import org.tbee.javafx.scene.layout.fxml.MigPane?>
+<?import javafx.scene.text.*?>
+
+<MigPane id="RootPane" 
+         prefHeight="400.0" 
+         prefWidth="600.0" 
+         styleClass="mainFxmlClass" 
+         xmlns:fx="http://javafx.com/fxml/1" 
+         fx:controller="com.camackenzie.exvi.client.gluon.SignupViewController"
+         layout="fill">
+    
+    <stylesheets>
+        <URL value="@/styles/style.css"/>
+    </stylesheets>
+    
+    <Button fx:id="toLoginPageButton"
+            text="Back to Login Page"
+            styleClass="accent"
+            MigPane.cc="dock north, align center, growx"/>
+    
+    <MigPane
+        MigPane.cc="align center">
+        
+        <Text text="Sign Up"
+              styleClass="h1"
+              MigPane.cc="align center, spanx 2, wrap"/>
+
+        <Label text="Username"
+               MigPane.cc="align left"/>
+        <UsernameInput fx:id="usernameInput"
+                       styleClass="accent"
+                       MigPane.cc="growx, align center, wrap"/>
+        
+        <Label text="Email"
+               MigPane.cc="align left"/>
+        <TextField fx:id="emailInput" 
+                   styleClass="accent"
+                   MigPane.cc="growx, align center, wrap"/>
+        
+        <Label text="Phone Number"
+               MigPane.cc="align left"/>
+        <TextField fx:id="phoneInput" 
+                   styleClass="accent"
+                   MigPane.cc="growx, align center, wrap"/>
+        
+        <Label text="Password"
+               MigPane.cc="align left"/>
+        <PasswordInput fx:id="passwordInput"
+                       styleClass="accent"
+                       MigPane.cc="growx, align center, wrap" />
+            
+        <Label text="Verification Code"
+               MigPane.cc="align left"/>
+        <TextField fx:id="codeInput"
+                   styleClass="accent"
+                   MigPane.cc="growx, align center, wrap"/>
+            
+        <Button fx:id="sendCodeButton"
+                styleClass="accent"
+                text="Send Verification Code"
+                MigPane.cc="growx, align center, spanx 2, wrap"/>
+        
+        <Button fx:id="signupButton"
+                styleClass="accent"
+                text="Create Account"
+                MigPane.cc="growx, align center, spanx 2, wrap"/>
+        
+        <Text fx:id="errorText"
+              MigPane.cc="align center, spanx 2, wrap"
+              id="errorText"
+              visible="false"/>
+        
+    </MigPane>
+    
+</MigPane>

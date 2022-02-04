@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import org.tbee.javafx.scene.layout.fxml.MigPane?>
+
+<MigPane id="RootPane" 
+         fx:id="rootPane"
+         prefHeight="400.0" 
+         prefWidth="600.0" 
+         styleClass="mainFxmlClass" 
+         xmlns:fx="http://javafx.com/fxml/1" 
+         layout="fill"
+         fx:controller="com.camackenzie.exvi.client.gluon.WorkoutCreationViewController">
+    <stylesheets>
+        <URL value="@/styles/style.css"/>
+    </stylesheets>
+    
+    <MigPane id="topBar"
+             layout="fill"
+             MigPane.cc="dock north, align center, growx">
+        <MigPane layout="fill"
+                 MigPane.cc="left, growx, sg topBar">
+            <Label text="Workout Name"
+                   MigPane.cc="left"/>
+            <TextField fx:id="workoutNameField"
+                       MigPane.cc="align center, growx"/>
+        </MigPane>
+        <MigPane layout="fill"
+                 MigPane.cc="right, growx, sg topBar">
+            <Button fx:id="cancelButton"
+                    text="Cancel" MigPane.cc="growx, sg menuBttn"/>  
+            <Button fx:id="finishButton"
+                    text="Finish" MigPane.cc="growx, sg menuBttn, wrap"/>
+            <Button fx:id="generateButton"
+                    text="Generate" MigPane.cc="growx, sg menuBttn"/>
+
+            <MigPane layout="fill"
+                     MigPane.cc="growx, align center">
+                <Label text="Generator" MigPane.cc="left"/>
+                <ComboBox fx:id="generatorPresetBox" 
+                          MigPane.cc="growx, align center"/>
+            </MigPane>
+        </MigPane>
+    </MigPane>
+    
+    <MigPane id="exerciseListContainer"
+             layout="fill"
+             MigPane.cc="left, width 50%, growy">
+        
+        <MigPane id="workoutExerList"
+                 layout="fill"
+                 MigPane.cc="align center, growy, width 100%, wrap">
+            <Label text="Exercises in Workout"
+                   MigPane.cc="align center, growx, wrap"
+                   styleClass="h3"/>
+            <ListView fx:id="workoutExercises"
+                      MigPane.cc="align center, grow, sg mainCol"/>
+        </MigPane>
+        <MigPane id="exerciseSearchList"
+                 layout="fill"
+                 MigPane.cc="align center, growy, width 100%, wrap">
+            <MigPane id="exerciseSearchContainer"
+                     MigPane.cc="align center, wrap">
+                <Label text="Name" MigPane.cc="left"/>
+                <TextField fx:id="exManSearchField" 
+                           MigPane.cc="growx, align center"/>
+                <Button text="Search" MigPane.cc="align center"/>
+            </MigPane>
+            <ListView fx:id="allExersList"
+                      MigPane.cc="align center, grow, sg mainCol"/>
+        </MigPane>
+    </MigPane>
+    
+    <MigPane layout="fill"
+             MigPane.cc="right, top, width 50%, growy">
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="ALWAYS"
+                    MigPane.cc="grow, align center">
+            <MigPane id="exerciseInfoContainer"
+                     layout="fill">
+                <Label fx:id="exerciseNameText"
+                       MigPane.cc="align center, growx, wrap"
+                       styleClass="h2"
+                       wrapText="true"/>
+                
+                <Label text="Overview"
+                       fx:id="exerciseOverviewHeader"
+                       MigPane.cc="align center, growx, wrap"
+                       visible="false"
+                       wrapText="true"
+                       styleClass="h3"/>
+                <Label fx:id="exerciseOverviewText"
+                       wrapText="true" 
+                       MigPane.cc="left, wrap"/>
+                
+                <Label text="Description"
+                       styleClass="h3"
+                       fx:id="exerciseDescriptionHeader"
+                       MigPane.cc="align center, growx, wrap"
+                       wrapText="true"
+                       visible="false"/>
+                <Label fx:id="exerciseDescriptionText"
+                       wrapText="true"
+                       MigPane.cc="left, wrap"/>
+                
+                <Label text="Tips" 
+                       styleClass="h3"
+                       fx:id="exerciseTipsHeader"
+                       wrapText="true"
+                       MigPane.cc="align center, growx, wrap"
+                       visible="false"/>
+                <Label fx:id="exerciseTipsText"
+                       wrapText="true" 
+                       MigPane.cc="left, wrap"/>
+            </MigPane>
+        </ScrollPane>
+    </MigPane>
+    
+</MigPane>

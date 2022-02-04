@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import org.tbee.javafx.scene.layout.fxml.MigPane?>
+
+<MigPane id="rootPane" 
+         prefHeight="400.0" 
+         prefWidth="600.0" 
+         xmlns:fx="http://javafx.com/fxml/1" 
+         fx:controller="com.camackenzie.exvi.client.gluon.HomepageViewController"
+         layout="fill">
+    <stylesheets>
+        <URL value="@/styles/style.css"/>
+    </stylesheets>
+    
+    <MenuBar fx:id="menuBar"
+             MigPane.cc="dock north, align center, growx">
+        <menus>
+            <Menu text="Workouts">
+                <items>
+                    <MenuItem fx:id="workoutManagerItem"
+                              text="Open Workout Manager"/>
+                    <MenuItem fx:id="workoutCreationItem"
+                              text="Create New Workout"/>
+                </items>
+            </Menu>
+            <Menu text="Account">
+                <items>
+                    <MenuItem fx:id="signOutItem" 
+                              text="Sign Out"/>
+                </items>
+            </Menu>
+        </menus>
+    </MenuBar>
+    
+</MigPane>
