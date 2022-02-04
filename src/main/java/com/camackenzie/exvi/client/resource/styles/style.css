@@ -1,51 +1,10 @@
 
 * {
-    -exvi-white: #ffffff;
-    -exvi-black: #000000;
 
-    -exvi-gray: #B5B8BA;
-    -exvi-gray-light: #CACCCE;
-    -exvi-gray-dark: #6d7174;
-
-    -exvi-base: #FFF8C2;
-    -exvi-base-light: #FFFDEB;
-    -exvi-base-dark: #FFF399;
-    -exvi-base-gray: #cecdbd;
-
-    -exvi-accent: #D64933;
-    -exvi-accent-light: #DD6755;
-    -exvi-accent-dark: #BB3925;
-    -exvi-accent-gray: #c0938d;
-
-    -exvi-contrast: #1E2D24;
-    -exvi-contrast-light: #31493b;
-    -exvi-contrast-dark: #101814;
-    -exvi-contrast-gray: #6a736f;
 }
-
-/*.button {
-    -fx-border-radius: 0.4em;
-    -fx-background-radius: 0.4em;
-    -fx-alignment: center;
-    -fx-background-insets: 0.2em;
-    -fx-border-style: hidden;
-    -fx-background-color: -exvi-gray;
-}
-.button:focused {
-    -fx-border-style: solid;
-}
-.button:hover {
-    -fx-background-color: -exvi-gray-light;
-}
-.button:disabled {
-    -fx-background-color: -exvi-white;
-}
-.button:pressed {
-    -fx-background-color: -exvi-gray-dark;
-}*/
 
 .text {
-    -fx-font-family: "monspace";
+    -fx-font-family: "monospace";
 }
 
 .label {
@@ -54,6 +13,19 @@
 
 .h1 {
     -fx-alignment: center;
+    -fx-text-alignment: center;
     -fx-font-size: 200%;
     -fx-padding: 1em;
+}
+.h2 {
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-padding: 0.6em;
+    -fx-font-size: 160%;
+}
+.h3 {
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-padding: 0.5em;
+    -fx-font-size: 140%;
 }

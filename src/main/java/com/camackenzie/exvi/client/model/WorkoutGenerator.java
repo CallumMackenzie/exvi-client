@@ -13,6 +13,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -51,26 +54,62 @@ public class WorkoutGenerator {
         this.exerciseManager = exm;
     }
 
-    public Workout regenerateWorkout(Workout w, int... indexesToReplace) {
-        if (w == null) {
-            return this.generateNextWorkout("New Workout");
-        } else {
-            return this.generateNextWorkout(w.getName());
+    public Workout generateWorkout(Workout wkr, Set<ExerciseSet> lockedExercises) {
+        // Get the indexes of the locked exercises
+        int[] lockedExerIndexes = new int[lockedExercises.size()];
+        int ctr = -1;
+        for (var exer : lockedExercises) {
+            lockedExerIndexes[++ctr] = wkr.getExercises().indexOf(exer);
         }
+        // Generate & return the workout
+        return this.generateWorkout(wkr, lockedExerIndexes);
     }
 
-    public Workout generateNextWorkout(String name) {
+    public Workout generateWorkout(Workout wkr, int... lockedIndexes) {
         // Create a new workout
-        Workout wkr = new Workout(name, "", new ArrayList<>());
-        ArrayList<ExerciseSet> exs = wkr.getExercises();
+        List<ExerciseSet> workoutExers = wkr.getExercises();
 
         // Retrieve the exercises
-        ArrayList<Exercise> exercises = new ArrayList(this.exerciseManager.getExercises());
+        HashSet<Exercise> exercises = new HashSet(this.exerciseManager.getExercises());
+
+        // Remove locked exercises from global exercise set
+        for (var lockedIndex : lockedIndexes) {
+            if (lockedIndex >= 0 && lockedIndex < workoutExers.size()) {
+                exercises.remove(workoutExers.get(lockedIndex).getExercise());
+            }
+        }
+
+        // Get the highest index which is locked
+        int highestLocked = -1;
+        for (var lockedIndex : lockedIndexes) {
+            if (lockedIndex > highestLocked) {
+                highestLocked = lockedIndex;
+            }
+        }
+
+        // Get the number of exercises, with at least the highest number locked
+        int nExercises = Math.max(random.intInRange(this.params.getMinExercises(),
+                this.params.getMaxExercises()),
+                highestLocked);
+
+        ArrayList<ExerciseSet> exs = new ArrayList<>(nExercises);
 
         // Get exercises based on their priority
-        int nExercises = random.intInRange(this.params.getMinExercises(), this.params.getMaxExercises());
-        // For the number of exercises
         for (int i = 0; i < nExercises; ++i) {
+            // If the exercise is locked, skip it
+            boolean indexLocked = false;
+            for (var index : lockedIndexes) {
+                if (i == index) {
+                    indexLocked = true;
+                    break;
+                }
+            }
+            if (indexLocked) {
+                exs.add(workoutExers.get(i));
+                continue;
+            }
+
+            // Create exercise priority list to track
             ArrayList<ExercisePriorityTracker> exercisePriorities = new ArrayList<>();
             // For each exercise find the priority based on the given priority
             // providers
@@ -144,6 +183,9 @@ public class WorkoutGenerator {
                         selectedExer.getPriority());
             }
         }
+
+        workoutExers.clear();
+        workoutExers.addAll(exs);
 
         // Return the created workout
         return wkr;

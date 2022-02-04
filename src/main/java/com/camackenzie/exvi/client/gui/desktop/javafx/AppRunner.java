@@ -51,8 +51,7 @@ public class AppRunner extends Application {
     }
 
     private void setInitialView(Stage stage) throws IOException {
-        this.viewManager = new ViewManager();
-
+        viewManager = new ViewManager();
         Parent root;
         if (model.getUserManager().hasActiveUser()) {
             root = viewManager.getFXML(Views.HOME);
