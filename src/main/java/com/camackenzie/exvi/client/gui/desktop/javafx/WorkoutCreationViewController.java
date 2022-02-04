@@ -208,7 +208,7 @@ public class WorkoutCreationViewController extends Controller {
                 nameLabel = new Label();
                 rootPane.add(nameLabel, "left");
 
-                deleteButton = new Button("❌");
+                deleteButton = new Button("X");
                 deleteButton.setOnAction(new DeleteItemAction());
                 rootPane.add(deleteButton, "east, gap 3pt 3pt");
 

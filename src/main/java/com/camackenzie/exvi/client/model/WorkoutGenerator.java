@@ -90,7 +90,7 @@ public class WorkoutGenerator {
         // Get the number of exercises, with at least the highest number locked
         int nExercises = Math.max(random.intInRange(this.params.getMinExercises(),
                 this.params.getMaxExercises()),
-                highestLocked);
+                highestLocked + 1);
 
         ArrayList<ExerciseSet> exs = new ArrayList<>(nExercises);
 
