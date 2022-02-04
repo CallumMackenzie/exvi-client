@@ -36,6 +36,16 @@ public abstract class Controller implements Initializable {
         this(true);
     }
 
+    public final void cacheFXML(Views... views) {
+        for (int i = 0; i < views.length; ++i) {
+            if (shouldPreCache) {
+                this.toCache.add(views[i].getID());
+                this.toCache.add(views[i].getPath());
+            }
+            this.viewPaths.put(views[i].getID(), views[i].getPath());
+        }
+    }
+
     public final void cacheFXML(String... pairs) {
         assert (pairs.length % 2 == 0);
         for (int i = 0; i < pairs.length; i += 2) {
@@ -54,11 +64,7 @@ public abstract class Controller implements Initializable {
         }
     }
 
-    public final void setView(String name, Node node) {
-        this.setView(name, (Stage) node.getScene().getWindow());
-    }
-
-    public final void setView(String name, Stage stage) {
+    private void setView(String name, Stage stage) {
         if (this.shouldPreCache) {
             stage.getScene().setRoot(viewManager.getFXML(name));
         } else {
@@ -71,6 +77,19 @@ public abstract class Controller implements Initializable {
             } catch (IOException ex) {
                 System.err.println(ex);
             }
+        }
+    }
+
+    public final void setView(Views view, Node node) {
+        this.setView(view, (Stage) node.getScene().getWindow());
+    }
+
+    public final void setView(Views view, Stage stage) {
+        if (this.viewPaths.containsValue(view.getPath())) {
+            this.setView(view.getID(), stage);
+        } else {
+            this.viewManager.cacheView(view.getID(), view.getURL());
+            this.setView(view.getID(), stage);
         }
     }
 

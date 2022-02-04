@@ -14,7 +14,6 @@ import com.camackenzie.exvi.core.api.APIResult;
 import com.camackenzie.exvi.core.api.AccountAccessKeyResult;
 import com.camackenzie.exvi.core.api.VerificationResult;
 import com.camackenzie.exvi.core.async.RunnableFuture;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
@@ -22,10 +21,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
@@ -61,8 +57,7 @@ public class SignupViewController extends Controller {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        this.cacheFXML("login", "/fxml/LoginView.fxml",
-                "home", "/fxml/HomepageView.fxml");
+        this.cacheFXML(Views.LOGIN, Views.HOME);
 
         toLoginPageButton.setOnAction(new ToLoginPageAction());
         sendCodeButton.setOnAction(new SendVerificationCodeAction());
@@ -91,7 +86,7 @@ public class SignupViewController extends Controller {
             if (signupFuture != null) {
                 signupFuture.cancel(true);
             }
-            setView("login", (Node) e.getSource());
+            setView(Views.LOGIN, (Node) e.getSource());
         }
 
     }
@@ -200,7 +195,7 @@ public class SignupViewController extends Controller {
                                         .getUserManager()
                                         .setActiveUser(user);
 
-                                setView("home", stage);
+                                setView(Views.HOME, stage);
                             });
                         }
                     } catch (InterruptedException ex) {

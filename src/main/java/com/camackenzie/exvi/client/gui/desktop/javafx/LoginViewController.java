@@ -18,9 +18,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
@@ -50,8 +48,10 @@ public class LoginViewController extends Controller {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        this.cacheFXML("signup", "/fxml/SignupView.fxml",
-                "home", "/fxml/HomepageView.fxml");
+        // Cache FXML results for faster load times
+        this.cacheFXML(Views.SIGNUP, Views.HOME);
+
+        // Setup controllers
         loginButton.setOnAction(new LoginAction());
         signupButton.setOnAction(new SignupAction());
     }
@@ -60,6 +60,7 @@ public class LoginViewController extends Controller {
 
         @Override
         public void handle(ActionEvent e) {
+            // Ensure input fields have valid input
             if (usernameField.getText().isBlank()) {
                 errorText.setText("Please enter a username");
                 errorText.setVisible(true);
@@ -70,38 +71,47 @@ public class LoginViewController extends Controller {
                 errorText.setText("Your password must be longer than 8 characters");
                 errorText.setVisible(true);
             } else {
+                // Disable controls
                 loginButton.setDisable(true);
                 usernameField.setDisable(true);
                 passwordField.setDisable(true);
                 errorText.setVisible(false);
 
+                // Send login request async
                 loginFuture = new RunnableFuture(() -> {
                     try {
+                        // Send request
                         APIResult<AccountAccessKeyResult> result
                                 = UserAccount.requestLogin(usernameField.getText(),
                                         passwordField.getText()).get();
+                        // Check request status
                         if (result.failed()
-                                || result.getBody().errorOccured()) {
+                                || result.getBody().errorOccured()
+                                || result.getBody().getAccessKey().isBlank()) {
+                            // Update UI to show error
                             Platform.runLater(() -> {
                                 errorText.setText(result.getBody().getMessage());
                                 errorText.setVisible(true);
                             });
                         } else {
                             Platform.runLater(() -> {
+                                // Update model with user credentials
                                 Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
                                 UserAccount user = UserAccount.fromAccessKey(usernameField.getText(),
                                         result.getBody().getAccessKey());
                                 ((BackendModel) stage.getUserData()).getUserManager()
                                         .setActiveUser(user);
 
-                                setView("home", stage);
+                                // Switch views
+                                setView(Views.HOME, stage);
                             });
                         }
                     } catch (InterruptedException ex) {
-                        System.out.println("Login action interrupted: " + ex.getMessage());
+                        System.out.println("Login action interrupted: " + ex);
                     } catch (ExecutionException ex) {
                         System.err.println("Login action failed: " + ex);
                     } finally {
+                        // Reenable controls
                         Platform.runLater(() -> {
                             loginButton.setDisable(false);
                             usernameField.setDisable(false);
@@ -119,10 +129,12 @@ public class LoginViewController extends Controller {
 
         @Override
         public void handle(ActionEvent e) {
+            // Cancel login if it is being requested
             if (loginFuture != null) {
                 loginFuture.cancel(true);
             }
-            setView("signup", (Node) e.getSource());
+            // Switch views
+            setView(Views.SIGNUP, (Node) e.getSource());
         }
 
     }

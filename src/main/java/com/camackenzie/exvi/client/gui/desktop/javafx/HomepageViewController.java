@@ -38,8 +38,7 @@ public class HomepageViewController extends Controller {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        this.cacheFXML("createWorkout", "/fxml/WorkoutCreationView.fxml",
-                "login", "/fxml/LoginView.fxml");
+        this.cacheFXML(Views.CREATE_WORKOUT, Views.LOGIN);
         signOutItem.setOnAction(new SignOutAction());
         workoutCreationItem.setOnAction(new ToWorkoutCreationAction());
     }
@@ -52,7 +51,7 @@ public class HomepageViewController extends Controller {
             BackendModel model = (BackendModel) stage.getUserData();
             model.getUserManager().signOutActiveUser();
 
-            setView("login", stage);
+            setView(Views.LOGIN, stage);
         }
 
     }
@@ -61,7 +60,7 @@ public class HomepageViewController extends Controller {
 
         @Override
         public void handle(ActionEvent e) {
-            setView("createWorkout", menuBar);
+            setView(Views.CREATE_WORKOUT, menuBar);
         }
 
     }

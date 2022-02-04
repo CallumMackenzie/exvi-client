@@ -36,14 +36,21 @@ public class UserManager {
     }
 
     public void signOutActiveUser() {
-        this.activeUser.signOut(USER_DATA_DIR);
-        this.activeUser = null;
-        this.checkForLoggedInUsers();
+        if (this.activeUser != null) {
+            this.activeUser.signOut(USER_DATA_DIR);
+            this.activeUser = null;
+            this.checkForLoggedInUsers();
+        } else {
+            System.err.println("Attempted to sign out null user");
+        }
     }
 
     public void saveActiveUserCredentials() {
         if (this.activeUser != null) {
             this.activeUser.saveCredentials(USER_DATA_DIR);
+            System.out.println("Saved user credentials");
+        } else {
+            System.err.println("Attempted to save user credentials when user was null");
         }
     }
 

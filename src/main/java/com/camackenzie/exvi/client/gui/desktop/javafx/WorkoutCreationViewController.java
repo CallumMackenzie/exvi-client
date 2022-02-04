@@ -12,13 +12,12 @@ import com.camackenzie.exvi.core.model.ExerciseSet;
 import com.camackenzie.exvi.core.model.Workout;
 import java.net.URL;
 import java.util.ResourceBundle;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -67,6 +66,8 @@ public class WorkoutCreationViewController extends Controller {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        this.cacheFXML(Views.HOME);
+        
         this.setupLocalModel();
         this.setupControllers();
     }
@@ -79,6 +80,7 @@ public class WorkoutCreationViewController extends Controller {
         generateButton.setOnAction(new GenerateWorkoutAction());
         workoutExercises.getSelectionModel().selectedItemProperty()
                 .addListener(new UpdateSelectedExerciseAction());
+        cancelButton.setOnAction(new CancelAction());
     }
 
     private void setupLocalModel() {
@@ -135,6 +137,15 @@ public class WorkoutCreationViewController extends Controller {
         public void handle(ActionEvent e) {
             workoutExercises.getItems().clear();
             workoutExercises.getItems().addAll(currentWorkout.getExercises());
+        }
+
+    }
+
+    private class CancelAction implements EventHandler<ActionEvent> {
+
+        @Override
+        public void handle(ActionEvent t) {
+            setView(Views.HOME, (Node) t.getSource());
         }
 
     }

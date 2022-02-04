@@ -8,7 +8,6 @@ package com.camackenzie.exvi.client.gui.desktop.javafx;
 import java.io.IOException;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -29,18 +28,11 @@ public class AppRunner extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-
-        this.setupViewCaching();
         this.setupModel();
         this.setupStage(stage);
         this.setInitialView(stage);
 
         stage.show();
-    }
-
-    private void setupViewCaching() {
-        this.viewManager = new ViewManager("login", "/fxml/LoginView.fxml",
-                "home", "/fxml/HomepageView.fxml");
     }
 
     private void setupModel() {
@@ -59,11 +51,13 @@ public class AppRunner extends Application {
     }
 
     private void setInitialView(Stage stage) throws IOException {
+        this.viewManager = new ViewManager();
+
         Parent root;
         if (model.getUserManager().hasActiveUser()) {
-            root = viewManager.getFXML("home");
+            root = viewManager.getFXML(Views.HOME);
         } else {
-            root = viewManager.getFXML("login");
+            root = viewManager.getFXML(Views.LOGIN);
         }
         Scene scene = new Scene(root);
         stage.setScene(scene);

@@ -48,6 +48,10 @@
     -fx-font-family: "monspace";
 }
 
+.label {
+    -fx-font-family: "monospace";
+}
+
 .h1 {
     -fx-alignment: center;
     -fx-font-size: 200%;
