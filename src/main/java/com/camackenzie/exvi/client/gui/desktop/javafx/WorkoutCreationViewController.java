@@ -135,6 +135,10 @@ public class WorkoutCreationViewController extends Controller {
         public void handle(ActionEvent e) {
             workoutExercises.getItems().clear();
             workoutExercises.getItems().addAll(currentWorkout.getExercises());
+
+            ExerciseSet oldVal = selectedExercise;
+            selectedExercise = null;
+            new UpdateSelectedExerciseAction().changed(null, oldVal, null);
         }
 
     }
