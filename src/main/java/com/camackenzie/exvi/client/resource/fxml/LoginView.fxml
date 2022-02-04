@@ -12,8 +12,7 @@
 
 <MigPane id="RootPane" 
          prefHeight="400.0" 
-         prefWidth="600.0" 
-         styleClass="mainFxmlClass" 
+         prefWidth="700.0" 
          xmlns:fx="http://javafx.com/fxml/1" 
          fx:controller="com.camackenzie.exvi.client.gui.desktop.javafx.LoginViewController"
          layout="fill">
@@ -22,43 +21,40 @@
         <URL value="@/styles/style.css"/>
     </stylesheets>
     
-    <MigPane styleClass="outerPane"
-             layout="fill"
+    <MigPane layout="fill"
              MigPane.cc="align center, grow">
-        <MigPane styleClass="outerGrid"
-                 layout="fill"
+        <MigPane layout="fill"
                  MigPane.cc="align center, growx, sg comp">
-            <Text styleClass="h1"
-                  MigPane.cc="align center, spanx 2, wrap"
-                  text="Log in to Your Account"/>
+            <Label styleClass="h1"
+                   wrapText="true"
+                   MigPane.cc="align center, spanx 2, wrap"
+                   text="Log in to Your Account"/>
             <Label text="Username"
                    MigPane.cc="align left"/>
             <UsernameInput fx:id="usernameField"
-                           styleClass="accent"
                            MigPane.cc="align left, growx, wrap"/>
             <Label text="Password"
                    MigPane.cc="align left"/>
             <PasswordInput fx:id="passwordField"
-                           styleClass="accent"
                            MigPane.cc="align left, growx, wrap"/>
             <Button fx:id="loginButton"
-                    styleClass="accent"
                     text="Login"
                     MigPane.cc="align center, growx, spanx 2, wrap"/>
             <Label fx:id="errorText"
                    MigPane.cc="align center, spanx2, wrap" 
+                   wrapText="true"
                    visible="false"/>
         </MigPane>
-        <MigPane styleClass="outerGrid"
-                 layout="fill"
+        <MigPane layout="fill"
                  MigPane.cc="align center, growx, sg comp">
-            <Text styleClass="h1"
-                  text="Create an Exvi Fitness Account"
-                  MigPane.cc="align center, wrap"/>
-            <Text text="Join Exvi fitness to take your strength to the next level!"
-                  MigPane.cc="align center, wrap"/>
+            <Label styleClass="h1"
+                   text="Create an Exvi Fitness Account"
+                   wrapText="true"
+                   MigPane.cc="align center, wrap"/>
+            <Label text="Join Exvi fitness to take your strength to the next level!"
+                   wrapText="true"
+                   MigPane.cc="align center, wrap"/>
             <Button fx:id="signupButton"
-                    styleClass="accent"
                     text="Sign Up"
                     MigPane.cc="align center, growx, wrap"/>
         </MigPane>

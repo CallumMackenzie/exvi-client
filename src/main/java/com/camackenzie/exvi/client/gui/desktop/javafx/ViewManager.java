@@ -23,9 +23,9 @@ public final class ViewManager {
 
     private final Map<String, ComputationFuture<FXMLLoadResult>> cachedViews;
 
-    public ViewManager(String... viewPaths) {
+    public ViewManager(Views... views) {
         this(new HashMap<>());
-        this.cacheFromPairs(viewPaths);
+        this.cacheFromViews(views);
     }
 
     public ViewManager(Map<String, ComputationFuture<FXMLLoadResult>> futures) {
@@ -41,6 +41,12 @@ public final class ViewManager {
         for (int i = 0; i < viewPaths.length; i += 2) {
             this.cacheViewFromClasspath(viewPaths[i],
                     viewPaths[i + 1]);
+        }
+    }
+
+    public void cacheFromViews(Views... views) {
+        for (var view : views) {
+            this.cacheView(view.getID(), view.getURL());
         }
     }
 
@@ -79,6 +85,13 @@ public final class ViewManager {
             }
         }
         return res.parent;
+    }
+
+    public Parent getFXML(Views view) {
+        if (!this.cachedViews.containsKey(view.getID())) {
+            this.cacheView(view.getID(), view.getURL());
+        }
+        return this.getFXML(view.getID());
     }
 
     public Map<String, ComputationFuture<FXMLLoadResult>> getFutures() {
