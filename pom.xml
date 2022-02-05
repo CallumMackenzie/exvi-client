@@ -4,7 +4,7 @@
 
     <groupId>com.camackenzie.exvi.client.gluon</groupId>
     <artifactId>exvi-client-gluon</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
     <name>ExviFitness</name>
 
@@ -211,6 +211,10 @@
                         <!--OTHER-->
                         <list>java.net.URL</list>
                         <list>java.net.URI</list>
+                        <list>java.net.http.HttpHeaders</list>
+<!--                        <list>java.net.Inet6Address</list>
+                        <list>java.net.Inet4Address</list>
+                        <list>java.net.InetAddress</list>-->
                     </reflectionList>
                 </configuration>
             </plugin>
