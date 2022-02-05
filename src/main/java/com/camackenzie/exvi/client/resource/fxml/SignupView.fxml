@@ -31,7 +31,7 @@
     <MigPane
         MigPane.cc="align center">
         
-        <Text text="Sign Up"
+        <Label text="Sign Up"
               styleClass="h1"
               MigPane.cc="align center, spanx 2, wrap"/>
 
@@ -75,7 +75,7 @@
                 text="Create Account"
                 MigPane.cc="growx, align center, spanx 2, wrap"/>
         
-        <Text fx:id="errorText"
+        <Label fx:id="errorText"
               MigPane.cc="align center, spanx 2, wrap"
               id="errorText"
               visible="false"/>
