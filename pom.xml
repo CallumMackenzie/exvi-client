@@ -103,13 +103,9 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <!-- Default configuration for running -->
-                        <!-- Usage: mvn clean javafx:run -->
                         <id>default-cli</id>
                     </execution>
                     <execution>
-                        <!-- Configuration for manual attach debugging -->
-                        <!-- Usage: mvn clean javafx:run@debug -->
                         <id>debug</id>
                         <configuration>
                             <options>
@@ -118,7 +114,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <!-- Configuration for automatic IDE debugging -->
                         <id>ide-debug</id>
                         <configuration>
                             <options>
@@ -127,7 +122,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <!-- Configuration for automatic IDE profiling -->
                         <id>ide-profile</id>
                         <configuration>
                             <options>
@@ -155,6 +149,65 @@
                         <list>storage</list>
                     </attachList>
                     <mainClass>${mainClassName}</mainClass>
+                    <reflectionList>
+                        <!--ELEMENTS-->
+                        <list>com.camackenzie.exvi.client.gluon.elements.PasswordInput</list>
+                        <list>com.camackenzie.exvi.client.gluon.elements.UsernameInput</list>
+                        <list>org.tbee.javafx.scene.layout.fxml.MigPane</list>
+                        
+                        <!--CONTROLLERS-->
+                        <list>com.camackenzie.exvi.client.gluon.Controller</list>
+                        <list>com.camackenzie.exvi.client.gluon.HomepageViewController</list>
+                        <list>com.camackenzie.exvi.client.gluon.LoginViewController</list>
+                        <list>com.camackenzie.exvi.client.gluon.SignupViewController</list>
+                        <list>com.camackenzie.exvi.client.gluon.WorkoutCreationViewController</list>
+                        
+                        <!--CLIENT MODEL-->
+                        <list>com.camackenzie.exvi.client.model.UserAccount</list>
+                        
+                        <!--CORE MODEL-->
+                        <list>com.camackenzie.exvi.core.model.Exercise</list>
+                        <list>com.camackenzie.exvi.core.model.Workout</list>
+                        <list>com.camackenzie.exvi.core.model.ExerciseSet</list>
+                        <list>com.camackenzie.exvi.core.model.BodyStats</list>
+                        <list>com.camackenzie.exvi.core.model.ActiveExercise</list>
+                        <list>com.camackenzie.exvi.core.model.ActiveWorkout</list>
+                        <list>com.camackenzie.exvi.core.model.DistanceUnit</list>
+                        <list>com.camackenzie.exvi.core.model.EnergyUnit</list>
+                        <list>com.camackenzie.exvi.core.model.ExerciseEquipment</list>
+                        <list>com.camackenzie.exvi.core.model.ExerciseExperienceLevel</list>
+                        <list>com.camackenzie.exvi.core.model.ExerciseForceType</list>
+                        <list>com.camackenzie.exvi.core.model.ExerciseMechanics</list>
+                        <list>com.camackenzie.exvi.core.model.GeneticSex</list>
+                        <list>com.camackenzie.exvi.core.model.MassUnit</list>
+                        <list>com.camackenzie.exvi.core.model.Muscle</list>
+                        <list>com.camackenzie.exvi.core.model.MuscleWorkData</list>
+                        <list>com.camackenzie.exvi.core.model.Unit</list>
+                        <list>com.camackenzie.exvi.core.model.UnitValue</list>
+                        <list>com.camackenzie.exvi.core.model.WorkoutManager</list>
+                        
+                        <!--CORE API-->
+                        <list>com.camackenzie.exvi.core.api.APIRequest</list>
+                        <list>com.camackenzie.exvi.core.api.APIResult</list>
+                        <list>com.camackenzie.exvi.core.api.AccountAccessKeyResult</list>
+                        <list>com.camackenzie.exvi.core.api.AccountCreationRequest</list>
+                        <list>com.camackenzie.exvi.core.api.AccountSaltResult</list>
+                        <list>com.camackenzie.exvi.core.api.DataResult</list>
+                        <list>com.camackenzie.exvi.core.api.GenericDataRequest</list>
+                        <list>com.camackenzie.exvi.core.api.GenericDataResult</list>
+                        <list>com.camackenzie.exvi.core.api.LoginRequest</list>
+                        <list>com.camackenzie.exvi.core.api.RetrieveSaltRequest</list>
+                        <list>com.camackenzie.exvi.core.api.VerificationRequest</list>
+                        <list>com.camackenzie.exvi.core.api.VerificationResult</list>
+                        <list>com.camackenzie.exvi.core.api.WorkoutListRequest</list>
+                        <list>com.camackenzie.exvi.core.api.WorkoutListResult</list>
+                        <list>com.camackenzie.exvi.core.api.WorkoutPutRequest</list>
+                        
+                        <!--CORE UTILS-->
+                        <list>com.camackenzie.exvi.core.util.CachedKey</list>
+                        <list>com.camackenzie.exvi.core.util.EncodedStringCache</list>
+                        <list>com.camackenzie.exvi.core.util.EncryptionResult</list>
+                    </reflectionList>
                 </configuration>
             </plugin>
         </plugins>

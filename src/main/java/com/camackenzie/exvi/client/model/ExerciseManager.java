@@ -52,7 +52,11 @@ public class ExerciseManager {
     }
 
     public final void addAllFromJson(String json) {
-        this.addAll(gson.fromJson(json, Exercise[].class));
+        try {
+            this.addAll(gson.fromJson(json, Exercise[].class));
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
     }
 
     public String toJson() {
