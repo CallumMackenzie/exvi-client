@@ -33,7 +33,7 @@ public abstract class Controller implements Initializable {
     }
 
     public Controller() {
-        this(true);
+        this(false);
     }
 
     public final void cacheFXML(Views... views) {

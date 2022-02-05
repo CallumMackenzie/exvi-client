@@ -154,6 +154,11 @@
                         <list>com.camackenzie.exvi.client.gluon.elements.PasswordInput</list>
                         <list>com.camackenzie.exvi.client.gluon.elements.UsernameInput</list>
                         <list>org.tbee.javafx.scene.layout.fxml.MigPane</list>
+                        <list>javafx.scene.control.MenuBar</list>
+                        <list>javafx.scene.control.Menu</list>
+                        <list>javafx.scene.control.MenuItem</list>
+                        <list>javafx.scene.control.ComboBox</list>
+                        <list>javafx.scene.control.ScrollPane</list>
                         
                         <!--CONTROLLERS-->
                         <list>com.camackenzie.exvi.client.gluon.Controller</list>

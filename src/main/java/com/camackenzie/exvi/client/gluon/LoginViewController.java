@@ -99,11 +99,15 @@ public class LoginViewController extends Controller {
                                 Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
                                 UserAccount user = UserAccount.fromAccessKey(usernameField.getText(),
                                         result.getBody().getAccessKey());
-                                ((BackendModel) stage.getUserData()).getUserManager()
-                                        .setActiveUser(user);
-
+                                BackendModel model = (BackendModel) stage.getUserData();
+                                model.getUserManager().setActiveUser(user);
                                 // Switch views
-                                setView(Views.HOME, stage);
+                                try {
+                                    setView(Views.HOME, stage);
+                                } catch (Exception exc) {
+                                    exc.printStackTrace(System.err);
+                                    model.getUserManager().signOutActiveUser();
+                                }
                             });
                         }
                     } catch (InterruptedException ex) {
