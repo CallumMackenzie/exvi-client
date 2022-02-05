@@ -6,7 +6,7 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import com.camackenzie.exvi.client.gui.desktop.javafx.elements.*?>
+<?import com.camackenzie.exvi.client.gluon.elements.*?>
 <?import org.tbee.javafx.scene.layout.fxml.MigPane?>
 <?import javafx.scene.text.*?>
 

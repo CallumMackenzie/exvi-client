@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <?import org.tbee.javafx.scene.layout.fxml.MigPane?>
-<?import com.camackenzie.exvi.client.gui.desktop.javafx.elements.*?>
+<?import com.camackenzie.exvi.client.gluon.elements.*?>
 
 <MigPane id="RootPane" 
          prefHeight="400.0" 

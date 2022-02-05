@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-module ExviClientGluon {
+open module com.camackenzie.exvi.client {
     requires javafx.controlsEmpty;
     requires javafx.controls;
     requires javafx.graphicsEmpty;
@@ -23,4 +23,7 @@ module ExviClientGluon {
     requires com.miglayout.core;
     requires javafx.fxmlEmpty;
     requires javafx.fxml;
+
+    exports com.camackenzie.exvi.client.gluon;
+    exports com.camackenzie.exvi.client.model;
 }

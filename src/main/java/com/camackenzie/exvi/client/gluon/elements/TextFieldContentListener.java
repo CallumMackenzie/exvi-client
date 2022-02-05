@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.camackenzie.exvi.client.gui.desktop.javafx.elements;
+package com.camackenzie.exvi.client.gluon.elements;
 
 import java.util.regex.Pattern;
 import javafx.beans.value.ChangeListener;

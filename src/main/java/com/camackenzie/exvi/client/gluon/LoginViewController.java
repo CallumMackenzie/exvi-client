@@ -6,8 +6,8 @@
 package com.camackenzie.exvi.client.gluon;
 
 import com.camackenzie.exvi.client.model.UserAccount;
-import com.camackenzie.exvi.client.gui.desktop.javafx.elements.PasswordInput;
-import com.camackenzie.exvi.client.gui.desktop.javafx.elements.UsernameInput;
+import com.camackenzie.exvi.client.gluon.elements.PasswordInput;
+import com.camackenzie.exvi.client.gluon.elements.UsernameInput;
 import com.camackenzie.exvi.core.api.APIResult;
 import com.camackenzie.exvi.core.api.AccountAccessKeyResult;
 import com.camackenzie.exvi.core.async.RunnableFuture;
