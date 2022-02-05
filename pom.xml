@@ -207,6 +207,9 @@
                         <list>com.camackenzie.exvi.core.util.CachedKey</list>
                         <list>com.camackenzie.exvi.core.util.EncodedStringCache</list>
                         <list>com.camackenzie.exvi.core.util.EncryptionResult</list>
+                        
+                        <!--OTHER-->
+                        <list>java.net.URL</list>
                     </reflectionList>
                 </configuration>
             </plugin>

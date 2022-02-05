@@ -30,7 +30,7 @@ public class BackendModel {
     }
 
     private void setupExerciseManager() {
-        try (InputStream in = getClass().getResourceAsStream("/exercises.json");
+        try (InputStream in = getClass().getResourceAsStream("/data/exercises.json");
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             this.exerciseManager
                     .addAllFromJson(reader.lines().collect(Collectors.joining("\n")));
