@@ -14,11 +14,13 @@
          prefWidth="600.0" 
          xmlns:fx="http://javafx.com/fxml/1" 
          fx:controller="com.camackenzie.exvi.client.gluon.HomepageViewController"
-         layout="fill">
-    <stylesheets>
-        <URL value="@/styles/style.css"/>
-    </stylesheets>
+         layout="fill"
+         stylesheets="@/styles/style.css">
     
+<!--    <stylesheets>
+        <URL value="@/styles/style.css"/>
+    </stylesheets>-->
+
     <MenuBar fx:id="menuBar"
              MigPane.cc="dock north, align center, growx">
         <menus>

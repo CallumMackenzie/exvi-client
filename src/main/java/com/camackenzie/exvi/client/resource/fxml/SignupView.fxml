@@ -16,11 +16,12 @@
          styleClass="mainFxmlClass" 
          xmlns:fx="http://javafx.com/fxml/1" 
          fx:controller="com.camackenzie.exvi.client.gluon.SignupViewController"
-         layout="fill">
+         layout="fill"
+         stylesheets="@styles/style.css">
     
-    <stylesheets>
+<!--    <stylesheets>
         <URL value="@/styles/style.css"/>
-    </stylesheets>
+    </stylesheets>-->
     
     <Button fx:id="toLoginPageButton"
             text="Back to Login Page"

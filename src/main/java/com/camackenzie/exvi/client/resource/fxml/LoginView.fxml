@@ -15,11 +15,12 @@
          prefWidth="700.0" 
          xmlns:fx="http://javafx.com/fxml/1" 
          fx:controller="com.camackenzie.exvi.client.gluon.LoginViewController"
-         layout="fill">
+         layout="fill"
+         stylesheets="@/styles/style.css">
     
-    <stylesheets>
+    <!--    <stylesheets>
         <URL value="@/styles/style.css"/>
-    </stylesheets>
+    </stylesheets>-->
     
     <MigPane layout="fill"
              MigPane.cc="align center, grow">

@@ -16,10 +16,12 @@
          styleClass="mainFxmlClass" 
          xmlns:fx="http://javafx.com/fxml/1" 
          layout="fill"
-         fx:controller="com.camackenzie.exvi.client.gluon.WorkoutCreationViewController">
-    <stylesheets>
+         fx:controller="com.camackenzie.exvi.client.gluon.WorkoutCreationViewController"
+         stylesheets="@/styles/style.css">
+    
+<!--    <stylesheets>
         <URL value="@/styles/style.css"/>
-    </stylesheets>
+    </stylesheets>-->
     
     <MigPane id="topBar"
              layout="fill"
