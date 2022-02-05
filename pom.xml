@@ -62,7 +62,7 @@
         <dependency>
             <groupId>com.github.CallumMackenzie</groupId>
             <artifactId>exvi-core</artifactId>
-            <version>7c8cf067fb8c0bdc32c0babe20e13c351b6e928c</version>
+            <version>89116ac99fb785f9cc8052bbdb4805ef86760c7c</version>
         </dependency>    
         <dependency>
             <groupId>com.miglayout</groupId>
