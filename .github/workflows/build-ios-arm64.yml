@@ -3,7 +3,7 @@ name: Deploy Native IOS Application
 
 # Disabled for the moment
 on:
-  workflow_distpatch:
+  workflow_dispatch:
 
 jobs:
   build:
