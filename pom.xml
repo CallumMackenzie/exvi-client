@@ -217,9 +217,6 @@
                         <list>java.net.URL</list>
                         <list>java.net.URI</list>
                         <list>java.net.http.HttpHeaders</list>
-<!--                        <list>java.net.Inet6Address</list>
-                        <list>java.net.Inet4Address</list>
-                        <list>java.net.InetAddress</list>-->
                     </reflectionList>
                 </configuration>
             </plugin>
