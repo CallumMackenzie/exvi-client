@@ -149,7 +149,7 @@
                         <list>storage</list>
                     </attachList>
                     <mainClass>${mainClassName}</mainClass>
-                    <enableSWRendering>true</enableSWRendering>
+                    <enableSWRendering>${enableSWRendering}</enableSWRendering>
                     <reflectionList>
                         <!--ELEMENTS-->
                         <list>com.camackenzie.exvi.client.gluon.elements.PasswordInput</list>
@@ -239,18 +239,21 @@
             <id>ios</id>
             <properties>
                 <gluonfx.target>ios</gluonfx.target>
+                <enableSWRendering>false</enableSWRendering>
             </properties>
         </profile>
         <profile>
             <id>android</id>
             <properties>
                 <gluonfx.target>android</gluonfx.target>
+                <enableSWRendering>false</enableSWRendering>
             </properties>
         </profile>
         <profile>
             <id>desktop</id>
             <properties>
                 <gluonfx.target>host</gluonfx.target>
+                <enableSWRendering>true</enableSWRendering>
             </properties>
         </profile>
     </profiles>
