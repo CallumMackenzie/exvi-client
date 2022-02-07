@@ -149,10 +149,12 @@
                         <list>storage</list>
                     </attachList>
                     <mainClass>${mainClassName}</mainClass>
+                    <enableSWRendering>true</enableSWRendering>
                     <reflectionList>
                         <!--ELEMENTS-->
                         <list>com.camackenzie.exvi.client.gluon.elements.PasswordInput</list>
                         <list>com.camackenzie.exvi.client.gluon.elements.UsernameInput</list>
+                        <list>com.camackenzie.exvi.client.gluon.elements.WrapPane</list>
                         <list>org.tbee.javafx.scene.layout.fxml.MigPane</list>
                         <list>javafx.scene.control.MenuBar</list>
                         <list>javafx.scene.control.Menu</list>

@@ -9,56 +9,58 @@
 <?import javafx.scene.text.*?>
 <?import org.tbee.javafx.scene.layout.fxml.MigPane?>
 <?import com.camackenzie.exvi.client.gluon.elements.*?>
+<?import javafx.scene.shape.*?>
 
 <MigPane id="RootPane" 
+         fx:id="rootPane"
          prefHeight="400.0" 
          prefWidth="700.0" 
          xmlns:fx="http://javafx.com/fxml/1" 
          fx:controller="com.camackenzie.exvi.client.gluon.LoginViewController"
          layout="fill"
          stylesheets="@/styles/style.css">
-    
-    <!--    <stylesheets>
-        <URL value="@/styles/style.css"/>
-    </stylesheets>-->
-    
-    <MigPane layout="fill"
-             MigPane.cc="align center, grow">
-        <MigPane layout="fill"
-                 MigPane.cc="align center, growx, sg comp">
-            <Label styleClass="h1"
-                   wrapText="true"
-                   MigPane.cc="align center, spanx 2, wrap"
-                   text="Log in to Your Account"/>
-            <Label text="Username"
-                   MigPane.cc="align left"/>
-            <UsernameInput fx:id="usernameField"
-                           MigPane.cc="align left, growx, wrap"/>
-            <Label text="Password"
-                   MigPane.cc="align left"/>
-            <PasswordInput fx:id="passwordField"
-                           MigPane.cc="align left, growx, wrap"/>
-            <Button fx:id="loginButton"
-                    text="Login"
-                    MigPane.cc="align center, growx, spanx 2, wrap"/>
-            <Label fx:id="errorText"
-                   MigPane.cc="align center, spanx2, wrap" 
-                   wrapText="true"
-                   visible="false"/>
-        </MigPane>
-        <MigPane layout="fill"
-                 MigPane.cc="align center, growx, sg comp">
-            <Label styleClass="h1"
-                   text="Create an Exvi Fitness Account"
-                   wrapText="true"
-                   MigPane.cc="align center, wrap"/>
-            <Label text="Join Exvi fitness to take your strength to the next level!"
-                   wrapText="true"
-                   MigPane.cc="align center, wrap"/>
-            <Button fx:id="signupButton"
-                    text="Sign Up"
-                    MigPane.cc="align center, growx, wrap"/>
-        </MigPane>
-    </MigPane>
+
+    <BootstrapPane MigPane.cc="align center, grow, wrap"
+                   alignment="center">
+        <BootstrapRow>
+            <MigPane layout="fill"
+                     BootstrapPane.xsmall="12"
+                     BootstrapPane.large="6">
+                <Label styleClass="h1"
+                       wrapText="true"
+                       MigPane.cc="align center, spanx 2, wrap"
+                       text="Log in to Your Account"/>
+                <Label text="Username"
+                       MigPane.cc="align left"/>
+                <UsernameInput fx:id="usernameField"
+                               MigPane.cc="align left, growx, wrap"/>
+                <Label text="Password"
+                       MigPane.cc="align left"/>
+                <PasswordInput fx:id="passwordField"
+                               MigPane.cc="align left, growx, wrap"/>
+                <Button fx:id="loginButton"
+                        text="Login"
+                        MigPane.cc="align center, growx, spanx 2, wrap"/>
+                <Label fx:id="errorText"
+                       MigPane.cc="align center, spanx2, wrap" 
+                       wrapText="true"
+                       visible="false"/>
+            </MigPane>           
+            <MigPane layout="fill"
+                     BootstrapPane.xsmall="12"
+                     BootstrapPane.large="6">
+                <Label styleClass="h1"
+                       text="Create an Exvi Fitness Account"
+                       wrapText="true"
+                       MigPane.cc="align center, wrap"/>
+                <Label text="Join Exvi fitness to take your strength to the next level!"
+                       wrapText="true"
+                       MigPane.cc="align center, wrap"/>
+                <Button fx:id="signupButton"
+                        text="Sign Up"
+                        MigPane.cc="align center, growx, wrap"/>
+            </MigPane>
+        </BootstrapRow>
+    </BootstrapPane>
     
 </MigPane>
