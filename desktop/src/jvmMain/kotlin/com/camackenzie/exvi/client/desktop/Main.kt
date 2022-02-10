@@ -1,4 +1,4 @@
-import com.camackenzie.exvi.client.common.App
+import com.camackenzie.exvi.client.view.App
 import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application

@@ -15,6 +15,7 @@ kotlin {
         compilations.all {
             kotlinOptions.jvmTarget = "11"
         }
+//        withJava()
     }
     sourceSets {
         val commonMain by getting {
@@ -22,31 +23,27 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
-                implementation("com.github.CallumMackenzie:exvi-core:2f619352fd")
             }
         }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
+        val commonJvmAndroid = create("commonJvmAndroid")  {
+            dependsOn(commonMain)
+//            dependencies {
+//                implementation("com.github.CallumMackenzie:exvi-core:2f619352fd")
+//            }
         }
         val androidMain by getting {
+            dependsOn(commonJvmAndroid)
             dependencies {
                 api("androidx.appcompat:appcompat:1.2.0")
                 api("androidx.core:core-ktx:1.3.1")
             }
         }
-        val androidTest by getting {
-            dependencies {
-                implementation("junit:junit:4.13")
-            }
-        }
         val desktopMain by getting {
+            dependsOn(commonJvmAndroid)
             dependencies {
                 api(compose.preview)
             }
         }
-        val desktopTest by getting
     }
 }
 
@@ -62,6 +59,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
+
 dependencies {
     implementation("androidx.compose.ui:ui:1.2.0-alpha02")
     implementation("androidx.compose.ui:ui-text:1.2.0-alpha02")

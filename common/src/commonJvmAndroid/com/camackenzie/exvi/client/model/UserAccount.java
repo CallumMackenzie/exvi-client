@@ -5,6 +5,7 @@
  */
 package com.camackenzie.exvi.client.model;
 
+import com.camackenzie.exvi.core.async.RunnableFuture;
 import com.camackenzie.exvi.core.model.BodyStats;
 import com.camackenzie.exvi.core.api.*;
 import com.camackenzie.exvi.core.async.Computation;
@@ -18,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 
 /**
  *
@@ -101,6 +103,29 @@ public class UserAccount {
         });
         ret.startComputation();
         return ret.wrapped();
+    }
+
+    public static void requestLogin(String username, String password,
+                                        Consumer<APIResult<AccountAccessKeyResult>> onFail,
+                                        Consumer<APIResult<AccountAccessKeyResult>> onSuccess,
+                                        Runnable onCompletion) {
+        RunnableFuture r = new RunnableFuture(() -> {
+            try {
+                APIResult<AccountAccessKeyResult> result = UserAccount.requestLogin(username, password).get();
+                if (result.failed() || result.getBody().errorOccured()) {
+                    onFail.accept(result);
+                } else {
+                    onSuccess.accept(result);
+                }
+            } catch (InterruptedException e) {
+                System.out.println("Login action interrupted");
+            } catch (ExecutionException e) {
+                e.printStackTrace(System.err);
+            } finally {
+                onCompletion.run();
+            }
+        });
+        r.start();
     }
 
     public static UserAccount fromCrendentialsString(String in) {
