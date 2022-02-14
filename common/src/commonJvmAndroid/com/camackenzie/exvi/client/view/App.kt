@@ -13,7 +13,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.camackenzie.exvi.client.model.UserAccount
+import com.camackenzie.exvi.client.model.APIEndpoints
+import com.camackenzie.exvi.core.api.APIRequest
+import com.camackenzie.exvi.core.api.RetrieveSaltRequest
+import com.camackenzie.exvi.core.api.toJson
 
 @Composable
 fun App() {
@@ -98,6 +101,7 @@ fun LoginView() {
     val scope = rememberCoroutineScope()
     var username = ""
     var password = ""
+    var buttonEnabled by remember { mutableStateOf(true) }
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -118,13 +122,20 @@ fun LoginView() {
             password = pass
             pass
         }
-        Button(onClick = {
-            UserAccount.requestLogin(username, password, { _ ->
-                println("Failed to login")
-            }, { _ ->
-                println("Logged in")
-            }, {})
-        }) {
+        Button(
+            onClick = {
+                buttonEnabled = false
+                APIRequest.requestAsync(
+                    APIEndpoints.GET_SALT,
+                    RetrieveSaltRequest("callum"),
+                    APIRequest.jsonHeaders()
+                ) {
+                    println(it.toJson())
+                    buttonEnabled = true
+                }
+            },
+            enabled = buttonEnabled
+        ) {
             Text("Login")
         }
     }
