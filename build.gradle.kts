@@ -11,7 +11,7 @@ buildscript {
     }
 }
 
-group = "me.alexx"
+group = "com.camackenzie"
 version = "1.0"
 
 allprojects {
@@ -20,5 +20,6 @@ allprojects {
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         maven(url = "https://jitpack.io")
+        mavenLocal()
     }
 }

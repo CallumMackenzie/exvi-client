@@ -1,4 +1,4 @@
-package com.camackenzie.exvi.client.common
+package com.camackenzie.exvi.client.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions

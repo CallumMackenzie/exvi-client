@@ -2,11 +2,11 @@ import org.jetbrains.compose.compose
 
 plugins {
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "1.0.0"
+    id("org.jetbrains.compose") version "1.0.1"
     id("com.android.library")
 }
 
-group = "me.alexx"
+group = "com.camackenzie"
 version = "1.0"
 
 kotlin {
@@ -15,7 +15,6 @@ kotlin {
         compilations.all {
             kotlinOptions.jvmTarget = "11"
         }
-//        withJava()
     }
     sourceSets {
         val commonMain by getting {
@@ -23,13 +22,11 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
+                api("com.camackenzie:exvi-core:1.0-SNAPSHOT")
             }
         }
-        val commonJvmAndroid = create("commonJvmAndroid")  {
+        val commonJvmAndroid = create("commonJvmAndroid") {
             dependsOn(commonMain)
-//            dependencies {
-//                implementation("com.github.CallumMackenzie:exvi-core:2f619352fd")
-//            }
         }
         val androidMain by getting {
             dependsOn(commonJvmAndroid)
