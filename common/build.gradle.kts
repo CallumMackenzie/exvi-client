@@ -22,7 +22,7 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
-                api("com.camackenzie:exvi-core:1.0-SNAPSHOT")
+                api("com.github.CallumMackenzie:exvi-core:eda62611ed")
             }
         }
         val commonJvmAndroid = create("commonJvmAndroid") {
