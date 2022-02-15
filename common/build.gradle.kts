@@ -16,6 +16,8 @@ kotlin {
             kotlinOptions.jvmTarget = "11"
         }
     }
+    ios()
+    js()
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -42,6 +44,9 @@ kotlin {
             dependencies {
                 api(compose.preview)
             }
+        }
+        val jsMain by getting {
+            dependsOn(commonJvmAndroid)
         }
     }
 }
