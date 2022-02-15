@@ -13,9 +13,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.camackenzie.exvi.client.model.APIEndpoints
-import com.camackenzie.exvi.core.api.APIRequest
-import com.camackenzie.exvi.core.api.RetrieveSaltRequest
+import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.core.api.toJson
 
 @Composable
@@ -98,7 +96,6 @@ fun UsernameField(initialUsername: String, onUsernameChange: (String) -> String)
 
 @Composable
 fun LoginView() {
-    val scope = rememberCoroutineScope()
     var username = ""
     var password = ""
     var buttonEnabled by remember { mutableStateOf(true) }
@@ -125,14 +122,13 @@ fun LoginView() {
         Button(
             onClick = {
                 buttonEnabled = false
-                APIRequest.requestAsync(
-                    APIEndpoints.GET_SALT,
-                    RetrieveSaltRequest("callum"),
-                    APIRequest.jsonHeaders()
-                ) {
+                Account.requestLogin(username, password, onFail = {
                     println(it.toJson())
+                }, onSuccess = {
+                    println(it.accessKey)
+                }, onComplete = {
                     buttonEnabled = true
-                }
+                })
             },
             enabled = buttonEnabled
         ) {
