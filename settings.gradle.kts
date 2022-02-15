@@ -14,5 +14,6 @@ rootProject.name = "exvi-client"
 
 include(":android")
 include(":desktop")
+include(":js")
 include(":common")
 

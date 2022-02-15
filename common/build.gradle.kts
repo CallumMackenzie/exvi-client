@@ -16,13 +16,16 @@ kotlin {
             kotlinOptions.jvmTarget = "11"
         }
     }
+    ios()
+    js()
     sourceSets {
         val commonMain by getting {
             dependencies {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
-                api("com.github.CallumMackenzie:exvi-core:eda62611ed")
+//                api("com.github.CallumMackenzie:exvi-core:eda62611ed")
+                api("com.camackenzie:exvi-core:1.0-SNAPSHOT")
             }
         }
         val commonJvmAndroid = create("commonJvmAndroid") {
@@ -41,6 +44,9 @@ kotlin {
             dependencies {
                 api(compose.preview)
             }
+        }
+        val jsMain by getting {
+            dependsOn(commonJvmAndroid)
         }
     }
 }
