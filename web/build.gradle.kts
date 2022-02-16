@@ -11,10 +11,11 @@ version = "1.0"
 
 kotlin {
     js(IR) {
-        browser {
+        browser() {
             useCommonJs()
             binaries.executable()
         }
+        nodejs()
     }
     sourceSets {
         val jsMain by getting {

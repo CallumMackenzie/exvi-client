@@ -24,6 +24,7 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
+                implementation("androidx.navigation:navigation-compose:2.4.1")
 //                api("com.github.CallumMackenzie:exvi-core:eda62611ed")
                 api("com.camackenzie:exvi-core:1.0-SNAPSHOT")
             }
