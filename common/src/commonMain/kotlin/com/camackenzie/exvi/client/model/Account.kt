@@ -125,7 +125,7 @@ class Account private constructor(val username: String, private val accessKey: S
                     onFail(saltResponse)
                 } else {
                     val salt = Json.decodeFromString<AccountSaltResult>(saltResponse.body)
-                    val decryptedSalt = salt.salt.fromBase64().decodeToString()
+                    val decryptedSalt = salt.salt!!.fromBase64().decodeToString()
                     val finalPassword: String = PasswordUtils.hashAndSaltAndEncryptPassword(
                         passwordRaw, decryptedSalt
                     )
