@@ -17,7 +17,11 @@ import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.core.api.toJson
 
 @Composable
-fun UsernameField(username: String, onUsernameChange: (String) -> Unit) {
+fun UsernameField(
+    username: String,
+    onUsernameChange: (String) -> Unit,
+    enabled: Boolean = true
+) {
     val usernameRegex = Regex("([0-9a-z]|[._-])*")
     TextField(
         value = username,
@@ -27,15 +31,21 @@ fun UsernameField(username: String, onUsernameChange: (String) -> Unit) {
             ) onUsernameChange(it)
         },
         label = { Text("Username") },
-        placeholder = { Text("Username") }
+        placeholder = { Text("Username") },
+        enabled = enabled
     )
 }
 
 @Composable
-fun PasswordField(password: String, onPasswordChange: (String) -> Unit) {
+fun PasswordField(
+    password: String,
+    onPasswordChange: (String) -> Unit,
+    enabled: Boolean = true
+) {
     val passwordRegex = Regex("([0-9a-zA-Z]|[*.!@#$%^&(){}\\[\\]:;<>,.?/~_+-=|])*")
     TextField(
         value = password,
+        enabled = enabled,
         onValueChange = { it ->
             if (it.length <= 30
                 && it.matches(passwordRegex)
@@ -61,9 +71,14 @@ fun PasswordField(password: String, onPasswordChange: (String) -> Unit) {
 }
 
 @Composable
-fun EmailField(email: String, onEmailChange: (String) -> Unit) {
+fun EmailField(
+    email: String,
+    onEmailChange: (String) -> Unit,
+    enabled: Boolean = true
+) {
     val emailRegex = Regex("([0-9a-zA-Z]|[.\\-_])*@?([0-9a-zA-Z]|[.\\-_])*")
     TextField(
+        enabled = enabled,
         value = email,
         onValueChange = { it ->
             if (it.length <= 40
@@ -76,9 +91,10 @@ fun EmailField(email: String, onEmailChange: (String) -> Unit) {
 }
 
 @Composable
-fun PhoneField(phone: String, onPhoneChange: (String) -> Unit) {
+fun PhoneField(phone: String, onPhoneChange: (String) -> Unit, enabled: Boolean = true) {
     val phoneRegex = Regex("\\+?([0-9])*")
     TextField(
+        enabled = enabled,
         value = phone,
         onValueChange = { it ->
             if (it.length <= 15
@@ -91,9 +107,10 @@ fun PhoneField(phone: String, onPhoneChange: (String) -> Unit) {
 }
 
 @Composable
-fun VerificationCodeField(code: String, onCodeChange: (String) -> Unit) {
+fun VerificationCodeField(code: String, onCodeChange: (String) -> Unit, enabled: Boolean = true) {
     val codeRegex = Regex("\\+?([0-9])*")
     TextField(
+        enabled = enabled,
         value = code,
         onValueChange = { it ->
             if (it.length <= 6

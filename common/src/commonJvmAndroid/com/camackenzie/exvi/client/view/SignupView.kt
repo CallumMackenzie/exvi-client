@@ -61,7 +61,8 @@ fun SignupView(
             Button(
                 onClick = {
                     onViewChange(ExviView.LOGIN)
-                }) {
+                }, enabled = sendCodeButtonEnabled && signupButtonEnabled
+            ) {
                 Text("Back to Login")
             }
         }
@@ -71,11 +72,11 @@ fun SignupView(
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(10.dp)
         )
-        UsernameField(username, usernameChanged)
-        EmailField(email, emailChanged)
-        PhoneField(phone, phoneChanged)
-        PasswordField(password, passwordChanged)
-        VerificationCodeField(code, codeChanged)
+        UsernameField(username, usernameChanged, sendCodeButtonEnabled && signupButtonEnabled)
+        EmailField(email, emailChanged, sendCodeButtonEnabled && signupButtonEnabled)
+        PhoneField(phone, phoneChanged, sendCodeButtonEnabled && signupButtonEnabled)
+        PasswordField(password, passwordChanged, signupButtonEnabled)
+        VerificationCodeField(code, codeChanged, signupButtonEnabled)
         Button(
             onClick = {
                 sendCodeButtonEnabledChanged(false)
@@ -99,6 +100,7 @@ fun SignupView(
         Button(
             onClick = {
                 signupButtonEnabledChanged(false)
+                sendCodeButtonEnabledChanged(false)
                 signupButtonTextChanged("Creating Account")
                 Account.requestSignup(username, code, password,
                     onFail = {
@@ -114,6 +116,7 @@ fun SignupView(
                     },
                     onComplete = {
                         signupButtonEnabledChanged(true)
+                        sendCodeButtonEnabledChanged(true)
                     })
             },
             enabled = signupButtonEnabled
