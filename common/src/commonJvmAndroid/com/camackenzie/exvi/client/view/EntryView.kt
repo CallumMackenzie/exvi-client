@@ -24,13 +24,13 @@ fun EntryView(
     onViewChange: ViewChangeFun,
     model: Model
 ) {
-    var loginEnabled by remember { mutableStateOf(true) }
+    var loginEnabled by rememberSaveable { mutableStateOf(true) }
     val loginEnabledChanged: (Boolean) -> Unit = { loginEnabled = it }
 
-    var password by remember { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
     val passwordChanged: (String) -> Unit = { password = it }
 
-    var username by remember { mutableStateOf("") }
+    var username by rememberSaveable { mutableStateOf("") }
     val usernameChanged: (String) -> Unit = { username = it }
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -51,7 +51,7 @@ fun EntryView(
                     model,
                     onViewChange
                 )
-                SignupSplashView(onViewChange)
+                SignupSplashView(loginEnabled, onViewChange)
             }
         } else {
             Row(
@@ -70,7 +70,7 @@ fun EntryView(
                     model,
                     onViewChange
                 )
-                SignupSplashView(onViewChange)
+                SignupSplashView(loginEnabled, onViewChange)
             }
         }
     }
@@ -105,11 +105,11 @@ fun LoginView(
                 Account.requestLogin(username, password, onFail = {
                     println(it.toJson())
                 }, onSuccess = {
+                    onViewChange(ExviView.HOME)
                     model.accountManager.activeAccount = Account.fromAccessKey(
                         username = username,
                         accessKey = it.accessKey
                     )
-                    onViewChange(ExviView.HOME)
                 }, onComplete = {
                     onLoginEnabledChange(true)
                 })
@@ -121,7 +121,10 @@ fun LoginView(
 }
 
 @Composable
-fun SignupSplashView(onViewChange: (ExviView) -> Unit) {
+fun SignupSplashView(
+    signupEnabled: Boolean,
+    onViewChange: (ExviView) -> Unit
+) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -135,7 +138,7 @@ fun SignupSplashView(onViewChange: (ExviView) -> Unit) {
         )
         Button(onClick = {
             onViewChange(ExviView.SIGNUP)
-        }) {
+        }, enabled = signupEnabled) {
             Text("Create an Account")
         }
     }

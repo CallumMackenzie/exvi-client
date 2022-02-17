@@ -24,31 +24,31 @@ fun SignupView(
     onViewChange: ViewChangeFun,
     model: Model
 ) {
-    var password by remember { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
     val passwordChanged: (String) -> Unit = { password = it }
 
-    var username by remember { mutableStateOf("") }
+    var username by rememberSaveable { mutableStateOf("") }
     val usernameChanged: (String) -> Unit = { username = it }
 
-    var email by remember { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
     val emailChanged: (String) -> Unit = { email = it }
 
-    var phone by remember { mutableStateOf("") }
+    var phone by rememberSaveable { mutableStateOf("") }
     val phoneChanged: (String) -> Unit = { phone = it }
 
-    var code by remember { mutableStateOf("") }
+    var code by rememberSaveable { mutableStateOf("") }
     val codeChanged: (String) -> Unit = { code = it }
 
-    var sendCodeButtonEnabled by remember { mutableStateOf(true) }
+    var sendCodeButtonEnabled by rememberSaveable { mutableStateOf(true) }
     val sendCodeButtonEnabledChanged: (Boolean) -> Unit = { sendCodeButtonEnabled = it }
 
-    var sendCodeButtonText by remember { mutableStateOf("Send Verification Code") }
+    var sendCodeButtonText by rememberSaveable { mutableStateOf("Send Verification Code") }
     val sendCodeButtonTextChanged: (String) -> Unit = { sendCodeButtonText = it }
 
-    var signupButtonEnabled by remember { mutableStateOf(true) }
+    var signupButtonEnabled by rememberSaveable { mutableStateOf(true) }
     val signupButtonEnabledChanged: (Boolean) -> Unit = { signupButtonEnabled = it }
 
-    var signupButtonText by remember { mutableStateOf("Create Account") }
+    var signupButtonText by rememberSaveable { mutableStateOf("Create Account") }
     val signupButtonTextChanged: (String) -> Unit = { signupButtonText = it }
 
     Column(

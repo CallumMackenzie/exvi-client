@@ -6,16 +6,16 @@
 package com.camackenzie.exvi.client.model
 
 import com.camackenzie.exvi.core.model.Exercise
+import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-/**
- *
- * @author callum
- */
-class ExerciseManager(var exercises: MutableSet<Exercise> = HashSet()) {
+
+@kotlinx.serialization.Serializable
+//@androidx.annotation.Keep
+data class ExerciseManager(var exercises: HashSet<Exercise> = HashSet()) : SelfSerializable {
 
     constructor(json: String) : this() {
         addAllFromJson(json)
@@ -34,11 +34,15 @@ class ExerciseManager(var exercises: MutableSet<Exercise> = HashSet()) {
     }
 
     fun addAllFromJson(json: String) {
-        addAll(Json.decodeFromString<Array<Exercise>>(json))
+        addAll(Json.decodeFromString<ExerciseManager>(json).exercises.toTypedArray())
     }
 
-    fun toJson(): String {
-        return Json.encodeToString(exercises.toTypedArray())
+    override fun getUID(): String {
+        return "ExerciseManager"
+    }
+
+    override fun toJson(): String {
+        return Json.encodeToString(this)
     }
 
     fun getExercisesByFunction(add: (Exercise) -> Boolean): ArrayList<Exercise> {

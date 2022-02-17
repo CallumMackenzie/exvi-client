@@ -4,6 +4,7 @@ plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose") version "1.0.0"
     id("com.android.library")
+    kotlin("plugin.serialization") version "1.4.31"
 }
 
 group = "com.camackenzie"
@@ -35,6 +36,7 @@ kotlin {
             dependencies {
                 api("androidx.appcompat:appcompat:1.2.0")
                 api("androidx.core:core-ktx:1.3.1")
+                api("io.ktor:ktor-client-android:1.6.7")
             }
         }
         val desktopMain by getting {

@@ -8,7 +8,9 @@ package com.camackenzie.exvi.client.model
 import com.camackenzie.exvi.core.api.*
 import com.camackenzie.exvi.core.model.BodyStats
 import com.camackenzie.exvi.core.util.CryptographyUtils
+import com.camackenzie.exvi.core.util.EncodedStringCache
 import com.camackenzie.exvi.core.util.SelfSerializable
+import com.camackenzie.exvi.core.util.cached
 import com.soywiz.krypto.encoding.fromBase64
 import kotlinx.serialization.json.*
 import kotlinx.serialization.*
@@ -17,16 +19,25 @@ import kotlinx.serialization.*
  *
  * @author callum
  */
-class Account private constructor(val username: String, private val accessKey: String) : SelfSerializable {
+@kotlinx.serialization.Serializable
+class Account private constructor(
+    val username: String,
+    private val accessKey: EncodedStringCache,
+    var bodyStats: BodyStats = BodyStats.average(),
+) : SelfSerializable {
+    @kotlinx.serialization.Transient
     val workoutManager: ServerWorkoutManager
-        get() = ServerWorkoutManager(username, accessKey)
+        get() = ServerWorkoutManager(username, accessKey.get())
 
+    @kotlinx.serialization.Transient
     val formattedUsername: String
         get() = (username.substring(0, 1).uppercase() + username.substring(1))
 
+    @kotlinx.serialization.Transient
     private val fileName: String
         get() = (CryptographyUtils.hashSHA256(username) + username + ".user")
 
+    @kotlinx.serialization.Transient
     private val crendentialsString: String
         get() = CryptographyUtils.encodeString(this.toJson())
 
@@ -44,8 +55,10 @@ class Account private constructor(val username: String, private val accessKey: S
     }
 
     override fun toString(): String {
-        return StringBuilder().append("User: ").append(username).append(": ").append(accessKey.substring(0, 4))
-            .append("...").toString()
+        return StringBuilder().append("User: ").append(username).append(": ").append(
+            accessKey.get()
+                .substring(0, 4)
+        ).append("...").toString()
     }
 
 //    fun saveCredentials(path: String) {
@@ -158,9 +171,9 @@ class Account private constructor(val username: String, private val accessKey: S
         fun fromCrendentialsString(s: String): Account {
             return Json.decodeFromString<Account>(CryptographyUtils.decodeString(s))
         }
-        
+
         fun fromAccessKey(username: String, accessKey: String): Account {
-            return Account(username, accessKey)
+            return Account(username, accessKey.cached())
         }
     }
 }
