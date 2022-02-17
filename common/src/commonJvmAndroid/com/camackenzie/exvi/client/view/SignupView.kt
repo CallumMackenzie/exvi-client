@@ -16,13 +16,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.core.api.toJson
-import com.camackenzie.exvi.core.util.cached
-import com.camackenzie.exvi.core.util.EncodedStringCache
+import com.camackenzie.exvi.client.model.Model
 
 @Composable
 fun SignupView(
     sender: ExviView,
-    onViewChange: (ExviView) -> Unit
+    onViewChange: ViewChangeFun,
+    model: Model
 ) {
     var password by remember { mutableStateOf("") }
     val passwordChanged: (String) -> Unit = { password = it }
@@ -57,6 +57,14 @@ fun SignupView(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        if (sender == ExviView.LOGIN) {
+            Button(
+                onClick = {
+                    onViewChange(ExviView.LOGIN)
+                }) {
+                Text("Back to Login")
+            }
+        }
         Text(
             "Create an Account",
             fontSize = 30.sp,
@@ -98,7 +106,11 @@ fun SignupView(
                         signupButtonTextChanged("Create Account")
                     },
                     onSuccess = {
-                        println(it.accessKey)
+                        model.accountManager.activeAccount = Account.fromAccessKey(
+                            username = username,
+                            accessKey = it.accessKey
+                        )
+                        onViewChange(ExviView.HOME)
                     },
                     onComplete = {
                         signupButtonEnabledChanged(true)

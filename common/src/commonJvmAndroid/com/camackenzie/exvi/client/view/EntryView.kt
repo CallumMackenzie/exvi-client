@@ -16,11 +16,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.core.api.toJson
-import com.camackenzie.exvi.core.util.cached
-import com.camackenzie.exvi.core.util.EncodedStringCache
+import com.camackenzie.exvi.client.model.Model
 
 @Composable
-fun EntryView(sender: ExviView, onViewChange: (ExviView) -> Unit) {
+fun EntryView(
+    sender: ExviView,
+    onViewChange: ViewChangeFun,
+    model: Model
+) {
     var loginEnabled by remember { mutableStateOf(true) }
     val loginEnabledChanged: (Boolean) -> Unit = { loginEnabled = it }
 
@@ -39,7 +42,14 @@ fun EntryView(sender: ExviView, onViewChange: (ExviView) -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 LoginView(
-                    username, usernameChanged, password, passwordChanged, loginEnabled, loginEnabledChanged
+                    username,
+                    usernameChanged,
+                    password,
+                    passwordChanged,
+                    loginEnabled,
+                    loginEnabledChanged,
+                    model,
+                    onViewChange
                 )
                 SignupSplashView(onViewChange)
             }
@@ -51,7 +61,14 @@ fun EntryView(sender: ExviView, onViewChange: (ExviView) -> Unit) {
                 horizontalArrangement = Arrangement.Center
             ) {
                 LoginView(
-                    username, usernameChanged, password, passwordChanged, loginEnabled, loginEnabledChanged
+                    username,
+                    usernameChanged,
+                    password,
+                    passwordChanged,
+                    loginEnabled,
+                    loginEnabledChanged,
+                    model,
+                    onViewChange
                 )
                 SignupSplashView(onViewChange)
             }
@@ -65,7 +82,9 @@ fun LoginView(
     password: String,
     onPasswordChange: (String) -> Unit,
     loginEnabled: Boolean,
-    onLoginEnabledChange: (Boolean) -> Unit
+    onLoginEnabledChange: (Boolean) -> Unit,
+    model: Model,
+    onViewChange: ViewChangeFun
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
@@ -86,7 +105,11 @@ fun LoginView(
                 Account.requestLogin(username, password, onFail = {
                     println(it.toJson())
                 }, onSuccess = {
-                    println(it.accessKey)
+                    model.accountManager.activeAccount = Account.fromAccessKey(
+                        username = username,
+                        accessKey = it.accessKey
+                    )
+                    onViewChange(ExviView.HOME)
                 }, onComplete = {
                     onLoginEnabledChange(true)
                 })

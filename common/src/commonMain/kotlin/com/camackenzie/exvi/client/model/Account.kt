@@ -30,21 +30,10 @@ class Account private constructor(val username: String, private val accessKey: S
     private val crendentialsString: String
         get() = CryptographyUtils.encodeString(this.toJson())
 
-//    fun signOut(userPath: String?) {
-//        try {
-//            Files.walk(Path.of(userPath))
-//                .filter { ex: Path -> ex.toString().endsWith(fileName) }
-//                .findFirst().ifPresent { file: Path? ->
-//                    try {
-//                        Files.delete(file)
-//                    } catch (ex: IOException) {
-//                        System.err.println("Error deleting file: $ex")
-//                    }
-//                }
-//        } catch (ex: IOException) {
-//            System.err.println("Error signing out: $ex")
-//        }
-//    }
+    fun signOut() {
+        println("Signing out user $username")
+        // TODO
+    }
 
     override fun getUID(): String {
         return "UserAccount"
@@ -134,10 +123,6 @@ class Account private constructor(val username: String, private val accessKey: S
             )
         }
 
-        fun fromAccessKey(username: String, accessKey: String): Account {
-            return Account(username, accessKey)
-        }
-
         fun requestLogin(
             username: String,
             passwordRaw: String,
@@ -172,6 +157,10 @@ class Account private constructor(val username: String, private val accessKey: S
 
         fun fromCrendentialsString(s: String): Account {
             return Json.decodeFromString<Account>(CryptographyUtils.decodeString(s))
+        }
+        
+        fun fromAccessKey(username: String, accessKey: String): Account {
+            return Account(username, accessKey)
         }
     }
 }
