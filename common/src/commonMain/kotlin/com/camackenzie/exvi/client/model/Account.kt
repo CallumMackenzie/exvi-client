@@ -25,10 +25,10 @@ class Account private constructor(val username: String, private val accessKey: S
         get() = (username.substring(0, 1).uppercase() + username.substring(1))
 
     private val fileName: String
-        private get() = (CryptographyUtils.hashSHA256(username) + username + ".user")
+        get() = (CryptographyUtils.hashSHA256(username) + username + ".user")
 
     private val crendentialsString: String
-        private get() = CryptographyUtils.encodeString(this.toJson())
+        get() = CryptographyUtils.encodeString(this.toJson())
 
 //    fun signOut(userPath: String?) {
 //        try {
@@ -125,7 +125,7 @@ class Account private constructor(val username: String, private val accessKey: S
                     onFail(saltResponse)
                 } else {
                     val salt = Json.decodeFromString<AccountSaltResult>(saltResponse.body)
-                    val decryptedSalt = salt.salt.fromBase64().decodeToString()
+                    val decryptedSalt = salt.salt!!.fromBase64().decodeToString()
                     val finalPassword: String = PasswordUtils.hashAndSaltAndEncryptPassword(
                         passwordRaw, decryptedSalt
                     )
@@ -134,7 +134,10 @@ class Account private constructor(val username: String, private val accessKey: S
                             onFail(loginResult)
                         } else {
                             val accessKey = Json.decodeFromString<AccountAccessKeyResult>(loginResult.body)
-                            onSuccess(accessKey)
+                            if (accessKey.errorOccured())
+                                onFail(loginResult)
+                            else
+                                onSuccess(accessKey)
                         }
                     }
                 }

@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.core.api.toJson
+import com.camackenzie.exvi.core.util.cached
 
 @Composable
 fun App() {
@@ -42,63 +43,12 @@ fun App() {
     }
 }
 
-@Composable
-fun PasswordField(initialPassword: String, onPasswordChange: (String) -> String) {
-    var password by rememberSaveable { mutableStateOf(initialPassword) }
-    var passwordVisibility by remember { mutableStateOf(false) }
-    val passwordRegex = Regex("([0-9a-zA-Z]|[*.!@#$%^&(){}\\[\\]:;<>,.?/~_+-=|])*")
-
-    TextField(
-        value = password,
-        onValueChange = { it ->
-            if (it.length <= 30
-                && it.matches(passwordRegex)
-            ) {
-                password = onPasswordChange(it)
-            }
-        },
-        label = { Text("Password") },
-        placeholder = { Text("Password") },
-        visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        trailingIcon = {
-//            val image = if (passwordVisibility)
-//                Icons.Sharp.Visibility
-//            else Icons.Sharp.VisibilityOff
-//
-//            IconButton(onClick = {
-//                passwordVisibility = !passwordVisibility
-//            }) {
-//                Icon(imageVector = image, "")
-//            }
-        }
-    )
-}
-
-@Composable
-fun UsernameField(initialUsername: String, onUsernameChange: (String) -> String) {
-    var username by rememberSaveable { mutableStateOf(initialUsername) }
-    val usernameRegex = Regex("([0-9a-z]|[._-])*")
-
-    TextField(
-        value = username,
-        onValueChange = { it ->
-            if (it.length <= 30
-                && it.matches(usernameRegex)
-            ) {
-                username = onUsernameChange(it)
-            }
-        },
-        label = { Text("Username") },
-        placeholder = { Text("Username") }
-    )
-}
 
 @Composable
 fun LoginView() {
-    var username = ""
-    var password = ""
-    var buttonEnabled by remember { mutableStateOf(true) }
+    var username by remember { mutableStateOf("".cached()) }
+    var password by remember { mutableStateOf("".cached()) }
+    var buttonEnabled by rememberSaveable { mutableStateOf(true) }
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -111,18 +61,19 @@ fun LoginView() {
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(10.dp)
         )
-        UsernameField(username) { uname ->
-            username = uname
+        UsernameField(username.get()) { uname ->
+            username.set(uname)
             uname
         }
-        PasswordField("") { pass ->
-            password = pass
+        PasswordField(password.get()) { pass ->
+            password.set(pass)
             pass
         }
         Button(
             onClick = {
                 buttonEnabled = false
-                Account.requestLogin(username, password, onFail = {
+                println("Requesting data for ${username.get()} with password length ${password.get().length}")
+                Account.requestLogin(username.get(), password.get(), onFail = {
                     println(it.toJson())
                 }, onSuccess = {
                     println(it.accessKey)
