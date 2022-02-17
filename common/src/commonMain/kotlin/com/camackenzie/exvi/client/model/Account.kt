@@ -72,25 +72,50 @@ class Account private constructor(val username: String, private val accessKey: S
 
     companion object {
         fun requestVerification(
-            username: String, email: String, phone: String, callback: (APIResult<String>) -> Unit
+            username: String, email: String, phone: String,
+            onFail: (APIResult<String>) -> Unit = {},
+            onSuccess: () -> Unit = {},
+            onComplete: () -> Unit = {}
         ) {
             APIRequest.requestAsync(
                 APIEndpoints.VERIFICATION,
                 VerificationRequest(username, email, phone),
-                APIRequest.jsonHeaders(),
-                callback
-            )
+                APIRequest.jsonHeaders()
+            ) { request ->
+                if (request.failed()) {
+                    onFail(request)
+                } else {
+                    onSuccess()
+                }
+                onComplete()
+            }
         }
 
-        fun requestSignUp(
-            username: String, verificationCode: String, passwordRaw: String, callback: (APIResult<String>) -> Unit
+        fun requestSignup(
+            username: String,
+            verificationCode: String,
+            passwordRaw: String,
+            onFail: (APIResult<String>) -> Unit = {},
+            onSuccess: (AccountAccessKeyResult) -> Unit = {},
+            onComplete: () -> Unit = {}
         ) {
             val passwordHash: String = PasswordUtils.hashAndEncryptPassword(passwordRaw)
             APIRequest.requestAsync(
                 APIEndpoints.SIGN_UP, AccountCreationRequest(
                     username, verificationCode, passwordHash
-                ), APIRequest.jsonHeaders(), callback
-            )
+                )
+            ) { result ->
+                if (result.failed()) {
+                    onFail(result)
+                } else {
+                    val accessKeyResult = Json.decodeFromString<AccountAccessKeyResult>(result.body)
+                    if (accessKeyResult.errorOccured())
+                        onFail(result)
+                    else
+                        onSuccess(accessKeyResult)
+                }
+                onComplete()
+            }
         }
 
         private fun requestLoginRaw(
@@ -101,7 +126,7 @@ class Account private constructor(val username: String, private val accessKey: S
             )
         }
 
-        private fun requestUserSalt(
+        private fun requestUserSaltRaw(
             username: String, callback: (APIResult<String>) -> Unit
         ) {
             APIRequest.requestAsync(
@@ -120,7 +145,7 @@ class Account private constructor(val username: String, private val accessKey: S
             onSuccess: (AccountAccessKeyResult) -> Unit = {},
             onComplete: () -> Unit = {}
         ) {
-            requestUserSalt(username) { saltResponse ->
+            requestUserSaltRaw(username) { saltResponse ->
                 if (saltResponse.failed()) {
                     onFail(saltResponse)
                 } else {

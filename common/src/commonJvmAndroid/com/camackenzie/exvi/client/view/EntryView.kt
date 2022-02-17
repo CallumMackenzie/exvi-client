@@ -1,6 +1,7 @@
 package com.camackenzie.exvi.client.view
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -32,7 +33,8 @@ fun EntryView(sender: ExviView, onViewChange: (ExviView) -> Unit) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         if (maxWidth < 600.dp) {
             Column(
-                Modifier.fillMaxSize(),
+                Modifier.fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -43,7 +45,8 @@ fun EntryView(sender: ExviView, onViewChange: (ExviView) -> Unit) {
             }
         } else {
             Row(
-                Modifier.fillMaxSize(),
+                Modifier.fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
@@ -70,14 +73,16 @@ fun LoginView(
         modifier = Modifier.padding(10.dp)
     ) {
         Text(
-            "Login to Your Account", fontSize = 30.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(10.dp)
+            "Login to Your Account",
+            fontSize = 30.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(10.dp)
         )
         UsernameField(username, onUsernameChange)
         PasswordField(password, onPasswordChange)
         Button(
             onClick = {
                 onLoginEnabledChange(false)
-                println("Requesting data for $username with password length ${password.length}")
                 Account.requestLogin(username, password, onFail = {
                     println(it.toJson())
                 }, onSuccess = {
