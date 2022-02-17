@@ -98,7 +98,7 @@ class WorkoutGenerator(
 
                 // Add the exercise priority if it has contributed
                 if (exerPriority > 0
-                    || params.providers.size === 0
+                    || params.providers.size == 0
                 ) {
                     exercisePriorities.add(
                         ExercisePriorityTracker(
@@ -117,7 +117,7 @@ class WorkoutGenerator(
             }
 
             // Ensure sufficient exercises exist
-            if (exercisePriorities.size === 0) {
+            if (exercisePriorities.size == 0) {
                 System.err.println("Insufficient exercises selected.")
                 continue
             }
@@ -172,9 +172,9 @@ class WorkoutGenerator(
 
     fun blendExerciseSets(
         exercise: Exercise,
-        exs: List<ExerciseSet>
+        exercises: List<ExerciseSet>
     ): ExerciseSet {
-        var exs = exs.toMutableList()
+        var exs = exercises.toMutableList()
         if (exs.size == 0) {
             return ExerciseSet(exercise, "rep", arrayOf(8, 8, 8))
         }
