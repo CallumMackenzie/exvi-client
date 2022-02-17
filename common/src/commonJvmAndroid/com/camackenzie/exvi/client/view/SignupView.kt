@@ -19,6 +19,9 @@ import com.camackenzie.exvi.core.util.cached
 import com.camackenzie.exvi.core.util.EncodedStringCache
 
 @Composable
-fun SignupView() {
-
+fun SignupView(
+    sender: ExviView,
+    onViewChange: (ExviView) -> Unit
+) {
+    
 }

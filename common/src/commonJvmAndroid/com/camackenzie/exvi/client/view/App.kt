@@ -18,7 +18,24 @@ import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.core.util.cached
 import com.camackenzie.exvi.core.util.EncodedStringCache
 
+enum class ExviView {
+    LOGIN,
+    SIGNUP,
+    NONE
+}
+
 @Composable
 fun App() {
-    EntryView()
+    var currentView by remember { mutableStateOf(ExviView.LOGIN) }
+    var previousView by remember { mutableStateOf(ExviView.NONE) }
+    val onViewChange: (ExviView) -> Unit = { newView ->
+        println("Switching to view $newView from $currentView")
+        previousView = currentView
+        currentView = newView
+    }
+
+    when (currentView) {
+        ExviView.LOGIN -> EntryView(sender = previousView, onViewChange)
+        ExviView.SIGNUP -> SignupView(sender = previousView, onViewChange)
+    }
 }

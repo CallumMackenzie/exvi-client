@@ -19,7 +19,7 @@ import com.camackenzie.exvi.core.util.cached
 import com.camackenzie.exvi.core.util.EncodedStringCache
 
 @Composable
-fun EntryView() {
+fun EntryView(sender: ExviView, onViewChange: (ExviView) -> Unit) {
     var loginEnabled by remember { mutableStateOf(true) }
     val loginEnabledChanged: (Boolean) -> Unit = { loginEnabled = it }
 
@@ -39,7 +39,7 @@ fun EntryView() {
                 LoginView(
                     username, usernameChanged, password, passwordChanged, loginEnabled, loginEnabledChanged
                 )
-                SignupSplashView()
+                SignupSplashView(onViewChange)
             }
         } else {
             Row(
@@ -50,7 +50,7 @@ fun EntryView() {
                 LoginView(
                     username, usernameChanged, password, passwordChanged, loginEnabled, loginEnabledChanged
                 )
-                SignupSplashView()
+                SignupSplashView(onViewChange)
             }
         }
     }
@@ -93,7 +93,7 @@ fun LoginView(
 }
 
 @Composable
-fun SignupSplashView() {
+fun SignupSplashView(onViewChange: (ExviView) -> Unit) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -105,7 +105,9 @@ fun SignupSplashView() {
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(10.dp)
         )
-        Button(onClick = {}) {
+        Button(onClick = {
+            onViewChange(ExviView.SIGNUP)
+        }) {
             Text("Create an Account")
         }
     }
