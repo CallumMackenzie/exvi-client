@@ -31,5 +31,17 @@ fun HomeView(
         onViewChange(ExviView.LOGIN)
     }
 
-    
+    Column(
+        Modifier.fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            "Welcome, ${model.accountManager.activeAccount!!.formattedUsername}!",
+            fontSize = 30.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(10.dp)
+        )
+    }
 }
