@@ -99,22 +99,31 @@ fun LoginView(
         )
         UsernameField(username, onUsernameChange, loginEnabled)
         PasswordField(password, onPasswordChange, loginEnabled)
-        Button(
-            onClick = {
-                onLoginEnabledChange(false)
-                Account.requestLogin(username, password, onFail = {
-                    println(it.toJson())
-                    onLoginEnabledChange(true)
-                }, onSuccess = {
-                    model.accountManager.activeAccount = Account.fromAccessKey(
-                        username = username,
-                        accessKey = it.accessKey
-                    )
-                    onViewChange(ExviView.HOME)
-                })
-            }, enabled = loginEnabled
+        Row(
+            modifier = Modifier.padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
-            Text("Login")
+            Button(
+                onClick = {
+                    onLoginEnabledChange(false)
+                    Account.requestLogin(username, password, onFail = {
+                        println(it.toJson())
+                        onLoginEnabledChange(true)
+                    }, onSuccess = {
+                        model.accountManager.activeAccount = Account.fromAccessKey(
+                            username = username,
+                            accessKey = it.accessKey
+                        )
+                        onViewChange(ExviView.HOME)
+                    })
+                }, enabled = loginEnabled
+            ) {
+                Text("Login")
+            }
+            if (!loginEnabled) {
+                CircularProgressIndicator(Modifier.padding(10.dp))
+            }
         }
     }
 }

@@ -123,5 +123,8 @@ fun SignupView(
         ) {
             Text(signupButtonText)
         }
+        if (!signupButtonEnabled || !sendCodeButtonEnabled) {
+            CircularProgressIndicator(Modifier.padding(10.dp))
+        }
     }
 }

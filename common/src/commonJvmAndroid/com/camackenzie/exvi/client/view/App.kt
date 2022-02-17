@@ -9,9 +9,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Model
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-
 
 typealias ViewChangeFun = (ExviView) -> Unit
 
