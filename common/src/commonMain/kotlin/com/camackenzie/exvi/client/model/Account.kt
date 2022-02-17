@@ -133,11 +133,11 @@ class Account private constructor(val username: String, private val accessKey: S
                         if (loginResult.failed()) {
                             onFail(loginResult)
                         } else {
-                            val accessKey = Json.decodeFromString<AccountAccessKeyResult>(loginResult.body)
-                            if (accessKey.errorOccured())
+                            val accessKeyResult = Json.decodeFromString<AccountAccessKeyResult>(loginResult.body)
+                            if (accessKeyResult.errorOccured())
                                 onFail(loginResult)
                             else
-                                onSuccess(accessKey)
+                                onSuccess(accessKeyResult)
                         }
                     }
                 }

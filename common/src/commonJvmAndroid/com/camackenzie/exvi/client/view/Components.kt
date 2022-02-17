@@ -17,8 +17,7 @@ import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.core.api.toJson
 
 @Composable
-fun UsernameField(initialUsername: String, onUsernameChange: (String) -> String) {
-    var username by rememberSaveable { mutableStateOf(initialUsername) }
+fun UsernameField(username: String, onUsernameChange: (String) -> Unit) {
     val usernameRegex = Regex("([0-9a-z]|[._-])*")
 
     TextField(
@@ -27,7 +26,7 @@ fun UsernameField(initialUsername: String, onUsernameChange: (String) -> String)
             if (it.length <= 30
                 && it.matches(usernameRegex)
             ) {
-                username = onUsernameChange(it)
+                onUsernameChange(it)
             }
         },
         label = { Text("Username") },
@@ -37,9 +36,7 @@ fun UsernameField(initialUsername: String, onUsernameChange: (String) -> String)
 
 
 @Composable
-fun PasswordField(initialPassword: String, onPasswordChange: (String) -> String) {
-    var password by rememberSaveable { mutableStateOf(initialPassword) }
-    var passwordVisibility by rememberSaveable { mutableStateOf(false) }
+fun PasswordField(password: String, onPasswordChange: (String) -> Unit) {
     val passwordRegex = Regex("([0-9a-zA-Z]|[*.!@#$%^&(){}\\[\\]:;<>,.?/~_+-=|])*")
 
     TextField(
@@ -48,12 +45,12 @@ fun PasswordField(initialPassword: String, onPasswordChange: (String) -> String)
             if (it.length <= 30
                 && it.matches(passwordRegex)
             ) {
-                password = onPasswordChange(it)
+                onPasswordChange(it)
             }
         },
         label = { Text("Password") },
         placeholder = { Text("Password") },
-        visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
+//        visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         trailingIcon = {
 //            val image = if (passwordVisibility)

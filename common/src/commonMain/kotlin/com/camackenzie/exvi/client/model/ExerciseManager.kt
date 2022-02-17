@@ -15,7 +15,7 @@ import kotlinx.serialization.json.*
  *
  * @author callum
  */
-class ExerciseManager(var exercises: MutableSet<Exercise>) {
+class ExerciseManager(var exercises: MutableSet<Exercise> = HashSet()) {
 
     constructor(json: String) : this() {
         addAllFromJson(json)

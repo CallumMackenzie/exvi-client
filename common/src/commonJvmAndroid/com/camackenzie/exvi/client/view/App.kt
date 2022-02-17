@@ -16,9 +16,19 @@ import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.core.util.cached
+import com.camackenzie.exvi.core.util.EncodedStringCache
 
 @Composable
 fun App() {
+    var loginEnabled by remember { mutableStateOf(true) }
+    val loginEnabledChanged: (Boolean) -> Unit = { loginEnabled = it }
+
+    var password by remember { mutableStateOf("") }
+    val passwordChanged: (String) -> Unit = { password = it }
+
+    var username by remember { mutableStateOf("") }
+    val usernameChanged: (String) -> Unit = { username = it }
+
     BoxWithConstraints(Modifier.fillMaxSize()) {
         if (maxWidth < 600.dp) {
             Column(
@@ -26,7 +36,9 @@ fun App() {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                LoginView()
+                LoginView(
+                    username, usernameChanged, password, passwordChanged, loginEnabled, loginEnabledChanged
+                )
                 SignupSplashView()
             }
         } else {
@@ -35,7 +47,9 @@ fun App() {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                LoginView()
+                LoginView(
+                    username, usernameChanged, password, passwordChanged, loginEnabled, loginEnabledChanged
+                )
                 SignupSplashView()
             }
         }
@@ -45,43 +59,35 @@ fun App() {
 
 
 @Composable
-fun LoginView() {
-    var username by remember { mutableStateOf("".cached()) }
-    var password by remember { mutableStateOf("".cached()) }
-    var buttonEnabled by rememberSaveable { mutableStateOf(true) }
-
+fun LoginView(
+    username: String, onUsernameChange: (String) -> Unit,
+    password: String,
+    onPasswordChange: (String) -> Unit,
+    loginEnabled: Boolean,
+    onLoginEnabledChange: (Boolean) -> Unit
+) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(10.dp)
     ) {
         Text(
-            "Login to Your Account",
-            fontSize = 30.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(10.dp)
+            "Login to Your Account", fontSize = 30.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(10.dp)
         )
-        UsernameField(username.get()) { uname ->
-            username.set(uname)
-            uname
-        }
-        PasswordField(password.get()) { pass ->
-            password.set(pass)
-            pass
-        }
+        UsernameField(username, onUsernameChange)
+        PasswordField(password, onPasswordChange)
         Button(
             onClick = {
-                buttonEnabled = false
-                println("Requesting data for ${username.get()} with password length ${password.get().length}")
-                Account.requestLogin(username.get(), password.get(), onFail = {
+                onLoginEnabledChange(false)
+                println("Requesting data for $username with password length ${password.length}")
+                Account.requestLogin(username, password, onFail = {
                     println(it.toJson())
                 }, onSuccess = {
                     println(it.accessKey)
                 }, onComplete = {
-                    buttonEnabled = true
+                    onLoginEnabledChange(true)
                 })
-            },
-            enabled = buttonEnabled
+            }, enabled = loginEnabled
         ) {
             Text("Login")
         }
