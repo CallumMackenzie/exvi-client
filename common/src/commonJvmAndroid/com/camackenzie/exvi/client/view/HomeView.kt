@@ -31,15 +31,16 @@ fun HomeView(
     onViewChange: ViewChangeFun,
     model: Model
 ) {
+    var workouts by rememberSaveable { mutableStateOf(emptyArray<Workout>()) }
+    val onWorkoutsChanged: (Array<Workout>) -> Unit = { workouts = it }
+
+    var retrievingWorkouts by rememberSaveable { mutableStateOf(true) }
+    val onRetrievingWorkoutsChanged: (Boolean) -> Unit = { retrievingWorkouts = it }
+
     if (!model.accountManager.hasActiveAccount()) {
         println("No active account, switching to login view")
         onViewChange(ExviView.LOGIN)
     }
-
-    TopAppBar(title = {
-        Text("Home")
-    }, actions = {
-    })
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -56,7 +57,14 @@ fun HomeView(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            WorkoutListView(onViewChange, model)
+            WorkoutListView(
+                onViewChange,
+                model,
+                workouts,
+                onWorkoutsChanged,
+                retrievingWorkouts,
+                onRetrievingWorkoutsChanged
+            )
         }
     }
 }
@@ -64,19 +72,19 @@ fun HomeView(
 @Composable
 fun WorkoutListView(
     onViewChange: ViewChangeFun,
-    model: Model
+    model: Model,
+    workouts: Array<Workout>,
+    onWorkoutsChanged: (Array<Workout>) -> Unit,
+    retrievingWorkouts: Boolean,
+    onRetrievingWorkoutsChanged: (Boolean) -> Unit
 ) {
-    var workouts by remember { mutableStateOf(emptyArray<Workout>()) }
-    var retrievingWorkouts by remember { mutableStateOf(true) }
 
     model.accountManager.activeAccount!!.workoutManager.getWorkouts(
-        onSuccess = {
-            workouts = it
-        },
+        onSuccess = onWorkoutsChanged,
         onFail = {
             println(it.toJson())
         }, onComplete = {
-            retrievingWorkouts = false
+            onRetrievingWorkoutsChanged(false)
         }
     )
 
