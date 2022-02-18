@@ -16,6 +16,10 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         return Clock.System.now().epochSeconds - lastPullUTC > pullTimeUTC
     }
 
+    fun invalidateLocalCache() {
+        lastPullUTC = 0
+    }
+
     override fun getWorkouts(
         onFail: (APIResult<String>) -> Unit,
         onSuccess: (Array<Workout>) -> Unit,
@@ -43,6 +47,11 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         onSuccess: () -> Unit,
         onComplete: () -> Unit
     ) {
-        //TODO()
+        serverManager.putWorkouts(
+            workoutsToAdd,
+            onFail = onFail,
+            onSuccess = onSuccess,
+            onComplete = onComplete
+        )
     }
 }

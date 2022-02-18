@@ -13,3 +13,10 @@ val ModelSaver = mapSaver<Model>(
         Json.decodeFromString(it["json"] as String)
     }
 )
+
+fun EnsureActiveAccount(model: Model, onViewChange: ViewChangeFun) {
+    if (!model.accountManager.hasActiveAccount()) {
+        println("No active account, switching to login view")
+        onViewChange(ExviView.LOGIN) {}
+    }
+}

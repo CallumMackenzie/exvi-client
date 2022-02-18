@@ -18,4 +18,16 @@ class Model : SelfSerializable {
         return Json.encodeToString(this)
     }
 
+    @kotlinx.serialization.Transient
+    val activeAccount: Account?
+        get() {
+            return accountManager.activeAccount
+        }
+
+    @kotlinx.serialization.Transient
+    val workoutManager: SyncedWorkoutManager?
+        get() {
+            return accountManager.activeAccount?.workoutManager
+        }
+
 }

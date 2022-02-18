@@ -27,7 +27,7 @@ class Account private constructor(
     var bodyStats: BodyStats = BodyStats.average(),
 ) : SelfSerializable {
     @kotlinx.serialization.Transient
-    val workoutManager: WorkoutManager
+    val workoutManager: SyncedWorkoutManager
         get() = SyncedWorkoutManager(username, accessKey.get())
 
     @kotlinx.serialization.Transient

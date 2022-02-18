@@ -60,7 +60,7 @@ fun SignupView(
         if (sender == ExviView.LOGIN) {
             Button(
                 onClick = {
-                    onViewChange(ExviView.LOGIN)
+                    onViewChange(ExviView.LOGIN) {}
                 }, enabled = sendCodeButtonEnabled && signupButtonEnabled
             ) {
                 Text("Back to Login")
@@ -112,7 +112,7 @@ fun SignupView(
                             username = username,
                             accessKey = it.accessKey
                         )
-                        onViewChange(ExviView.HOME)
+                        onViewChange(ExviView.HOME) {}
                     },
                     onComplete = {
                         signupButtonEnabledChanged(true)

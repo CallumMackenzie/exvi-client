@@ -115,7 +115,7 @@ fun LoginView(
                             username = username,
                             accessKey = it.accessKey
                         )
-                        onViewChange(ExviView.HOME)
+                        onViewChange(ExviView.HOME) {}
                     })
                 }, enabled = loginEnabled
             ) {
@@ -131,7 +131,7 @@ fun LoginView(
 @Composable
 fun SignupSplashView(
     signupEnabled: Boolean,
-    onViewChange: (ExviView) -> Unit
+    onViewChange: ViewChangeFun
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
@@ -145,7 +145,7 @@ fun SignupSplashView(
             modifier = Modifier.padding(10.dp)
         )
         Button(onClick = {
-            onViewChange(ExviView.SIGNUP)
+            onViewChange(ExviView.SIGNUP) {}
         }, enabled = signupEnabled) {
             Text("Create an Account")
         }

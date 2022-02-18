@@ -10,12 +10,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Model
 
-typealias ViewChangeFun = (ExviView) -> Unit
+typealias ArgProviderFun = () -> Any
+typealias ViewChangeFun = (ExviView, provider: ArgProviderFun) -> Unit
 
 enum class ExviView {
     LOGIN,
     SIGNUP,
     HOME,
+    WORKOUT_CREATION,
     NONE
 }
 
@@ -27,15 +29,35 @@ fun App() {
     // Navigation
     var currentView by rememberSaveable { mutableStateOf(ExviView.LOGIN) }
     var previousView by rememberSaveable { mutableStateOf(ExviView.NONE) }
-    val onViewChange: ViewChangeFun = { newView ->
+    var provided by rememberSaveable { mutableStateOf<Any>({}) }
+    val onViewChange: ViewChangeFun = { newView, argProvider ->
         previousView = currentView
         currentView = newView
+        provided = argProvider()
     }
 
     when (currentView) {
-        ExviView.LOGIN -> EntryView(sender = previousView, onViewChange, model = model)
-        ExviView.SIGNUP -> SignupView(sender = previousView, onViewChange, model = model)
-        ExviView.HOME -> HomeView(sender = previousView, onViewChange, model = model)
+        ExviView.LOGIN -> EntryView(
+            sender = previousView,
+            onViewChange = onViewChange,
+            model = model
+        )
+        ExviView.SIGNUP -> SignupView(
+            sender = previousView,
+            onViewChange = onViewChange,
+            model = model
+        )
+        ExviView.HOME -> HomeView(
+            sender = previousView,
+            onViewChange = onViewChange,
+            model = model
+        )
+        ExviView.WORKOUT_CREATION -> WorkoutCreationView(
+            sender = previousView,
+            onViewChange = onViewChange,
+            model = model,
+            provided = provided
+        )
         ExviView.NONE -> Text(
             "Exvi Fitness", fontSize = 30.sp,
             textAlign = TextAlign.Center,
