@@ -14,6 +14,14 @@ import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.Workout
+import com.soywiz.krypto.SecureRandom
+
+val workoutNamePresets = arrayOf(
+    "Pull Day", "Push Day", "Leg Day", "Chest Day",
+    "Bicep Bonanza", "Quad Isolation", "Calf Cruncher",
+    "Forearm Fiesta", "The Quadfather", "Quadzilla",
+    "Shoulders", "Back Builder", "Core", "Cardio Day 1"
+)
 
 @Composable
 fun WorkoutCreationView(
@@ -24,16 +32,26 @@ fun WorkoutCreationView(
 ) {
     EnsureActiveAccount(model, onViewChange)
 
+    var promptCancel by rememberSaveable { mutableStateOf(false) }
+    val onPromptCancelChange: (Boolean) -> Unit = { promptCancel = it }
+
     var workoutName by rememberSaveable {
         mutableStateOf(
-            if (provided::class == Workout::class) {
-                (provided as Workout).name
-            } else {
+            if (provided::class == Workout::class)
+                (provided as Workout).name else
                 "New Workout"
-            }
         )
     }
     val onWorkoutNameChange: (String) -> Unit = { workoutName = it }
+
+    var workoutDescription by rememberSaveable {
+        mutableStateOf(
+            if (provided::class == Workout::class)
+                (provided as Workout).name else
+                ""
+        )
+    }
+    val onWorkoutDescriptionChange: (String) -> Unit = { workoutDescription = it }
 
     // Control bar
     Row(
@@ -41,11 +59,16 @@ fun WorkoutCreationView(
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.Center
     ) {
-        TextField(value = workoutName, onValueChange = {
-            if (it.length <= 30) {
-                onWorkoutNameChange(it)
-            }
-        })
+        TextField(value = workoutName,
+            label = { Text("Workout Name") },
+            placeholder = {
+                Text(workoutNamePresets[(SecureRandom.nextDouble() * workoutNamePresets.size).toInt()])
+            },
+            onValueChange = {
+                if (it.length <= 30) {
+                    onWorkoutNameChange(it)
+                }
+            })
         Button(onClick = {
             val workout = Workout(workoutName, "", ArrayList())
             model.workoutManager!!.putWorkouts(
@@ -61,12 +84,24 @@ fun WorkoutCreationView(
         }) {
             Text("Finish")
         }
-        Button(onClick = {
-            onViewChange(ExviView.HOME) {}
-        }) {
-            Text("Cancel")
+        if (!promptCancel) {
+            Button(onClick = {
+                onPromptCancelChange(true)
+            }) {
+                Text("Cancel")
+            }
+        } else {
+            Button(onClick = {
+                onPromptCancelChange(false)
+            }) {
+                Text("Keep Editing")
+            }
+            Button(onClick = {
+                onViewChange(ExviView.HOME) {}
+            }) {
+                Text("Cancel & Lose Changes")
+            }
         }
     }
-
 
 }

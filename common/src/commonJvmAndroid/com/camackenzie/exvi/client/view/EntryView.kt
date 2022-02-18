@@ -119,7 +119,7 @@ fun LoginView(
                     })
                 }, enabled = loginEnabled
             ) {
-                Text("Login")
+                Text(if (loginEnabled) "Login" else "Logging you in")
             }
             if (!loginEnabled) {
                 CircularProgressIndicator(Modifier.padding(10.dp))

@@ -77,19 +77,19 @@ fun WorkoutListView(
     onSwitchingViewChange: (Boolean) -> Unit
 ) {
     val pullWorkouts = {
-        if (!switchingView) {
-            model.workoutManager!!.getWorkouts(
-                onSuccess = onWorkoutsChanged,
-                onFail = {
-                    println(it.toJson())
-                }, onComplete = {
-                    onRetrievingWorkoutsChanged(false)
-                }
-            )
-        }
+        model.workoutManager!!.getWorkouts(
+            onSuccess = onWorkoutsChanged,
+            onFail = {
+                println(it.toJson())
+            }, onComplete = {
+                onRetrievingWorkoutsChanged(false)
+            }
+        )
     }
 
-    pullWorkouts()
+    if (!switchingView) {
+        pullWorkouts()
+    }
 
     Row(
         Modifier.fillMaxSize(),
@@ -113,27 +113,41 @@ fun WorkoutListView(
             }
         }
 
-        LazyColumn {
-            if (workouts.isNotEmpty() || retrievingWorkouts) {
-                items(workouts.size) {
-                    Text("${workouts[it].name}")
-                }
-            } else {
-                item {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("You have no workouts", textAlign = TextAlign.Center)
-                        Button(onClick = {
-                            onSwitchingViewChange(true)
-                            onViewChange(ExviView.WORKOUT_CREATION) {}
-                        }, enabled = !switchingView) {
+        if (!retrievingWorkouts && !switchingView) {
+            LazyColumn {
+                if (workouts.isNotEmpty()) {
+                    items(workouts.size) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
                             Text(
-                                if (sender == ExviView.SIGNUP)
-                                    "Create your first workout" else
-                                    "Create a new workout"
+                                "${workouts[it].name}",
+                                textAlign = TextAlign.Center,
+                                fontSize = 20.sp
                             )
+                            Button(onClick = {}) {
+                                Text("Start")
+                            }
+                        }
+                    }
+                } else {
+                    item {
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("You have no workouts", textAlign = TextAlign.Center)
+                            Button(onClick = {
+                                onSwitchingViewChange(true)
+                                onViewChange(ExviView.WORKOUT_CREATION) {}
+                            }, enabled = !switchingView) {
+                                Text(
+                                    if (sender == ExviView.SIGNUP)
+                                        "Create your first workout" else
+                                        "Create a new workout"
+                                )
+                            }
                         }
                     }
                 }
