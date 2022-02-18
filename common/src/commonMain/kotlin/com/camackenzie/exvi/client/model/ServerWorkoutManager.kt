@@ -27,9 +27,10 @@ class ServerWorkoutManager(private val username: String, private val accessKey: 
         onSuccess: (Array<Workout>) -> Unit,
         onComplete: () -> Unit
     ) {
-        val request: GenericDataRequest<WorkoutListRequest> = GenericDataRequest(
-            username.cached(), accessKey.cached(),
-            WorkoutListRequest(WorkoutListRequest.Type.LIST_ALL)
+        val request = WorkoutListRequest(
+            username,
+            accessKey,
+            WorkoutListRequest.Type.LIST_ALL
         )
         APIRequest.requestAsync(
             APIEndpoints.GET_DATA,
@@ -52,10 +53,7 @@ class ServerWorkoutManager(private val username: String, private val accessKey: 
         onSuccess: () -> Unit,
         onComplete: () -> Unit
     ) {
-        val request: GenericDataRequest<WorkoutPutRequest> = GenericDataRequest(
-            username.cached(), accessKey.cached(),
-            WorkoutPutRequest(workoutsToAdd)
-        )
+        val request = WorkoutPutRequest(username, accessKey, workoutsToAdd)
         APIRequest.requestAsync(
             APIEndpoints.GET_DATA,
             request,

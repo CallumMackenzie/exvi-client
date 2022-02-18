@@ -7,6 +7,7 @@ package com.camackenzie.exvi.client.model
 
 import com.camackenzie.exvi.core.api.*
 import com.camackenzie.exvi.core.model.BodyStats
+import com.camackenzie.exvi.core.model.WorkoutManager
 import com.camackenzie.exvi.core.util.CryptographyUtils
 import com.camackenzie.exvi.core.util.EncodedStringCache
 import com.camackenzie.exvi.core.util.SelfSerializable
@@ -26,8 +27,8 @@ class Account private constructor(
     var bodyStats: BodyStats = BodyStats.average(),
 ) : SelfSerializable {
     @kotlinx.serialization.Transient
-    val workoutManager: ServerWorkoutManager
-        get() = ServerWorkoutManager(username, accessKey.get())
+    val workoutManager: WorkoutManager
+        get() = SyncedWorkoutManager(username, accessKey.get())
 
     @kotlinx.serialization.Transient
     val formattedUsername: String
@@ -111,10 +112,7 @@ class Account private constructor(
                     onFail(result)
                 } else {
                     val accessKeyResult = Json.decodeFromString<AccountAccessKeyResult>(result.body)
-                    if (accessKeyResult.errorOccured())
-                        onFail(result)
-                    else
-                        onSuccess(accessKeyResult)
+                    onSuccess(accessKeyResult)
                 }
                 onComplete()
             }
@@ -157,10 +155,7 @@ class Account private constructor(
                             onFail(loginResult)
                         } else {
                             val accessKeyResult = Json.decodeFromString<AccountAccessKeyResult>(loginResult.body)
-                            if (accessKeyResult.errorOccured())
-                                onFail(loginResult)
-                            else
-                                onSuccess(accessKeyResult)
+                            onSuccess(accessKeyResult)
                         }
                     }
                 }

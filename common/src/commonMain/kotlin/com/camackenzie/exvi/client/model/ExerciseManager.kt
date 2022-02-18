@@ -14,7 +14,6 @@ import kotlinx.serialization.json.*
 
 
 @kotlinx.serialization.Serializable
-//@androidx.annotation.Keep
 data class ExerciseManager(var exercises: HashSet<Exercise> = HashSet()) : SelfSerializable {
 
     constructor(json: String) : this() {

@@ -9,7 +9,6 @@ import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-//@androidx.annotation.Keep
 @kotlinx.serialization.Serializable
 class AccountManager : SelfSerializable {
 
