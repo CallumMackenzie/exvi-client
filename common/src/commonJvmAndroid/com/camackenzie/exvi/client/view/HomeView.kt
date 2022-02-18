@@ -98,8 +98,14 @@ fun WorkoutListView(
         }
 
         LazyColumn {
-            items(workouts.size) {
-                Text("${workouts[it].name}")
+            if (workouts.isNotEmpty() || retrievingWorkouts) {
+                items(workouts.size) {
+                    Text("${workouts[it].name}")
+                }
+            } else {
+                item {
+                    Text("You have no workouts")
+                }
             }
         }
     }
