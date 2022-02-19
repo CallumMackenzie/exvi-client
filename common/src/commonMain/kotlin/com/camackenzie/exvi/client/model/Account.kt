@@ -26,19 +26,15 @@ class Account private constructor(
     private val accessKey: EncodedStringCache,
     var bodyStats: BodyStats = BodyStats.average(),
 ) : SelfSerializable {
-    @kotlinx.serialization.Transient
     val workoutManager: SyncedWorkoutManager
         get() = SyncedWorkoutManager(username, accessKey.get())
 
-    @kotlinx.serialization.Transient
     val formattedUsername: String
         get() = (username.substring(0, 1).uppercase() + username.substring(1))
 
-    @kotlinx.serialization.Transient
     private val fileName: String
         get() = (CryptographyUtils.hashSHA256(username) + username + ".user")
 
-    @kotlinx.serialization.Transient
     private val crendentialsString: String
         get() = CryptographyUtils.encodeString(this.toJson())
 
@@ -146,7 +142,7 @@ class Account private constructor(
                     onFail(saltResponse)
                 } else {
                     val salt = Json.decodeFromString<AccountSaltResult>(saltResponse.body)
-                    val decryptedSalt = salt.salt!!.fromBase64().decodeToString()
+                    val decryptedSalt = salt.salt.fromBase64().decodeToString()
                     val finalPassword: String = PasswordUtils.hashAndSaltAndEncryptPassword(
                         passwordRaw, decryptedSalt
                     )

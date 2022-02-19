@@ -2,10 +2,9 @@ package com.camackenzie.exvi.client.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.foundation.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -23,16 +22,28 @@ fun HomeView(
     onViewChange: ViewChangeFun,
     model: Model
 ) {
+    ensureActiveAccount(model, onViewChange)
+
     var workouts by rememberSaveable { mutableStateOf(emptyArray<Workout>()) }
     val onWorkoutsChanged: (Array<Workout>) -> Unit = { workouts = it }
 
-    var retrievingWorkouts by rememberSaveable { mutableStateOf(true) }
+    var retrievingWorkouts by rememberSaveable { mutableStateOf(false) }
     val onRetrievingWorkoutsChanged: (Boolean) -> Unit = { retrievingWorkouts = it }
 
     var switchingView by rememberSaveable { mutableStateOf(false) }
     val onSwitchingViewChange: (Boolean) -> Unit = { switchingView = it }
 
-    EnsureActiveAccount(model, onViewChange)
+    val refreshWorkouts = {
+        onRetrievingWorkoutsChanged(true)
+        model.workoutManager!!.getWorkouts(
+            onSuccess = onWorkoutsChanged,
+            onFail = {
+                println(it.toJson())
+            }, onComplete = {
+                onRetrievingWorkoutsChanged(false)
+            }
+        )
+    }
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -44,6 +55,11 @@ fun HomeView(
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(10.dp)
         )
+        Button(onClick = {
+            onViewChange(ExviView.WorkoutCreation, ::noArgs)
+        }) {
+            Text("Create Workout")
+        }
         Row(
             Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
@@ -58,7 +74,8 @@ fun HomeView(
                 retrievingWorkouts,
                 onRetrievingWorkoutsChanged,
                 switchingView,
-                onSwitchingViewChange
+                onSwitchingViewChange,
+                refreshWorkouts
             )
         }
     }
@@ -74,22 +91,9 @@ fun WorkoutListView(
     retrievingWorkouts: Boolean,
     onRetrievingWorkoutsChanged: (Boolean) -> Unit,
     switchingView: Boolean,
-    onSwitchingViewChange: (Boolean) -> Unit
+    onSwitchingViewChange: (Boolean) -> Unit,
+    refreshWorkouts: () -> Unit
 ) {
-    val pullWorkouts = {
-        model.workoutManager!!.getWorkouts(
-            onSuccess = onWorkoutsChanged,
-            onFail = {
-                println(it.toJson())
-            }, onComplete = {
-                onRetrievingWorkoutsChanged(false)
-            }
-        )
-    }
-
-    if (!switchingView) {
-        pullWorkouts()
-    }
 
     Row(
         Modifier.fillMaxSize(),
@@ -107,7 +111,7 @@ fun WorkoutListView(
         } else {
             IconButton(onClick = {
                 onRetrievingWorkoutsChanged(true)
-                pullWorkouts()
+                refreshWorkouts()
             }) {
                 Icon(Icons.Default.Refresh, "Refresh Workout List")
             }
@@ -117,17 +121,47 @@ fun WorkoutListView(
             LazyColumn {
                 if (workouts.isNotEmpty()) {
                     items(workouts.size) {
+                        var deleteConfirmEnabled by remember { mutableStateOf(false) }
+                        val onDeleteConfirmEnabledChanged: (Boolean) -> Unit = { deleteConfirmEnabled = it }
+
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
+
                             Text(
                                 "${workouts[it].name}",
                                 textAlign = TextAlign.Center,
                                 fontSize = 20.sp
                             )
-                            Button(onClick = {}) {
-                                Text("Start")
+                            IconButton(onClick = {}) {
+                                Icon(Icons.Default.PlayArrow, "Start Workout")
+                            }
+                            IconButton(onClick = {
+                                onViewChange(ExviView.WorkoutCreation) {
+                                    workouts[it]
+                                }
+                            }) {
+                                Icon(Icons.Default.Edit, "Edit Workout")
+                            }
+                            if (!deleteConfirmEnabled) {
+                                IconButton(onClick = {
+                                    onDeleteConfirmEnabledChanged(true)
+                                }) {
+                                    Icon(Icons.Default.Delete, "Delete Workout")
+                                }
+                            } else {
+                                IconButton(onClick = {
+                                    onDeleteConfirmEnabledChanged(false)
+                                    model.workoutManager!!.deleteWorkouts(arrayOf(workouts[it].id.get()),
+                                        onFail = {
+                                            println(it.toJson())
+                                        }, onComplete = {
+                                            refreshWorkouts()
+                                        })
+                                }) {
+                                    Icon(Icons.Default.Close, "Delete Workout")
+                                }
                             }
                         }
                     }
@@ -140,10 +174,10 @@ fun WorkoutListView(
                             Text("You have no workouts", textAlign = TextAlign.Center)
                             Button(onClick = {
                                 onSwitchingViewChange(true)
-                                onViewChange(ExviView.WORKOUT_CREATION) {}
+                                onViewChange(ExviView.WorkoutCreation, ::noArgs)
                             }, enabled = !switchingView) {
                                 Text(
-                                    if (sender == ExviView.SIGNUP)
+                                    if (sender == ExviView.Signup)
                                         "Create your first workout" else
                                         "Create a new workout"
                                 )

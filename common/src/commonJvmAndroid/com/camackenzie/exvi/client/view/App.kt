@@ -4,32 +4,38 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Model
+import com.camackenzie.exvi.core.util.None
+import com.camackenzie.exvi.core.util.SelfSerializable
 
-typealias ArgProviderFun = () -> Any
+typealias ArgProviderFun = () -> SelfSerializable
 typealias ViewChangeFun = (ExviView, provider: ArgProviderFun) -> Unit
 
 enum class ExviView {
-    LOGIN,
-    SIGNUP,
-    HOME,
-    WORKOUT_CREATION,
-    NONE
+    Login,
+    Signup,
+    Home,
+    WorkoutCreation,
+    None
 }
 
 @Composable
 fun App() {
     // Global state
-    val model by rememberSaveable(stateSaver = ModelSaver) { mutableStateOf(Model()) }
+    @Suppress("UNCHECKED_CAST")
+    val model by rememberSaveable(stateSaver = SelfSerializableSaver as Saver<Model, Any>) { mutableStateOf(Model()) }
 
     // Navigation
-    var currentView by rememberSaveable { mutableStateOf(ExviView.LOGIN) }
-    var previousView by rememberSaveable { mutableStateOf(ExviView.NONE) }
-    var provided by rememberSaveable { mutableStateOf<Any>({}) }
+    var currentView by rememberSaveable { mutableStateOf(ExviView.Login) }
+    var previousView by rememberSaveable { mutableStateOf(ExviView.None) }
+
+    @Suppress("UNCHECKED_CAST")
+    var provided by rememberSaveable(stateSaver = SelfSerializableSaver) { mutableStateOf<SelfSerializable>(None) }
     val onViewChange: ViewChangeFun = { newView, argProvider ->
         previousView = currentView
         currentView = newView
@@ -37,28 +43,28 @@ fun App() {
     }
 
     when (currentView) {
-        ExviView.LOGIN -> EntryView(
+        ExviView.Login -> EntryView(
             sender = previousView,
             onViewChange = onViewChange,
             model = model
         )
-        ExviView.SIGNUP -> SignupView(
+        ExviView.Signup -> SignupView(
             sender = previousView,
             onViewChange = onViewChange,
             model = model
         )
-        ExviView.HOME -> HomeView(
+        ExviView.Home -> HomeView(
             sender = previousView,
             onViewChange = onViewChange,
             model = model
         )
-        ExviView.WORKOUT_CREATION -> WorkoutCreationView(
+        ExviView.WorkoutCreation -> WorkoutCreationView(
             sender = previousView,
             onViewChange = onViewChange,
             model = model,
             provided = provided
         )
-        ExviView.NONE -> Text(
+        ExviView.None -> Text(
             "Exvi Fitness", fontSize = 30.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(10.dp)

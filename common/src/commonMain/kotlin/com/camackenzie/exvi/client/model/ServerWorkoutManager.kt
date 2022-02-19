@@ -5,12 +5,7 @@
  */
 package com.camackenzie.exvi.client.model
 
-import com.camackenzie.exvi.core.api.APIRequest
-import com.camackenzie.exvi.core.api.APIResult
-import com.camackenzie.exvi.core.api.GenericDataRequest
-import com.camackenzie.exvi.core.api.WorkoutListRequest
-import com.camackenzie.exvi.core.api.WorkoutListResult
-import com.camackenzie.exvi.core.api.WorkoutPutRequest
+import com.camackenzie.exvi.core.api.*
 import com.camackenzie.exvi.core.model.Workout
 import com.camackenzie.exvi.core.model.WorkoutManager
 import com.camackenzie.exvi.core.util.cached
@@ -22,6 +17,30 @@ import kotlinx.serialization.*
  * @author callum
  */
 class ServerWorkoutManager(private val username: String, private val accessKey: String) : WorkoutManager {
+
+    override fun deleteWorkouts(
+        toDelete: Array<String>,
+        onFail: (APIResult<String>) -> Unit,
+        onSuccess: () -> Unit,
+        onComplete: () -> Unit
+    ) {
+        val request = DeleteWorkoutsRequest(
+            username.cached(),
+            accessKey.cached(),
+            toDelete.map {
+                it.cached()
+            }.toTypedArray()
+        )
+        APIRequest.requestAsync(
+            APIEndpoints.DATA,
+            request,
+            APIRequest.jsonHeaders()
+        ) {
+            if (it.failed()) onFail(it) else onSuccess()
+            onComplete()
+        }
+    }
+
     override fun getWorkouts(
         onFail: (APIResult<String>) -> Unit,
         onSuccess: (Array<Workout>) -> Unit,
@@ -33,13 +52,11 @@ class ServerWorkoutManager(private val username: String, private val accessKey: 
             WorkoutListRequest.Type.LIST_ALL
         )
         APIRequest.requestAsync(
-            APIEndpoints.GET_DATA,
+            APIEndpoints.DATA,
             request,
             APIRequest.jsonHeaders()
         ) {
-            if (it.failed()) {
-                onFail(it)
-            } else {
+            if (it.failed()) onFail(it) else {
                 val workouts = Json.decodeFromString<WorkoutListResult>(it.body)
                 onSuccess(workouts.workouts)
             }
@@ -55,13 +72,11 @@ class ServerWorkoutManager(private val username: String, private val accessKey: 
     ) {
         val request = WorkoutPutRequest(username, accessKey, workoutsToAdd)
         APIRequest.requestAsync(
-            APIEndpoints.GET_DATA,
+            APIEndpoints.DATA,
             request,
             APIRequest.jsonHeaders()
         ) {
-            if (it.failed()) {
-                onFail(it)
-            } else {
+            if (it.failed()) onFail(it) else {
                 onSuccess()
             }
             onComplete()

@@ -20,6 +20,16 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         lastPullUTC = 0
     }
 
+    override fun deleteWorkouts(
+        toDelete: Array<String>,
+        onFail: (APIResult<String>) -> Unit,
+        onSuccess: () -> Unit,
+        onComplete: () -> Unit
+    ) {
+        serverManager.deleteWorkouts(toDelete, onFail, onSuccess, onComplete)
+        invalidateLocalCache()
+    }
+
     override fun getWorkouts(
         onFail: (APIResult<String>) -> Unit,
         onSuccess: (Array<Workout>) -> Unit,
@@ -53,5 +63,6 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
             onSuccess = onSuccess,
             onComplete = onComplete
         )
+        invalidateLocalCache()
     }
 }

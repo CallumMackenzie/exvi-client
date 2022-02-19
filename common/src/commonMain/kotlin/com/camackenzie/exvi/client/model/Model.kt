@@ -11,23 +11,25 @@ class Model : SelfSerializable {
     val exerciseManager: ExerciseManager = ExerciseManager()
 
     override fun getUID(): String {
-        return "Model"
+        return uid
     }
 
     override fun toJson(): String {
         return Json.encodeToString(this)
     }
 
-    @kotlinx.serialization.Transient
     val activeAccount: Account?
         get() {
             return accountManager.activeAccount
         }
 
-    @kotlinx.serialization.Transient
     val workoutManager: SyncedWorkoutManager?
         get() {
             return accountManager.activeAccount?.workoutManager
         }
+
+    companion object {
+        const val uid = "ExviClientModel"
+    }
 
 }

@@ -2,15 +2,10 @@ package com.camackenzie.exvi.client.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.foundation.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.Workout
@@ -30,7 +25,7 @@ fun WorkoutCreationView(
     model: Model,
     provided: Any
 ) {
-    EnsureActiveAccount(model, onViewChange)
+    ensureActiveAccount(model, onViewChange)
 
     var promptCancel by rememberSaveable { mutableStateOf(false) }
     val onPromptCancelChange: (Boolean) -> Unit = { promptCancel = it }
@@ -80,7 +75,7 @@ fun WorkoutCreationView(
                     model.workoutManager!!.invalidateLocalCache()
                 }
             )
-            onViewChange(ExviView.HOME) {}
+            onViewChange(ExviView.Home, ::noArgs)
         }) {
             Text("Finish")
         }
@@ -97,7 +92,7 @@ fun WorkoutCreationView(
                 Text("Keep Editing")
             }
             Button(onClick = {
-                onViewChange(ExviView.HOME) {}
+                onViewChange(ExviView.Home, ::noArgs)
             }) {
                 Text("Cancel & Lose Changes")
             }

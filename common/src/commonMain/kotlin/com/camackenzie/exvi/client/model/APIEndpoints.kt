@@ -17,5 +17,5 @@ object APIEndpoints {
     const val SIGN_UP = STAGE + "/signup"
     const val LOGIN = STAGE + "/login"
     const val GET_SALT = STAGE + "/salt"
-    const val GET_DATA = STAGE + "/data"
+    const val DATA = STAGE + "/data"
 }
