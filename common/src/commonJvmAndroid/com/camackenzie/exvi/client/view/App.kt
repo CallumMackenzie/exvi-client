@@ -43,22 +43,22 @@ fun App() {
     }
 
     when (currentView) {
-        ExviView.Login -> EntryView(
+        ExviView.Login -> EntryView.View(
             sender = previousView,
             onViewChange = onViewChange,
             model = model
         )
-        ExviView.Signup -> SignupView(
+        ExviView.Signup -> SignupView.View(
             sender = previousView,
             onViewChange = onViewChange,
             model = model
         )
-        ExviView.Home -> HomeView(
+        ExviView.Home -> HomeView.View(
             sender = previousView,
             onViewChange = onViewChange,
             model = model
         )
-        ExviView.WorkoutCreation -> WorkoutCreationView(
+        ExviView.WorkoutCreation -> WorkoutCreationView.View(
             sender = previousView,
             onViewChange = onViewChange,
             model = model,

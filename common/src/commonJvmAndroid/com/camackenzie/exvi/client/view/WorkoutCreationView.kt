@@ -6,54 +6,78 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.Workout
 import com.soywiz.krypto.SecureRandom
 
-val workoutNamePresets = arrayOf(
-    "Pull Day", "Push Day", "Leg Day", "Chest Day",
-    "Bicep Bonanza", "Quad Isolation", "Calf Cruncher",
-    "Forearm Fiesta", "The Quadfather", "Quadzilla",
-    "Shoulders", "Back Builder", "Core", "Cardio Day 1"
-)
+object WorkoutCreationView {
 
-@Composable
-fun WorkoutCreationView(
-    sender: ExviView,
-    onViewChange: ViewChangeFun,
-    model: Model,
-    provided: Any
-) {
-    ensureActiveAccount(model, onViewChange)
+    private val workoutNamePresets = arrayOf(
+        "Pull Day", "Push Day", "Leg Day", "Chest Day",
+        "Bicep Bonanza", "Quad Isolation", "Calf Cruncher",
+        "Forearm Fiesta", "The Quadfather", "Quadzilla",
+        "Shoulders", "Back Builder", "Core", "Cardio Day 1"
+    )
 
-    var promptCancel by rememberSaveable { mutableStateOf(false) }
-    val onPromptCancelChange: (Boolean) -> Unit = { promptCancel = it }
-
-    var workoutName by rememberSaveable {
-        mutableStateOf(
-            if (provided::class == Workout::class)
-                (provided as Workout).name else
-                "New Workout"
-        )
-    }
-    val onWorkoutNameChange: (String) -> Unit = { workoutName = it }
-
-    var workoutDescription by rememberSaveable {
-        mutableStateOf(
-            if (provided::class == Workout::class)
-                (provided as Workout).name else
-                ""
-        )
-    }
-    val onWorkoutDescriptionChange: (String) -> Unit = { workoutDescription = it }
-
-    // Control bar
-    Row(
-        Modifier.fillMaxSize(),
-        verticalAlignment = Alignment.Top,
-        horizontalArrangement = Arrangement.Center
+    @Composable
+    fun View(
+        sender: ExviView,
+        onViewChange: ViewChangeFun,
+        model: Model,
+        provided: Any
     ) {
+        ensureActiveAccount(model, onViewChange)
+
+        var promptCancel by rememberSaveable { mutableStateOf(false) }
+        val onPromptCancelChange: (Boolean) -> Unit = { promptCancel = it }
+
+        var workoutName by rememberSaveable {
+            mutableStateOf(
+                if (provided::class == Workout::class)
+                    (provided as Workout).name else
+                    "New Workout"
+            )
+        }
+        val onWorkoutNameChange: (String) -> Unit = { workoutName = it }
+
+        var workoutDescription by rememberSaveable {
+            mutableStateOf(
+                if (provided::class == Workout::class)
+                    (provided as Workout).name else
+                    ""
+            )
+        }
+        val onWorkoutDescriptionChange: (String) -> Unit = { workoutDescription = it }
+
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            if (maxWidth < 600.dp) {
+                Column(
+                    Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    WorkoutNameField(workoutName, onWorkoutNameChange)
+                    FinishWorkoutButton(model, onViewChange, provided, workoutName)
+                    CancelWorkoutButton(onViewChange, promptCancel, onPromptCancelChange)
+                }
+            } else {
+                Row(
+                    Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    WorkoutNameField(workoutName, onWorkoutNameChange)
+                    FinishWorkoutButton(model, onViewChange, provided, workoutName)
+                    CancelWorkoutButton(onViewChange, promptCancel, onPromptCancelChange)
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun WorkoutNameField(workoutName: String, onWorkoutNameChange: (String) -> Unit) {
         TextField(value = workoutName,
             label = { Text("Workout Name") },
             placeholder = {
@@ -64,6 +88,15 @@ fun WorkoutCreationView(
                     onWorkoutNameChange(it)
                 }
             })
+    }
+
+    @Composable
+    private fun FinishWorkoutButton(
+        model: Model,
+        onViewChange: ViewChangeFun,
+        provided: Any,
+        workoutName: String
+    ) {
         Button(onClick = {
             val baseWorkout = if (provided::class == Workout::class)
                 provided as Workout else null
@@ -92,6 +125,14 @@ fun WorkoutCreationView(
         }) {
             Text("Finish")
         }
+    }
+
+    @Composable
+    private fun CancelWorkoutButton(
+        onViewChange: ViewChangeFun,
+        promptCancel: Boolean,
+        onPromptCancelChange: (Boolean) -> Unit
+    ) {
         if (!promptCancel) {
             Button(onClick = {
                 onPromptCancelChange(true)
@@ -99,17 +140,21 @@ fun WorkoutCreationView(
                 Text("Cancel")
             }
         } else {
-            Button(onClick = {
-                onPromptCancelChange(false)
-            }) {
-                Text("Keep Editing")
-            }
-            Button(onClick = {
-                onViewChange(ExviView.Home, ::noArgs)
-            }) {
-                Text("Cancel & Lose Changes")
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(onClick = {
+                    onPromptCancelChange(false)
+                }) {
+                    Text("Keep Editing")
+                }
+                Button(onClick = {
+                    onViewChange(ExviView.Home, ::noArgs)
+                }) {
+                    Text("Exit")
+                }
             }
         }
     }
-
 }

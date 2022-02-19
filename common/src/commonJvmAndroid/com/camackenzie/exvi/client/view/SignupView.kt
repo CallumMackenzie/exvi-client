@@ -14,113 +14,126 @@ import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
 
-@Composable
-fun SignupView(
-    sender: ExviView,
-    onViewChange: ViewChangeFun,
-    model: Model
-) {
-    var password by rememberSaveable { mutableStateOf("") }
-    val passwordChanged: (String) -> Unit = { password = it }
+object SignupView {
 
-    var username by rememberSaveable { mutableStateOf("") }
-    val usernameChanged: (String) -> Unit = { username = it }
-
-    var email by rememberSaveable { mutableStateOf("") }
-    val emailChanged: (String) -> Unit = { email = it }
-
-    var phone by rememberSaveable { mutableStateOf("") }
-    val phoneChanged: (String) -> Unit = { phone = it }
-
-    var code by rememberSaveable { mutableStateOf("") }
-    val codeChanged: (String) -> Unit = { code = it }
-
-    var sendCodeButtonEnabled by rememberSaveable { mutableStateOf(true) }
-    val sendCodeButtonEnabledChanged: (Boolean) -> Unit = { sendCodeButtonEnabled = it }
-
-    var sendCodeButtonText by rememberSaveable { mutableStateOf("Send Verification Code") }
-    val sendCodeButtonTextChanged: (String) -> Unit = { sendCodeButtonText = it }
-
-    var signupButtonEnabled by rememberSaveable { mutableStateOf(true) }
-    val signupButtonEnabledChanged: (Boolean) -> Unit = { signupButtonEnabled = it }
-
-    var signupButtonText by rememberSaveable { mutableStateOf("Create Account") }
-    val signupButtonTextChanged: (String) -> Unit = { signupButtonText = it }
-
-    Column(
-        Modifier.fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+    @Composable
+    fun View(
+        sender: ExviView,
+        onViewChange: ViewChangeFun,
+        model: Model
     ) {
-        if (sender == ExviView.Login) {
+        var password by rememberSaveable { mutableStateOf("") }
+        val passwordChanged: (String) -> Unit = { password = it }
+
+        var username by rememberSaveable { mutableStateOf("") }
+        val usernameChanged: (String) -> Unit = { username = it }
+
+        var email by rememberSaveable { mutableStateOf("") }
+        val emailChanged: (String) -> Unit = { email = it }
+
+        var phone by rememberSaveable { mutableStateOf("") }
+        val phoneChanged: (String) -> Unit = { phone = it }
+
+        var code by rememberSaveable { mutableStateOf("") }
+        val codeChanged: (String) -> Unit = { code = it }
+
+        var sendCodeButtonEnabled by rememberSaveable { mutableStateOf(true) }
+        val sendCodeButtonEnabledChanged: (Boolean) -> Unit = { sendCodeButtonEnabled = it }
+
+        var sendCodeButtonText by rememberSaveable { mutableStateOf("Send Verification Code") }
+        val sendCodeButtonTextChanged: (String) -> Unit = { sendCodeButtonText = it }
+
+        var signupButtonEnabled by rememberSaveable { mutableStateOf(true) }
+        val signupButtonEnabledChanged: (Boolean) -> Unit = { signupButtonEnabled = it }
+
+        var signupButtonText by rememberSaveable { mutableStateOf("Create Account") }
+        val signupButtonTextChanged: (String) -> Unit = { signupButtonText = it }
+
+        var errorText by rememberSaveable { mutableStateOf("") }
+        val onErrorTextChanged: (String) -> Unit = { errorText = it }
+
+        Column(
+            Modifier.fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (sender == ExviView.Login) {
+                Button(
+                    onClick = {
+                        onViewChange(ExviView.Login, ::noArgs)
+                    }, enabled = sendCodeButtonEnabled && signupButtonEnabled
+                ) {
+                    Text("Back to Login")
+                }
+            }
+            Text(
+                "Create an Account",
+                fontSize = 30.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(10.dp)
+            )
+            UsernameField(username, usernameChanged, sendCodeButtonEnabled && signupButtonEnabled)
+            EmailField(email, emailChanged, sendCodeButtonEnabled && signupButtonEnabled)
+            PhoneField(phone, phoneChanged, sendCodeButtonEnabled && signupButtonEnabled)
+            PasswordField(password, passwordChanged, signupButtonEnabled)
+            VerificationCodeField(code, codeChanged, signupButtonEnabled)
             Button(
                 onClick = {
-                    onViewChange(ExviView.Login, ::noArgs)
-                }, enabled = sendCodeButtonEnabled && signupButtonEnabled
+                    sendCodeButtonEnabledChanged(false)
+                    sendCodeButtonTextChanged("Sending Verification Code")
+                    Account.requestVerification(username, email, phone,
+                        onFail = {
+                            println(it.toJson())
+                            onErrorTextChanged(it.body)
+                            sendCodeButtonTextChanged("Send Verification Code")
+                        },
+                        onSuccess = {
+                            onErrorTextChanged("")
+                            sendCodeButtonTextChanged("Resend Verification Code")
+                        },
+                        onComplete = {
+                            sendCodeButtonEnabledChanged(true)
+                        })
+                },
+                enabled = sendCodeButtonEnabled
             ) {
-                Text("Back to Login")
+                Text(sendCodeButtonText)
             }
-        }
-        Text(
-            "Create an Account",
-            fontSize = 30.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(10.dp)
-        )
-        UsernameField(username, usernameChanged, sendCodeButtonEnabled && signupButtonEnabled)
-        EmailField(email, emailChanged, sendCodeButtonEnabled && signupButtonEnabled)
-        PhoneField(phone, phoneChanged, sendCodeButtonEnabled && signupButtonEnabled)
-        PasswordField(password, passwordChanged, signupButtonEnabled)
-        VerificationCodeField(code, codeChanged, signupButtonEnabled)
-        Button(
-            onClick = {
-                sendCodeButtonEnabledChanged(false)
-                sendCodeButtonTextChanged("Sending Verification Code")
-                Account.requestVerification(username, email, phone,
-                    onFail = {
-                        println(it.toJson())
-                        sendCodeButtonTextChanged("Send Verification Code")
-                    },
-                    onSuccess = {
-                        sendCodeButtonTextChanged("Resend Verification Code")
-                    },
-                    onComplete = {
-                        sendCodeButtonEnabledChanged(true)
-                    })
-            },
-            enabled = sendCodeButtonEnabled
-        ) {
-            Text(sendCodeButtonText)
-        }
-        Button(
-            onClick = {
-                signupButtonEnabledChanged(false)
-                sendCodeButtonEnabledChanged(false)
-                signupButtonTextChanged("Creating Account")
-                Account.requestSignup(username, code, password,
-                    onFail = {
-                        println(it.toJson())
-                        signupButtonTextChanged("Create Account")
-                    },
-                    onSuccess = {
-                        model.accountManager.activeAccount = Account.fromAccessKey(
-                            username = username,
-                            accessKey = it.accessKey
-                        )
-                        onViewChange(ExviView.Home, ::noArgs)
-                    },
-                    onComplete = {
-                        signupButtonEnabledChanged(true)
-                        sendCodeButtonEnabledChanged(true)
-                    })
-            },
-            enabled = signupButtonEnabled
-        ) {
-            Text(signupButtonText)
-        }
-        if (!signupButtonEnabled || !sendCodeButtonEnabled) {
-            CircularProgressIndicator(Modifier.padding(10.dp))
+            Button(
+                onClick = {
+                    signupButtonEnabledChanged(false)
+                    sendCodeButtonEnabledChanged(false)
+                    signupButtonTextChanged("Creating Account")
+                    Account.requestSignup(username, code, password,
+                        onFail = {
+                            println(it.toJson())
+                            onErrorTextChanged(it.body)
+                            signupButtonTextChanged("Create Account")
+                        },
+                        onSuccess = {
+                            onErrorTextChanged("")
+                            model.accountManager.activeAccount = Account.fromAccessKey(
+                                username = username,
+                                accessKey = it.accessKey
+                            )
+                            onViewChange(ExviView.Home, ::noArgs)
+                        },
+                        onComplete = {
+                            signupButtonEnabledChanged(true)
+                            sendCodeButtonEnabledChanged(true)
+                        })
+                },
+                enabled = signupButtonEnabled
+            ) {
+                Text(signupButtonText)
+            }
+            if (!signupButtonEnabled || !sendCodeButtonEnabled) {
+                CircularProgressIndicator(Modifier.padding(10.dp))
+            }
+            if (signupButtonEnabled && sendCodeButtonEnabled && errorText.isNotBlank()) {
+                Text(text = errorText)
+            }
         }
     }
 }

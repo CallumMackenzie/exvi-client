@@ -14,136 +14,144 @@ import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
 
-@Composable
-fun EntryView(
-    sender: ExviView,
-    onViewChange: ViewChangeFun,
-    model: Model
-) {
-    var loginEnabled by rememberSaveable { mutableStateOf(true) }
-    val loginEnabledChanged: (Boolean) -> Unit = { loginEnabled = it }
+object EntryView {
 
-    var password by rememberSaveable { mutableStateOf("") }
-    val passwordChanged: (String) -> Unit = { password = it }
+    @Composable
+    fun View(
+        sender: ExviView,
+        onViewChange: ViewChangeFun,
+        model: Model
+    ) {
+        var loginEnabled by rememberSaveable { mutableStateOf(true) }
+        val loginEnabledChanged: (Boolean) -> Unit = { loginEnabled = it }
 
-    var username by rememberSaveable { mutableStateOf("") }
-    val usernameChanged: (String) -> Unit = { username = it }
+        var password by rememberSaveable { mutableStateOf("") }
+        val passwordChanged: (String) -> Unit = { password = it }
 
-    BoxWithConstraints(Modifier.fillMaxSize()) {
-        if (maxWidth < 600.dp) {
-            Column(
-                Modifier.fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                LoginView(
-                    username,
-                    usernameChanged,
-                    password,
-                    passwordChanged,
-                    loginEnabled,
-                    loginEnabledChanged,
-                    model,
-                    onViewChange
-                )
-                SignupSplashView(loginEnabled, onViewChange)
+        var username by rememberSaveable { mutableStateOf("") }
+        val usernameChanged: (String) -> Unit = { username = it }
+
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            if (maxWidth < 600.dp) {
+                Column(
+                    Modifier.fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    LoginView(
+                        username,
+                        usernameChanged,
+                        password,
+                        passwordChanged,
+                        loginEnabled,
+                        loginEnabledChanged,
+                        model,
+                        onViewChange
+                    )
+                    SignupSplashView(loginEnabled, onViewChange)
+                }
+            } else {
+                Row(
+                    Modifier.fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    LoginView(
+                        username,
+                        usernameChanged,
+                        password,
+                        passwordChanged,
+                        loginEnabled,
+                        loginEnabledChanged,
+                        model,
+                        onViewChange
+                    )
+                    SignupSplashView(loginEnabled, onViewChange)
+                }
             }
-        } else {
+        }
+    }
+
+    @Composable
+    private fun LoginView(
+        username: String, onUsernameChange: (String) -> Unit,
+        password: String,
+        onPasswordChange: (String) -> Unit,
+        loginEnabled: Boolean,
+        onLoginEnabledChange: (Boolean) -> Unit,
+        model: Model,
+        onViewChange: ViewChangeFun
+    ) {
+        var errorText by rememberSaveable { mutableStateOf("") }
+
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(10.dp)
+        ) {
+            Text(
+                "Login to Your Account",
+                fontSize = 30.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(10.dp)
+            )
+            UsernameField(username, onUsernameChange, loginEnabled)
+            PasswordField(password, onPasswordChange, loginEnabled)
             Row(
-                Modifier.fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
+                modifier = Modifier.padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                LoginView(
-                    username,
-                    usernameChanged,
-                    password,
-                    passwordChanged,
-                    loginEnabled,
-                    loginEnabledChanged,
-                    model,
-                    onViewChange
-                )
-                SignupSplashView(loginEnabled, onViewChange)
+                Button(
+                    onClick = {
+                        onLoginEnabledChange(false)
+                        Account.requestLogin(username, password, onFail = {
+                            errorText = it.body
+                            onLoginEnabledChange(true)
+                        }, onSuccess = {
+                            model.accountManager.activeAccount = Account.fromAccessKey(
+                                username = username,
+                                accessKey = it.accessKey
+                            )
+                            onViewChange(ExviView.Home, ::noArgs)
+                        })
+                    }, enabled = loginEnabled
+                ) {
+                    Text(if (loginEnabled) "Login" else "Logging You In")
+                }
+                if (!loginEnabled) {
+                    CircularProgressIndicator(Modifier.padding(10.dp))
+                }
+            }
+            if (loginEnabled && errorText.isNotBlank()) {
+                Text(text = errorText)
             }
         }
     }
-}
 
-@Composable
-fun LoginView(
-    username: String, onUsernameChange: (String) -> Unit,
-    password: String,
-    onPasswordChange: (String) -> Unit,
-    loginEnabled: Boolean,
-    onLoginEnabledChange: (Boolean) -> Unit,
-    model: Model,
-    onViewChange: ViewChangeFun
-) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(10.dp)
+    @Composable
+    private fun SignupSplashView(
+        signupEnabled: Boolean,
+        onViewChange: ViewChangeFun
     ) {
-        Text(
-            "Login to Your Account",
-            fontSize = 30.sp,
-            textAlign = TextAlign.Center,
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(10.dp)
-        )
-        UsernameField(username, onUsernameChange, loginEnabled)
-        PasswordField(password, onPasswordChange, loginEnabled)
-        Row(
-            modifier = Modifier.padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
         ) {
-            Button(
-                onClick = {
-                    onLoginEnabledChange(false)
-                    Account.requestLogin(username, password, onFail = {
-                        println(it.toJson())
-                        onLoginEnabledChange(true)
-                    }, onSuccess = {
-                        model.accountManager.activeAccount = Account.fromAccessKey(
-                            username = username,
-                            accessKey = it.accessKey
-                        )
-                        onViewChange(ExviView.Home, ::noArgs)
-                    })
-                }, enabled = loginEnabled
-            ) {
-                Text(if (loginEnabled) "Login" else "Logging You In")
+            Text(
+                "Create a New Exvi Fitness Account",
+                fontSize = 30.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(10.dp)
+            )
+            Button(onClick = {
+                onViewChange(ExviView.Signup, ::noArgs)
+            }, enabled = signupEnabled) {
+                Text("Create an Account")
             }
-            if (!loginEnabled) {
-                CircularProgressIndicator(Modifier.padding(10.dp))
-            }
-        }
-    }
-}
-
-@Composable
-fun SignupSplashView(
-    signupEnabled: Boolean,
-    onViewChange: ViewChangeFun
-) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(10.dp)
-    ) {
-        Text(
-            "Create a New Exvi Fitness Account",
-            fontSize = 30.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(10.dp)
-        )
-        Button(onClick = {
-            onViewChange(ExviView.Signup, ::noArgs)
-        }, enabled = signupEnabled) {
-            Text("Create an Account")
         }
     }
 }

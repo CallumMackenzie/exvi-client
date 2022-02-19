@@ -26,6 +26,7 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         onSuccess: () -> Unit,
         onComplete: () -> Unit
     ) {
+        localManager.deleteWorkouts(toDelete, {}, {}, {})
         serverManager.deleteWorkouts(toDelete, onFail, onSuccess, onComplete)
         invalidateLocalCache()
     }
@@ -57,6 +58,7 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         onSuccess: () -> Unit,
         onComplete: () -> Unit
     ) {
+        localManager.putWorkouts(workoutsToAdd, {}, {}, {})
         serverManager.putWorkouts(
             workoutsToAdd,
             onFail = onFail,
