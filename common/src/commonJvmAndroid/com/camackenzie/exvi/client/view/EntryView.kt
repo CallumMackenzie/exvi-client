@@ -135,7 +135,7 @@ fun SignupSplashView(
         modifier = Modifier.padding(10.dp)
     ) {
         Text(
-            "Create a new Exvi Fitness Account",
+            "Create a New Exvi Fitness Account",
             fontSize = 30.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(10.dp)

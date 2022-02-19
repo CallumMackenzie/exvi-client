@@ -65,7 +65,20 @@ fun WorkoutCreationView(
                 }
             })
         Button(onClick = {
-            val workout = Workout(workoutName, "", ArrayList())
+            val baseWorkout = if (provided::class == Workout::class)
+                provided as Workout else null
+
+            val workout = if (baseWorkout != null) Workout(
+                workoutName,
+                "",
+                ArrayList(),
+                baseWorkout.id
+            )
+            else Workout(
+                workoutName,
+                "",
+                ArrayList()
+            )
             model.workoutManager!!.putWorkouts(
                 arrayOf(workout),
                 onFail = {

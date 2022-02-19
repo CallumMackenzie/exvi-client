@@ -33,6 +33,9 @@ fun HomeView(
     var switchingView by rememberSaveable { mutableStateOf(false) }
     val onSwitchingViewChange: (Boolean) -> Unit = { switchingView = it }
 
+    var workoutsSynced by rememberSaveable { mutableStateOf(false) }
+    val onWorkoutsSyncedChanged: (Boolean) -> Unit = { workoutsSynced = it }
+
     val refreshWorkouts = {
         onRetrievingWorkoutsChanged(true)
         model.workoutManager!!.getWorkouts(
@@ -43,6 +46,12 @@ fun HomeView(
                 onRetrievingWorkoutsChanged(false)
             }
         )
+    }
+
+    if (!workoutsSynced) {
+        onWorkoutsSyncedChanged(true)
+        model.workoutManager!!.invalidateLocalCache()
+        refreshWorkouts()
     }
 
     Column(
@@ -124,6 +133,9 @@ fun WorkoutListView(
                         var deleteConfirmEnabled by remember { mutableStateOf(false) }
                         val onDeleteConfirmEnabledChanged: (Boolean) -> Unit = { deleteConfirmEnabled = it }
 
+                        var deletingWorkout by rememberSaveable { mutableStateOf(false) }
+                        val onDeletingWorkoutChanged: (Boolean) -> Unit = { deletingWorkout = it }
+
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceEvenly
@@ -134,32 +146,34 @@ fun WorkoutListView(
                                 textAlign = TextAlign.Center,
                                 fontSize = 20.sp
                             )
-                            IconButton(onClick = {}) {
+                            IconButton(onClick = {}, enabled = !deletingWorkout) {
                                 Icon(Icons.Default.PlayArrow, "Start Workout")
                             }
                             IconButton(onClick = {
                                 onViewChange(ExviView.WorkoutCreation) {
                                     workouts[it]
                                 }
-                            }) {
+                            }, enabled = !deletingWorkout) {
                                 Icon(Icons.Default.Edit, "Edit Workout")
                             }
                             if (!deleteConfirmEnabled) {
                                 IconButton(onClick = {
                                     onDeleteConfirmEnabledChanged(true)
-                                }) {
+                                }, enabled = !deletingWorkout) {
                                     Icon(Icons.Default.Delete, "Delete Workout")
                                 }
                             } else {
                                 IconButton(onClick = {
                                     onDeleteConfirmEnabledChanged(false)
+                                    onDeletingWorkoutChanged(true)
                                     model.workoutManager!!.deleteWorkouts(arrayOf(workouts[it].id.get()),
                                         onFail = {
                                             println(it.toJson())
                                         }, onComplete = {
+                                            onDeletingWorkoutChanged(false)
                                             refreshWorkouts()
                                         })
-                                }) {
+                                }, enabled = !deletingWorkout) {
                                     Icon(Icons.Default.Close, "Delete Workout")
                                 }
                             }
