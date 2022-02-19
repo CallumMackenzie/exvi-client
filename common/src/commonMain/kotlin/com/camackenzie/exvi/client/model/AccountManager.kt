@@ -24,6 +24,11 @@ class AccountManager : SelfSerializable {
         return activeAccount != null
     }
 
+    fun signOut() {
+        activeAccount?.signOut()
+        activeAccount = null
+    }
+
     override fun getUID(): String {
         return "AccountManager"
     }

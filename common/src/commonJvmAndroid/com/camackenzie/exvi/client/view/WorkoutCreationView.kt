@@ -66,7 +66,7 @@ object WorkoutCreationView {
                 Row(
                     Modifier.fillMaxSize(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
                 ) {
                     WorkoutNameField(workoutName, onWorkoutNameChange)
                     FinishWorkoutButton(model, onViewChange, provided, workoutName)

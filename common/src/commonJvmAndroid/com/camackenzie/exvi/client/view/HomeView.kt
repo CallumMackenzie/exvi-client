@@ -59,12 +59,18 @@ object HomeView {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                "Welcome, ${model.activeAccount!!.formattedUsername}!",
-                fontSize = 30.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(10.dp)
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    "Welcome, ${model.activeAccount!!.formattedUsername}!",
+                    fontSize = 30.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(10.dp)
+                )
+                SignOutButton(model, onViewChange)
+            }
             Button(onClick = {
                 onViewChange(ExviView.WorkoutCreation, ::noArgs)
             }) {
@@ -88,6 +94,19 @@ object HomeView {
                     refreshWorkouts
                 )
             }
+        }
+    }
+
+    @Composable
+    private fun SignOutButton(
+        model: Model,
+        onViewChange: ViewChangeFun
+    ) {
+        IconButton(onClick = {
+            onViewChange(ExviView.Login, ::noArgs)
+            model.accountManager.signOut()
+        }) {
+            Icon(Icons.Default.ExitToApp, "Sign Out")
         }
     }
 
