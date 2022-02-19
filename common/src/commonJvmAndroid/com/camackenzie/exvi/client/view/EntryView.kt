@@ -92,7 +92,7 @@ object EntryView {
             modifier = Modifier.padding(10.dp)
         ) {
             Text(
-                "Login to Your Account",
+                MR.base.login_message.toString(),
                 fontSize = 30.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(10.dp)

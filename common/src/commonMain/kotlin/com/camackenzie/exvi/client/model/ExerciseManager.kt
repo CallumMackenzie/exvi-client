@@ -5,6 +5,7 @@
  */
 package com.camackenzie.exvi.client.model
 
+import com.camackenzie.exvi.MR.files.exercises
 import com.camackenzie.exvi.core.model.Exercise
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlin.collections.ArrayList
@@ -35,6 +36,10 @@ data class ExerciseManager(var exercises: HashSet<Exercise> = HashSet()) : SelfS
     fun addAllFromJson(json: String) {
         addAll(Json.decodeFromString<ExerciseManager>(json).exercises.toTypedArray())
     }
+
+//    fun reloadExercises() {
+//        addAllFromJson(MR.files.exercises.getText())
+//    }
 
     override fun getUID(): String {
         return "ExerciseManager"

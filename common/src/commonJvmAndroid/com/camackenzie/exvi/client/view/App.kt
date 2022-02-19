@@ -21,6 +21,7 @@ enum class ExviView {
     Signup,
     Home,
     WorkoutCreation,
+    AccountSettings,
     None
 }
 
@@ -63,6 +64,11 @@ fun App() {
             onViewChange = onViewChange,
             model = model,
             provided = provided
+        )
+        ExviView.AccountSettings -> AccountSettingsView.View(
+            sender = previousView,
+            onViewChange = onViewChange,
+            model = model,
         )
         ExviView.None -> Text(
             "Exvi Fitness", fontSize = 30.sp,

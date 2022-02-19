@@ -10,6 +10,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.camackenzie.exvi.client.model.ExerciseManager
 import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.*
@@ -59,7 +60,11 @@ object WorkoutCreationView {
 
         BoxWithConstraints(Modifier.fillMaxSize()) {
             if (maxWidth < 600.dp) {
-                Row {
+                Row(
+                    Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
                     Column(
                         Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -69,7 +74,8 @@ object WorkoutCreationView {
                         FinishWorkoutButton(model, onViewChange, provided, workoutName)
                         CancelWorkoutButton(onViewChange, promptCancel, onPromptCancelChange)
                     }
-                    ExerciseListView(exercises, onExercisesChange)
+                    MutableExerciseListView(exercises, onExercisesChange)
+                    ExerciseSearchView(model.exerciseManager)
                 }
             } else {
                 Row(
@@ -80,7 +86,8 @@ object WorkoutCreationView {
                     WorkoutNameField(workoutName, onWorkoutNameChange)
                     FinishWorkoutButton(model, onViewChange, provided, workoutName)
                     CancelWorkoutButton(onViewChange, promptCancel, onPromptCancelChange)
-                    ExerciseListView(exercises, onExercisesChange)
+                    MutableExerciseListView(exercises, onExercisesChange)
+                    ExerciseSearchView(model.exerciseManager)
                 }
             }
         }
@@ -171,22 +178,47 @@ object WorkoutCreationView {
     }
 
     @Composable
-    private fun ExerciseListView(
-        exercises: Array<Exercise>,
-        onExercisesChange: (Array<Exercise>) -> Unit
+    private fun ExerciseSearchView(
+        manager: ExerciseManager
+    ) {
+        ImmutableExerciseListView(manager.exercises.toTypedArray())
+    }
+
+    @Composable
+    private fun ImmutableExerciseListView(
+        exercises: Array<Exercise>
     ) {
         LazyColumn {
             items(exercises.size) {
-                ExerciseListViewItem(exercises[it], onExercisesChange)
+                ImmutableExerciseListViewItem(exercises[it])
             }
         }
     }
 
     @Composable
-    private fun ExerciseListViewItem(
-        exercise: Exercise,
+    private fun MutableExerciseListView(
+        exercises: Array<Exercise>,
         onExercisesChange: (Array<Exercise>) -> Unit
     ) {
+        LazyColumn {
+            items(exercises.size) {
+                MutableExerciseListViewItem(exercises[it], onExercisesChange)
+            }
+        }
+    }
+
+    @Composable
+    private fun MutableExerciseListViewItem(
+        exercise: Exercise,
+        onExercisesChange: (Array<Exercise>) -> Unit,
+    ) {
+        Row {
+            Text(exercise.name)
+        }
+    }
+
+    @Composable
+    private fun ImmutableExerciseListViewItem(exercise: Exercise) {
         Row {
             Text(exercise.name)
         }

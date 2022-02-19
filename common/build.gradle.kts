@@ -1,10 +1,15 @@
 import org.jetbrains.compose.compose
 
+val mokoResourcesVersion = "0.18.0"
+val mokoParcelizeVersion = "0.8.0"
+val mokoGraphicsVersion = "0.9.0"
+
 plugins {
+    id("com.android.library")
     kotlin("multiplatform")
     id("org.jetbrains.compose") version "1.0.0"
-    id("com.android.library")
     kotlin("plugin.serialization") version "1.4.31"
+    id("dev.icerock.mobile.multiplatform-resources")
 }
 
 group = "com.camackenzie"
@@ -25,11 +30,17 @@ kotlin {
                 api(compose.material)
 //                api("com.github.CallumMackenzie:exvi-core:eda62611ed")
                 api("com.camackenzie:exvi-core:1.0-SNAPSHOT")
+                api("dev.icerock.moko:resources:$mokoResourcesVersion")
+                api("dev.icerock.moko:parcelize:$mokoParcelizeVersion")
+                api("dev.icerock.moko:graphics:$mokoGraphicsVersion")
             }
         }
         val commonJvmAndroid = create("commonJvmAndroid") {
             dependsOn(commonMain)
             kotlin.srcDirs("src/commonJvmAndroid")
+            dependencies {
+                api("dev.icerock.moko:resources-compose:$mokoResourcesVersion")
+            }
         }
         val androidMain by getting {
             dependsOn(commonJvmAndroid)
@@ -67,4 +78,8 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core:1.2.0-alpha02")
     implementation("androidx.compose.foundation:foundation:1.2.0-alpha02")
     implementation("androidx.compose.foundation:foundation-layout:1.2.0-alpha02")
+}
+
+multiplatformResources {
+    multiplatformResourcesPackage = "com.camackenzie.exvi"
 }
