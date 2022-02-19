@@ -1,7 +1,10 @@
 package com.camackenzie.exvi.client.view
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -9,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
-import com.camackenzie.exvi.core.model.Workout
+import com.camackenzie.exvi.core.model.*
 import com.soywiz.krypto.SecureRandom
 
 object WorkoutCreationView {
@@ -51,16 +54,22 @@ object WorkoutCreationView {
         }
         val onWorkoutDescriptionChange: (String) -> Unit = { workoutDescription = it }
 
+        var exercises by rememberSaveable { mutableStateOf(emptyArray<Exercise>()) }
+        val onExercisesChange: (Array<Exercise>) -> Unit = { exercises = it }
+
         BoxWithConstraints(Modifier.fillMaxSize()) {
             if (maxWidth < 600.dp) {
-                Column(
-                    Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    WorkoutNameField(workoutName, onWorkoutNameChange)
-                    FinishWorkoutButton(model, onViewChange, provided, workoutName)
-                    CancelWorkoutButton(onViewChange, promptCancel, onPromptCancelChange)
+                Row {
+                    Column(
+                        Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        WorkoutNameField(workoutName, onWorkoutNameChange)
+                        FinishWorkoutButton(model, onViewChange, provided, workoutName)
+                        CancelWorkoutButton(onViewChange, promptCancel, onPromptCancelChange)
+                    }
+                    ExerciseListView(exercises, onExercisesChange)
                 }
             } else {
                 Row(
@@ -71,6 +80,7 @@ object WorkoutCreationView {
                     WorkoutNameField(workoutName, onWorkoutNameChange)
                     FinishWorkoutButton(model, onViewChange, provided, workoutName)
                     CancelWorkoutButton(onViewChange, promptCancel, onPromptCancelChange)
+                    ExerciseListView(exercises, onExercisesChange)
                 }
             }
         }
@@ -78,13 +88,15 @@ object WorkoutCreationView {
 
     @Composable
     private fun WorkoutNameField(workoutName: String, onWorkoutNameChange: (String) -> Unit) {
+        val regex = Regex("([a-zA-Z0-9.]|\\s)*")
+
         TextField(value = workoutName,
             label = { Text("Workout Name") },
             placeholder = {
                 Text(workoutNamePresets[(SecureRandom.nextDouble() * workoutNamePresets.size).toInt()])
             },
             onValueChange = {
-                if (it.length <= 30) {
+                if (it.length <= 30 && it.matches(regex)) {
                     onWorkoutNameChange(it)
                 }
             })
@@ -155,6 +167,28 @@ object WorkoutCreationView {
                     Text("Exit")
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun ExerciseListView(
+        exercises: Array<Exercise>,
+        onExercisesChange: (Array<Exercise>) -> Unit
+    ) {
+        LazyColumn {
+            items(exercises.size) {
+                ExerciseListViewItem(exercises[it], onExercisesChange)
+            }
+        }
+    }
+
+    @Composable
+    private fun ExerciseListViewItem(
+        exercise: Exercise,
+        onExercisesChange: (Array<Exercise>) -> Unit
+    ) {
+        Row {
+            Text(exercise.name)
         }
     }
 }

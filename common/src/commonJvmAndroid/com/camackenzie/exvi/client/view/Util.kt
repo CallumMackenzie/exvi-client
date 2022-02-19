@@ -4,6 +4,7 @@ import androidx.compose.runtime.saveable.mapSaver
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.ActiveWorkout
 import com.camackenzie.exvi.core.model.BodyStats
+import com.camackenzie.exvi.core.model.Exercise
 import com.camackenzie.exvi.core.model.Workout
 import com.camackenzie.exvi.core.util.None
 import com.camackenzie.exvi.core.util.SelfSerializable
@@ -20,6 +21,7 @@ val SelfSerializableSaver = mapSaver<SelfSerializable>(save = {
         ActiveWorkout.uid -> Json.decodeFromString<ActiveWorkout>(json)
         BodyStats.uid -> Json.decodeFromString<BodyStats>(json)
         None.uid -> Json.decodeFromString<None>(json)
+        Exercise.uid -> Json.decodeFromString<Exercise>(json)
         else -> throw Exception("Could not restore type \"$uid\" from: $it")
     }
 })
