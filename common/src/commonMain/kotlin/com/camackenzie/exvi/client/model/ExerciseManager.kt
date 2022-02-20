@@ -5,7 +5,6 @@
  */
 package com.camackenzie.exvi.client.model
 
-import com.camackenzie.exvi.MR.files.exercises
 import com.camackenzie.exvi.core.model.Exercise
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlin.collections.ArrayList
@@ -16,10 +15,6 @@ import kotlinx.serialization.json.*
 
 @kotlinx.serialization.Serializable
 data class ExerciseManager(var exercises: HashSet<Exercise> = HashSet()) : SelfSerializable {
-
-    constructor(json: String) : this() {
-        addAllFromJson(json)
-    }
 
     constructor(vararg exs: Exercise) : this() {
         addAll(arrayOf(*exs))
@@ -33,13 +28,13 @@ data class ExerciseManager(var exercises: HashSet<Exercise> = HashSet()) : SelfS
         }
     }
 
-    fun addAllFromJson(json: String) {
-        addAll(Json.decodeFromString<ExerciseManager>(json).exercises.toTypedArray())
+    fun loadStandardExercises() {
+        addAll(Json.decodeFromString<Array<Exercise>>(readTextFile("exercises.json")))
     }
 
-//    fun reloadExercises() {
-//        addAllFromJson(MR.files.exercises.getText())
-//    }
+    fun hasExercises(): Boolean {
+        return exercises.size != 0
+    }
 
     override fun getUID(): String {
         return "ExerciseManager"
