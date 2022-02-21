@@ -20,20 +20,6 @@ jobs:
           server-id: github
           settings-path: ${{ github.workspace }}
     
-#       - name: Clone Core Repository
-#         uses: actions/checkout@v2
-#         with:
-#           name: CallumMackenzie/exvi-core
-#           path: exvi-core-cloned
-#       - run: cd ./exvi-core-cloned
-#       - name: Validate Core Gradle Wrapper
-#         uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
-#       - name: Publish Core to Maven Local
-#         uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
-#         with:
-#           arguments: publishToMavenLocal
-#           gradle-version: 7.1
-    
       - name: Clone Client Repository
         uses: actions/checkout@v2
       - name: Validate Gradle Wrapper
@@ -43,10 +29,10 @@ jobs:
         with:
           arguments: packageUberJarForCurrentOS
 
-      - name: Archive Ubuntu Build
+      - name: Archive Linux Build
         uses: actions/upload-artifact@v2
         with:
-          name: ubuntu-build
+          name: linux-build
           path: desktop/build/compose/jars/*.jar
 
   build-windows:
