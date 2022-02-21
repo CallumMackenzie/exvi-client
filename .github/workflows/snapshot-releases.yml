@@ -18,8 +18,12 @@ jobs:
           name: CallumMackenzie/exvi-core
           path: exvi-core-cloned
       - run: |
-            cd ./exvi-core-cloned
-            ls
+          cd ./exvi-core-cloned
+          echo ROOT FILES
+          ls
+          cd ./gradle/wrapper
+          echo WRAPPER FILES
+          ls
       - name: Validate Core Gradle Wrapper
         uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
       - name: Publish Core to Maven Local
