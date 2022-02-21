@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
 
     steps:
       - name: Clone Core Repository
@@ -26,7 +25,8 @@ jobs:
         with:
           arguments: publishToMavenLocal
     
-      - uses: actions/checkout@v2
+      - name: Clone Client Repository
+        uses: actions/checkout@v2
       - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
@@ -52,7 +52,6 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: read
-      packages: write
 
     steps:
       - name: Clone Core Repository
@@ -68,7 +67,8 @@ jobs:
         with:
           arguments: publishToMavenLocal
     
-      - uses: actions/checkout@v2
+      - name: Clone Client Repository
+        uses: actions/checkout@v2
       - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
@@ -94,7 +94,6 @@ jobs:
     runs-on: macos-latest
     permissions:
       contents: read
-      packages: write
 
     steps:
       - name: Clone Core Repository
@@ -110,7 +109,8 @@ jobs:
         with:
           arguments: publishToMavenLocal
     
-      - uses: actions/checkout@v2
+      - name: Clone Client Repository
+        uses: actions/checkout@v2
       - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
