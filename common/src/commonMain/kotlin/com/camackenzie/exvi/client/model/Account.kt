@@ -26,8 +26,9 @@ class Account private constructor(
     private val accessKey: EncodedStringCache,
     var bodyStats: BodyStats = BodyStats.average(),
 ) : SelfSerializable {
-    val workoutManager: SyncedWorkoutManager
-        get() = SyncedWorkoutManager(username, accessKey.get())
+
+    @kotlinx.serialization.Transient
+    val workoutManager: SyncedWorkoutManager = SyncedWorkoutManager(username, accessKey.get())
 
     val formattedUsername: String
         get() = (username.substring(0, 1).uppercase() + username.substring(1))

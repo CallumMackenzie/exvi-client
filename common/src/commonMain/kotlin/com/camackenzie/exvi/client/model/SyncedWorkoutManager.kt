@@ -7,17 +7,33 @@ import com.camackenzie.exvi.core.api.APIResult
 import kotlinx.datetime.Clock
 
 class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager {
-    private val localManager: WorkoutManager = LocalWorkoutManager()
-    private val serverManager: WorkoutManager = ServerWorkoutManager(username, accessKey)
     private var lastPullUTC: Long = 0
-    private val pullTimeUTC = 5 * 60 * 1000
+    private var pullOverride: Boolean = false
+
+    private val localManager = LocalWorkoutManager()
+    private val serverManager = ServerWorkoutManager(username, accessKey)
+    private val pullTimeUTC = 120
+    private val noRefreshPullUTC = 5
 
     private fun shouldPull(): Boolean {
-        return Clock.System.now().epochSeconds - lastPullUTC > pullTimeUTC
+        val pullDiff = Clock.System.now().epochSeconds - lastPullUTC
+        if (pullDiff <= noRefreshPullUTC) {
+            return false
+        }
+        return pullDiff > pullTimeUTC || pullOverride
+    }
+
+    private fun resetPull() {
+        lastPullUTC = Clock.System.now().epochSeconds
+        pullOverride = false
+    }
+
+    fun validateLocalCache() {
+        resetPull()
     }
 
     fun invalidateLocalCache() {
-        lastPullUTC = 0
+        pullOverride = true
     }
 
     override fun deleteWorkouts(
@@ -39,10 +55,14 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         if (shouldPull()) {
             serverManager.getWorkouts(
                 onFail = onFail,
-                onSuccess = onSuccess,
+                onSuccess = {
+                    localManager.workouts.clear()
+                    localManager.workouts.addAll(it)
+                    onSuccess(it)
+                },
                 onComplete = onComplete
             )
-            lastPullUTC = Clock.System.now().epochSeconds
+            resetPull()
         } else {
             localManager.getWorkouts(
                 onFail = onFail,

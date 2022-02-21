@@ -140,6 +140,7 @@ object HomeView {
             } else {
                 IconButton(onClick = {
                     onRetrievingWorkoutsChanged(true)
+                    model.workoutManager!!.invalidateLocalCache()
                     refreshWorkouts()
                 }) {
                     Icon(Icons.Default.Refresh, "Refresh Workout List")
