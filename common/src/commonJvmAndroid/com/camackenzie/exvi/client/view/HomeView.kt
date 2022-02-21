@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.Workout
-import javax.swing.text.View
 
 object HomeView {
     @Composable
