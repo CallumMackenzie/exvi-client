@@ -10,11 +10,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.Workout
+import javax.swing.text.View
 
 object HomeView {
     @Composable
@@ -55,55 +57,172 @@ object HomeView {
             refreshWorkouts()
         }
 
-        var expanded by rememberSaveable { mutableStateOf(false) }
-        val onExpandedChanged: (Boolean) -> Unit = { expanded = it }
-
         Column(
-            verticalArrangement = Arrangement.Center,
+            Modifier.padding(5.dp).fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.Top
-            ) {
-                Text(
-                    "Welcome, ${model.activeAccount!!.formattedUsername}!",
-                    fontSize = 30.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(10.dp)
-                )
-                SignOutButton(model, onViewChange)
-            }
+            TopBar(model, onViewChange)
             Button(onClick = {
                 onViewChange(ExviView.WorkoutCreation, ::noArgs)
             }) {
                 Text("Create Workout")
             }
-            Expandable(
-                expanded = expanded,
-                onExpandedChanged = onExpandedChanged,
-                header = {
-                    Text("Test")
-                }) {
-                Row(
-                    Modifier.fillMaxSize(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+            Body(
+                sender,
+                model,
+                onViewChange,
+                workouts,
+                onWorkoutsChanged,
+                retrievingWorkouts,
+                onRetrievingWorkoutsChanged,
+                switchingView,
+                onSwitchingViewChange,
+                refreshWorkouts
+            )
+        }
+    }
+
+    @Composable
+    private fun Body(
+        sender: ExviView, model: Model,
+        onViewChange: ViewChangeFun,
+        workouts: Array<Workout>,
+        onWorkoutsChanged: (Array<Workout>) -> Unit,
+        retrievingWorkouts: Boolean,
+        onRetrievingWorkoutsChanged: (Boolean) -> Unit,
+        switchingView: Boolean,
+        onSwitchingViewChange: (Boolean) -> Unit,
+        refreshWorkouts: () -> Unit
+    ) {
+        BoxWithConstraints(
+            Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            if (maxWidth < 600.dp) {
+                Column(
+                    Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    WorkoutListView(
-                        sender,
-                        onViewChange,
-                        model,
-                        workouts,
-                        onWorkoutsChanged,
-                        retrievingWorkouts,
-                        onRetrievingWorkoutsChanged,
-                        switchingView,
-                        onSwitchingViewChange,
-                        refreshWorkouts
-                    )
+                    Expandable(
+                        Modifier.fillMaxWidth(),
+                        header = {
+                            Text("Your Workouts")
+                        }) {
+                        WorkoutsView(
+                            sender,
+                            model,
+                            onViewChange,
+                            workouts,
+                            onWorkoutsChanged,
+                            retrievingWorkouts,
+                            onRetrievingWorkoutsChanged,
+                            switchingView,
+                            onSwitchingViewChange,
+                            refreshWorkouts
+                        )
+                    }
+                    Expandable(Modifier.fillMaxWidth(),
+                        header = {
+                            Text("Your Progress")
+                        }) {
+                        AccountView(model)
+                    }
+                }
+            } else {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Expandable(
+                        Modifier.fillMaxWidth(0.5f),
+                        header = {
+                            Text("Your Workouts")
+                        }) {
+                        WorkoutsView(
+                            sender,
+                            model,
+                            onViewChange,
+                            workouts,
+                            onWorkoutsChanged,
+                            retrievingWorkouts,
+                            onRetrievingWorkoutsChanged,
+                            switchingView,
+                            onSwitchingViewChange,
+                            refreshWorkouts
+                        )
+                    }
+                    Expandable(Modifier.fillMaxWidth(),
+                        header = {
+                            Text("Your Progress")
+                        }) {
+                        AccountView(model)
+                    }
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun WorkoutsView(
+        sender: ExviView, model: Model,
+        onViewChange: ViewChangeFun,
+        workouts: Array<Workout>,
+        onWorkoutsChanged: (Array<Workout>) -> Unit,
+        retrievingWorkouts: Boolean,
+        onRetrievingWorkoutsChanged: (Boolean) -> Unit,
+        switchingView: Boolean,
+        onSwitchingViewChange: (Boolean) -> Unit,
+        refreshWorkouts: () -> Unit
+    ) {
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            WorkoutListView(
+                sender,
+                onViewChange,
+                model,
+                workouts,
+                onWorkoutsChanged,
+                retrievingWorkouts,
+                onRetrievingWorkoutsChanged,
+                switchingView,
+                onSwitchingViewChange,
+                refreshWorkouts
+            )
+        }
+    }
+
+    @Composable
+    private fun AccountView(model: Model) {
+        Column {
+            val bodyStats = model.bodyStats!!
+            Text(
+                "Body Weight: ${bodyStats.totalMass.value} ${
+                    bodyStats.totalMass.unit.toString().lowercase()
+                }s"
+            )
+            Text("Sex: ${bodyStats!!.sex.toString().lowercase()}")
+        }
+    }
+
+    @Composable
+    private fun TopBar(model: Model, onViewChange: ViewChangeFun) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.Top
+        ) {
+            Text(
+                "Welcome, ${model.activeAccount!!.formattedUsername}!",
+                fontSize = 30.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(10.dp)
+            )
+            SignOutButton(model, onViewChange)
         }
     }
 
@@ -135,7 +254,7 @@ object HomeView {
     ) {
 
         Row(
-            Modifier.fillMaxSize(),
+            Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {

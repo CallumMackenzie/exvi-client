@@ -1,5 +1,6 @@
 package com.camackenzie.exvi.client.view
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -11,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -128,36 +130,65 @@ fun VerificationCodeField(code: String, onCodeChange: (String) -> Unit, enabled:
 
 @Composable
 fun Expandable(
-    onExpandedChanged: (Boolean) -> Unit,
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    header: @Composable () -> Unit = {},
+    body: @Composable () -> Unit
+) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    val onExpandedChanged: (Boolean) -> Unit = { expanded = it }
+    Expandable(expanded, onExpandedChanged, modifier, header, body)
+}
+
+@Composable
+fun Expandable(
     expanded: Boolean,
-    header: @Composable () -> Unit,
+    onExpandedChanged: (Boolean) -> Unit,
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    header: @Composable () -> Unit = {},
     body: @Composable () -> Unit
 ) {
     Column(
-        verticalArrangement = Arrangement.Center,
+        modifier,
+        verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+        Box(
+            Modifier.border(1.dp, Color.Black)
+                .padding(10.dp)
+                .align(Alignment.CenterHorizontally),
+            contentAlignment = Alignment.Center
         ) {
-            if (expanded) {
-                IconButton(onClick = {
-                    onExpandedChanged(true)
-                }) {
-                    Icon(Icons.Default.KeyboardArrowDown, "Expand")
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (!expanded) {
+                    IconButton(onClick = {
+                        onExpandedChanged(true)
+                    }) {
+                        Icon(Icons.Default.KeyboardArrowDown, "Expand")
+                    }
+                } else {
+                    IconButton(onClick = {
+                        onExpandedChanged(false)
+                    }) {
+                        Icon(Icons.Default.KeyboardArrowUp, "Retract")
+                    }
                 }
-            } else {
-                IconButton(onClick = {
-                    onExpandedChanged(false)
-                }) {
-                    Icon(Icons.Default.KeyboardArrowUp, "Retract")
-                }
+                header()
             }
-            header()
         }
         if (expanded) {
-            body()
+            Box(
+                Modifier.fillMaxWidth()
+                    .border(1.dp, Color.Black)
+                    .padding(10.dp)
+                    .align(Alignment.CenterHorizontally),
+                contentAlignment = Alignment.Center
+            ) {
+                body()
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.camackenzie.exvi.client.model
 
+import com.camackenzie.exvi.core.model.BodyStats
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
@@ -21,6 +22,11 @@ class Model : SelfSerializable {
     val activeAccount: Account?
         get() {
             return accountManager.activeAccount
+        }
+
+    val bodyStats: BodyStats?
+        get() {
+            return activeAccount?.bodyStats
         }
 
     val workoutManager: SyncedWorkoutManager?
