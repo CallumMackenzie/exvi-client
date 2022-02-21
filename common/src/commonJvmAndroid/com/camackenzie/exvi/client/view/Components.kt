@@ -3,6 +3,10 @@ package com.camackenzie.exvi.client.view
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -120,4 +124,40 @@ fun VerificationCodeField(code: String, onCodeChange: (String) -> Unit, enabled:
         label = { Text("Verification Code") },
         placeholder = { Text("Ex. 123456") }
     )
+}
+
+@Composable
+fun Expandable(
+    onExpandedChanged: (Boolean) -> Unit,
+    expanded: Boolean,
+    header: @Composable () -> Unit,
+    body: @Composable () -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (expanded) {
+                IconButton(onClick = {
+                    onExpandedChanged(true)
+                }) {
+                    Icon(Icons.Default.KeyboardArrowDown, "Expand")
+                }
+            } else {
+                IconButton(onClick = {
+                    onExpandedChanged(false)
+                }) {
+                    Icon(Icons.Default.KeyboardArrowUp, "Retract")
+                }
+            }
+            header()
+        }
+        if (expanded) {
+            body()
+        }
+    }
 }

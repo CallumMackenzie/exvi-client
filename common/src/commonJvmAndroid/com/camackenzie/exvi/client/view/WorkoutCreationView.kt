@@ -7,6 +7,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -18,6 +19,7 @@ import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.*
 import com.soywiz.krypto.SecureRandom
+import kotlin.math.abs
 
 object WorkoutCreationView {
 
@@ -39,7 +41,8 @@ object WorkoutCreationView {
 
         var promptCancel by rememberSaveable { mutableStateOf(false) }
         val onPromptCancelChange: (Boolean) -> Unit = { promptCancel = it }
-
+        var exerciseSearchContent by rememberSaveable { mutableStateOf("") }
+        val onExerciseSearchContentChange: (String) -> Unit = { exerciseSearchContent = it }
         var workoutName by rememberSaveable {
             mutableStateOf(
                 if (provided::class == Workout::class)
@@ -48,7 +51,6 @@ object WorkoutCreationView {
             )
         }
         val onWorkoutNameChange: (String) -> Unit = { workoutName = it }
-
         var workoutDescription by rememberSaveable {
             mutableStateOf(
                 if (provided::class == Workout::class)
@@ -57,7 +59,6 @@ object WorkoutCreationView {
             )
         }
         val onWorkoutDescriptionChange: (String) -> Unit = { workoutDescription = it }
-
         var exercises by rememberSaveable {
             mutableStateOf(
                 if (provided::class == Workout::class)
@@ -85,8 +86,19 @@ object WorkoutCreationView {
                             CancelWorkoutButton(onViewChange, promptCancel, onPromptCancelChange)
                         }
                     }
-                    WorkoutExerciseListView(exercises, onExercisesChange, Modifier.fillMaxWidth())
-                    ExerciseSearchView(model.exerciseManager, exercises, onExercisesChange, Modifier.fillMaxWidth())
+                    WorkoutExerciseListView(
+                        exercises,
+                        onExercisesChange,
+                        Modifier.fillMaxWidth().fillMaxHeight(0.5f)
+                    )
+                    ExerciseSearchView(
+                        model.exerciseManager,
+                        exercises,
+                        onExercisesChange,
+                        Modifier.fillMaxSize(),
+                        exerciseSearchContent,
+                        onExerciseSearchContentChange
+                    )
                 }
             } else {
                 Column(
@@ -110,8 +122,18 @@ object WorkoutCreationView {
                         verticalAlignment = Alignment.Top,
                         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
                     ) {
-                        WorkoutExerciseListView(exercises, onExercisesChange, Modifier.fillMaxWidth(0.5f))
-                        ExerciseSearchView(model.exerciseManager, exercises, onExercisesChange, Modifier.fillMaxWidth())
+                        WorkoutExerciseListView(
+                            exercises,
+                            onExercisesChange,
+                            Modifier.fillMaxWidth(0.5f).fillMaxHeight()
+                        )
+                        ExerciseSearchView(
+                            model.exerciseManager,
+                            exercises, onExercisesChange,
+                            Modifier.fillMaxSize(),
+                            exerciseSearchContent,
+                            onExerciseSearchContentChange
+                        )
                     }
                 }
             }
@@ -210,9 +232,56 @@ object WorkoutCreationView {
         manager: ExerciseManager,
         workoutExercises: Array<ExerciseSet>,
         onWorkoutExerciseChange: (Array<ExerciseSet>) -> Unit,
-        listViewModifier: Modifier
+        listViewModifier: Modifier,
+        exerciseSearchContent: String,
+        onExerciseSearchContentChange: (String) -> Unit
     ) {
-        AllExercisesListView(manager, workoutExercises, onWorkoutExerciseChange, listViewModifier)
+        if (!manager.hasExercises()) {
+            manager.loadStandardExercises()
+        }
+        val allExercises = manager.exercises.toTypedArray()
+        allExercises.sortBy {
+            var sum = 0
+            for (word in exerciseSearchContent.split("\\s+")) {
+                sum += if (it.name.contains(word, true)) {
+                    it.name.length - word.length
+                } else 100
+            }
+            sum
+        }
+        Column(
+            listViewModifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                TextField(
+                    value = exerciseSearchContent,
+                    onValueChange = {
+                        if (!it.contains("\n")) {
+                            onExerciseSearchContentChange(it)
+                        }
+                    },
+                    label = { Text("Exercise Name") },
+                    placeholder = {
+                        Text("Exercise Name")
+                    }
+                )
+//                IconButton(onClick = {
+//                }) {
+//                    Icon(Icons.Default.Search, "Search Exercises")
+//                }
+            }
+            AllExercisesListView(
+                allExercises,
+                workoutExercises,
+                onWorkoutExerciseChange,
+                Modifier.fillMaxSize()
+            )
+        }
     }
 
     @Composable
@@ -230,15 +299,12 @@ object WorkoutCreationView {
 
     @Composable
     private fun AllExercisesListView(
-        manager: ExerciseManager,
+        allExercises: Array<Exercise>,
         workoutExercises: Array<ExerciseSet>,
         onWorkoutExerciseChange: (Array<ExerciseSet>) -> Unit,
         listViewModifier: Modifier
     ) {
-        if (!manager.hasExercises()) {
-            manager.loadStandardExercises()
-        }
-        val allExercises = manager.exercises.toTypedArray()
+
         ExviBox {
             LazyColumn(
                 listViewModifier,

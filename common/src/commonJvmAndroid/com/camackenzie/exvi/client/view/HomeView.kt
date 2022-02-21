@@ -55,6 +55,9 @@ object HomeView {
             refreshWorkouts()
         }
 
+        var expanded by rememberSaveable { mutableStateOf(false) }
+        val onExpandedChanged: (Boolean) -> Unit = { expanded = it }
+
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -76,23 +79,30 @@ object HomeView {
             }) {
                 Text("Create Workout")
             }
-            Row(
-                Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                WorkoutListView(
-                    sender,
-                    onViewChange,
-                    model,
-                    workouts,
-                    onWorkoutsChanged,
-                    retrievingWorkouts,
-                    onRetrievingWorkoutsChanged,
-                    switchingView,
-                    onSwitchingViewChange,
-                    refreshWorkouts
-                )
+            Expandable(
+                expanded = expanded,
+                onExpandedChanged = onExpandedChanged,
+                header = {
+                    Text("Test")
+                }) {
+                Row(
+                    Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    WorkoutListView(
+                        sender,
+                        onViewChange,
+                        model,
+                        workouts,
+                        onWorkoutsChanged,
+                        retrievingWorkouts,
+                        onRetrievingWorkoutsChanged,
+                        switchingView,
+                        onSwitchingViewChange,
+                        refreshWorkouts
+                    )
+                }
             }
         }
     }
