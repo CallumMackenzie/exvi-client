@@ -73,7 +73,7 @@ object WorkoutCreationView {
                 Column(
                     Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically)
+                    verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Top)
                 ) {
                     ExviBox {
                         Column(
@@ -86,25 +86,41 @@ object WorkoutCreationView {
                             CancelWorkoutButton(onViewChange, promptCancel, onPromptCancelChange)
                         }
                     }
-                    WorkoutExerciseListView(
-                        exercises,
-                        onExercisesChange,
-                        Modifier.fillMaxWidth().fillMaxHeight(0.5f)
-                    )
-                    ExerciseSearchView(
-                        model.exerciseManager,
-                        exercises,
-                        onExercisesChange,
-                        Modifier.fillMaxSize(),
-                        exerciseSearchContent,
-                        onExerciseSearchContentChange
-                    )
+                    Expandable(
+                        Modifier.fillMaxWidth()
+                            .heightIn(max = 300.dp),
+                        header = {
+                            Text("Workout Exercises")
+                        }
+                    ) {
+                        WorkoutExerciseListView(
+                            exercises,
+                            onExercisesChange,
+                            Modifier.fillMaxSize()
+                        )
+                    }
+                    Expandable(
+                        Modifier.fillMaxWidth()
+                            .heightIn(max = 300.dp),
+                        header = {
+                            Text("All Exercises")
+                        }
+                    ) {
+                        ExerciseSearchView(
+                            model.exerciseManager,
+                            exercises,
+                            onExercisesChange,
+                            Modifier.fillMaxSize(),
+                            exerciseSearchContent,
+                            onExerciseSearchContentChange
+                        )
+                    }
                 }
             } else {
                 Column(
                     Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically)
+                    verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Top)
                 ) {
                     ExviBox {
                         Row(
@@ -122,18 +138,34 @@ object WorkoutCreationView {
                         verticalAlignment = Alignment.Top,
                         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
                     ) {
-                        WorkoutExerciseListView(
-                            exercises,
-                            onExercisesChange,
-                            Modifier.fillMaxWidth(0.5f).fillMaxHeight()
-                        )
-                        ExerciseSearchView(
-                            model.exerciseManager,
-                            exercises, onExercisesChange,
-                            Modifier.fillMaxSize(),
-                            exerciseSearchContent,
-                            onExerciseSearchContentChange
-                        )
+                        Expandable(
+                            Modifier.fillMaxWidth(0.5f)
+                                .heightIn(max = 400.dp),
+                            header = {
+                                Text("Workout Exercises")
+                            }
+                        ) {
+                            WorkoutExerciseListView(
+                                exercises,
+                                onExercisesChange,
+                                Modifier.fillMaxSize()
+                            )
+                        }
+                        Expandable(
+                            Modifier.fillMaxWidth()
+                                .heightIn(max = 400.dp),
+                            header = {
+                                Text("All Exercises")
+                            }
+                        ) {
+                            ExerciseSearchView(
+                                model.exerciseManager,
+                                exercises, onExercisesChange,
+                                Modifier.fillMaxSize(),
+                                exerciseSearchContent,
+                                onExerciseSearchContentChange
+                            )
+                        }
                     }
                 }
             }
@@ -270,10 +302,6 @@ object WorkoutCreationView {
                         Text("Exercise Name")
                     }
                 )
-//                IconButton(onClick = {
-//                }) {
-//                    Icon(Icons.Default.Search, "Search Exercises")
-//                }
             }
             AllExercisesListView(
                 allExercises,
@@ -304,7 +332,6 @@ object WorkoutCreationView {
         onWorkoutExerciseChange: (Array<ExerciseSet>) -> Unit,
         listViewModifier: Modifier
     ) {
-
         ExviBox {
             LazyColumn(
                 listViewModifier,
@@ -354,7 +381,7 @@ object WorkoutCreationView {
         ) {
             Text(exercise.name)
             IconButton(onClick = {
-                onWorkoutExerciseChange(workoutExercises + arrayOf(ExerciseSet(exercise, "", emptyArray())))
+                onWorkoutExerciseChange(workoutExercises + arrayOf(ExerciseSet(exercise, "", arrayOf(10, 10, 10))))
             }) {
                 Icon(Icons.Default.Add, "Add Exercise")
             }
@@ -370,9 +397,18 @@ object WorkoutCreationView {
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.Start)
         ) {
             Text(exercise.exercise.name)
+
+            val setsStr = StringBuilder()
+            for (i in 0 until exercise.sets.size) {
+                setsStr.append(exercise.sets[i])
+                if (i != exercise.sets.size - 1) {
+                    setsStr.append(", ")
+                }
+            }
+            Text("$setsStr")
             IconButton(onClick = {
                 onExercisesChange(exercises.filterIndexed { i, _ ->
                     i != index

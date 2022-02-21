@@ -158,36 +158,35 @@ fun Expandable(
                 .align(Alignment.CenterHorizontally),
             contentAlignment = Alignment.Center
         ) {
-            Row(
+            Column(
                 Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
-                verticalAlignment = Alignment.CenterVertically
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Top)
             ) {
-                if (!expanded) {
-                    IconButton(onClick = {
-                        onExpandedChanged(true)
-                    }) {
-                        Icon(Icons.Default.KeyboardArrowDown, "Expand")
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (!expanded) {
+                        IconButton(onClick = {
+                            onExpandedChanged(true)
+                        }) {
+                            Icon(Icons.Default.KeyboardArrowDown, "Expand")
+                        }
+                    } else {
+                        IconButton(onClick = {
+                            onExpandedChanged(false)
+                        }) {
+                            Icon(Icons.Default.KeyboardArrowUp, "Retract")
+                        }
                     }
-                } else {
-                    IconButton(onClick = {
-                        onExpandedChanged(false)
-                    }) {
-                        Icon(Icons.Default.KeyboardArrowUp, "Retract")
-                    }
+                    header()
                 }
-                header()
-            }
-        }
-        if (expanded) {
-            Box(
-                Modifier.fillMaxWidth()
-                    .border(1.dp, Color.Black)
-                    .padding(10.dp)
-                    .align(Alignment.CenterHorizontally),
-                contentAlignment = Alignment.Center
-            ) {
-                body()
+                if (expanded) {
+                    Divider(Modifier.fillMaxWidth())
+                    body()
+                }
             }
         }
     }
