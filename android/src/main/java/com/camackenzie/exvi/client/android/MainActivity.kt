@@ -1,6 +1,5 @@
 package com.camackenzie.exvi.client.android
 
-import android.app.Application
 import com.camackenzie.exvi.client.view.App
 import com.camackenzie.exvi.client.model.AndroidResourceDelegate
 import android.os.Bundle

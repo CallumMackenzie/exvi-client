@@ -1,7 +1,7 @@
-
 plugins {
     id("com.android.library")
     kotlin("multiplatform")
+    id("org.jetbrains.compose") version "1.0.0"
     kotlin("plugin.serialization") version "1.4.31"
 }
 
@@ -15,26 +15,22 @@ kotlin {
             kotlinOptions.jvmTarget = "11"
         }
     }
-    ios {
-        binaries {
-            framework()
-        }
-    }
     sourceSets {
         val commonMain by getting {
             resources.srcDirs("resources")
             dependencies {
-                api("com.github.CallumMackenzie.exvi-core:exvi-core:e211d1f72b")
+                api(project(":common"))
+                api(compose.runtime)
+                api(compose.foundation)
+                api(compose.material)
             }
         }
-        val androidMain by getting {
+        val androidMain by getting
+        val desktopMain by getting {
             dependencies {
-                api("androidx.appcompat:appcompat:1.2.0")
-                api("androidx.core:core-ktx:1.3.1")
-                api("io.ktor:ktor-client-android:1.6.7")
+                api(compose.preview)
             }
         }
-        val desktopMain by getting
     }
 }
 
@@ -54,4 +50,12 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+}
+
+dependencies {
+    api("androidx.compose.ui:ui:1.2.0-alpha02")
+    api("androidx.compose.ui:ui-text:1.2.0-alpha02")
+    api("androidx.compose.material:material-icons-core:1.2.0-alpha02")
+    api("androidx.compose.foundation:foundation:1.2.0-alpha02")
+    api("androidx.compose.foundation:foundation-layout:1.2.0-alpha02")
 }
