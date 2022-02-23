@@ -27,6 +27,6 @@ kotlin {
 
 compose.desktop {
     application {
-        mainClass = "MainKt"
+        mainClass = "com.camackenzie.exvi.client.desktop.MainKt"
     }
 }

@@ -4,10 +4,11 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-            android:label="Exvi Fitness"
-            android:allowBackup="false"
-            android:supportsRtl="true"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        android:label="Exvi Fitness"
+        android:icon="@mipmap/ic_logo"
+        android:allowBackup="false"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity android:name="com.camackenzie.exvi.client.android.MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
