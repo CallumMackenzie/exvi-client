@@ -119,7 +119,7 @@ object EntryView {
                         })
                     }, enabled = loginEnabled
                 ) {
-                    Text(if (loginEnabled) "Login" else "Logging You In")
+                    Text(if (loginEnabled) "Login" else "Logging In")
                 }
                 if (!loginEnabled) {
                     CircularProgressIndicator(Modifier.padding(10.dp))
