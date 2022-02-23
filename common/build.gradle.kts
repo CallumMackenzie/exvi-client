@@ -24,7 +24,7 @@ kotlin {
         val commonMain by getting {
             resources.srcDirs("resources")
             dependencies {
-                api("com.github.CallumMackenzie.exvi-core:exvi-core:fcb3ed66f3813d5ef6561b057689d013396f0dce")
+                api("com.github.CallumMackenzie.exvi-core:exvi-core:b171fd0e6a6727635ba70857f3eefc0e4c87eb31")
             }
         }
         val androidMain by getting {
