@@ -32,7 +32,7 @@ jobs:
       - name: Archive Linux Build
         uses: actions/upload-artifact@v2
         with:
-          name: linux-build
+          name: linux-jar
           path: desktop/build/compose/jars/*.jar
 
   build-windows:
@@ -61,7 +61,7 @@ jobs:
       - name: Archive Windows Build
         uses: actions/upload-artifact@v2
         with:
-          name: windows-build
+          name: windows-jar
           path: desktop/build/compose/jars/*.jar
 
   build-osx:
@@ -90,5 +90,5 @@ jobs:
       - name: Archive MacOS Build
         uses: actions/upload-artifact@v2
         with:
-          name: macos-build
+          name: macos-jar
           path: desktop/build/compose/jars/*.jar
