@@ -12,7 +12,7 @@ kotlin {
     android()
     jvm("desktop") {
         compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
+            kotlinOptions.jvmTarget = "11"
         }
     }
     ios {
