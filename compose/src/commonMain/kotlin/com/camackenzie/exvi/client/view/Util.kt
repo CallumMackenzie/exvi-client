@@ -1,6 +1,7 @@
 package com.camackenzie.exvi.client.view
 
 import androidx.compose.runtime.saveable.mapSaver
+import androidx.compose.foundation.layout.*
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.ActiveWorkout
 import com.camackenzie.exvi.core.model.BodyStats

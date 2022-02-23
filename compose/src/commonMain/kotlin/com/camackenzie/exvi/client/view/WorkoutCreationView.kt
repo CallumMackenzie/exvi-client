@@ -1,19 +1,25 @@
 package com.camackenzie.exvi.client.view
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.ExerciseManager
 import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
@@ -68,6 +74,9 @@ object WorkoutCreationView {
         }
         val onExercisesChange: (Array<ExerciseSet>) -> Unit = { exercises = it }
 
+        var infoExercise by rememberSaveable { mutableStateOf<Exercise?>(null) }
+        val onInfoExerciseChange: (Exercise?) -> Unit = { infoExercise = it }
+
         BoxWithConstraints(Modifier.fillMaxSize().padding(10.dp)) {
             if (maxWidth < 600.dp) {
                 Column(
@@ -96,7 +105,7 @@ object WorkoutCreationView {
                         WorkoutExerciseListView(
                             exercises,
                             onExercisesChange,
-                            Modifier.fillMaxSize()
+                            onInfoExerciseChange
                         )
                     }
                     Expandable(
@@ -110,10 +119,19 @@ object WorkoutCreationView {
                             model.exerciseManager,
                             exercises,
                             onExercisesChange,
-                            Modifier.fillMaxSize(),
                             exerciseSearchContent,
-                            onExerciseSearchContentChange
+                            onExerciseSearchContentChange,
+                            onInfoExerciseChange
                         )
+                    }
+                    Expandable(
+                        Modifier.fillMaxWidth()
+                            .heightIn(max = 400.dp),
+                        header = {
+                            Text("Exercise Info")
+                        }
+                    ) {
+                        ExerciseInfoView(infoExercise)
                     }
                 }
             } else {
@@ -134,7 +152,7 @@ object WorkoutCreationView {
                         }
                     }
                     Row(
-                        Modifier.fillMaxSize(),
+                        Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.Top,
                         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
                     ) {
@@ -148,7 +166,7 @@ object WorkoutCreationView {
                             WorkoutExerciseListView(
                                 exercises,
                                 onExercisesChange,
-                                Modifier.fillMaxSize()
+                                onInfoExerciseChange
                             )
                         }
                         Expandable(
@@ -161,10 +179,24 @@ object WorkoutCreationView {
                             ExerciseSearchView(
                                 model.exerciseManager,
                                 exercises, onExercisesChange,
-                                Modifier.fillMaxSize(),
                                 exerciseSearchContent,
-                                onExerciseSearchContentChange
+                                onExerciseSearchContentChange,
+                                onInfoExerciseChange
                             )
+                        }
+                    }
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.Top,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
+                    ) {
+                        Expandable(
+                            Modifier.fillMaxWidth(),
+                            header = {
+                                Text("Exercise Info")
+                            }
+                        ) {
+                            ExerciseInfoView(infoExercise)
                         }
                     }
                 }
@@ -260,13 +292,63 @@ object WorkoutCreationView {
     }
 
     @Composable
+    private fun ExerciseInfoView(
+        exercise: Exercise?
+    ) {
+        if (exercise != null) {
+            Column(
+                Modifier.verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top,
+            ) {
+                Text(
+                    exercise.name,
+                    fontSize = 25.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(10.dp)
+                )
+
+                if (exercise.hasOverview()) {
+                    Text(
+                        "Overview", fontSize = 18.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                    Text(exercise.overview)
+                }
+
+                if (exercise.hasDescription()) {
+                    Text(
+                        "Description", fontSize = 18.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                    Text(exercise.description)
+                }
+
+                if (exercise.hasTips()) {
+                    Text(
+                        "Tips", fontSize = 18.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                    Text(exercise.tips)
+                }
+            }
+        } else {
+            Text("No Exercise Selected")
+        }
+    }
+
+    @Composable
     private fun ExerciseSearchView(
         manager: ExerciseManager,
         workoutExercises: Array<ExerciseSet>,
         onWorkoutExerciseChange: (Array<ExerciseSet>) -> Unit,
-        listViewModifier: Modifier,
         exerciseSearchContent: String,
-        onExerciseSearchContentChange: (String) -> Unit
+        onExerciseSearchContentChange: (String) -> Unit,
+        onInfoExerciseChange: (Exercise?) -> Unit,
+        listViewModifier: Modifier = Modifier.fillMaxSize(),
     ) {
         if (!manager.hasExercises()) {
             manager.loadStandardExercises()
@@ -303,12 +385,22 @@ object WorkoutCreationView {
                     }
                 )
             }
-            AllExercisesListView(
-                allExercises,
-                workoutExercises,
-                onWorkoutExerciseChange,
-                Modifier.fillMaxSize()
-            )
+            ExviBox {
+                LazyColumn(
+                    listViewModifier,
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    items(allExercises.size) {
+                        AllExercisesListViewItem(
+                            allExercises[it],
+                            workoutExercises,
+                            onWorkoutExerciseChange,
+                            onInfoExerciseChange
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -326,30 +418,11 @@ object WorkoutCreationView {
     }
 
     @Composable
-    private fun AllExercisesListView(
-        allExercises: Array<Exercise>,
-        workoutExercises: Array<ExerciseSet>,
-        onWorkoutExerciseChange: (Array<ExerciseSet>) -> Unit,
-        listViewModifier: Modifier
-    ) {
-        ExviBox {
-            LazyColumn(
-                listViewModifier,
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                items(allExercises.size) {
-                    AllExercisesListViewItem(allExercises[it], workoutExercises, onWorkoutExerciseChange)
-                }
-            }
-        }
-    }
-
-    @Composable
     private fun WorkoutExerciseListView(
         exercises: Array<ExerciseSet>,
         onExercisesChange: (Array<ExerciseSet>) -> Unit,
-        listViewModifier: Modifier
+        onInfoExerciseChange: (Exercise?) -> Unit,
+        listViewModifier: Modifier = Modifier.fillMaxSize()
     ) {
         ExviBox {
             LazyColumn(
@@ -358,7 +431,7 @@ object WorkoutCreationView {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 items(exercises.size) {
-                    WorkoutExerciseListViewItem(exercises[it], it, exercises, onExercisesChange)
+                    WorkoutExerciseListViewItem(exercises[it], it, exercises, onExercisesChange, onInfoExerciseChange)
                 }
                 if (exercises.isEmpty()) {
                     item {
@@ -373,13 +446,19 @@ object WorkoutCreationView {
     private fun AllExercisesListViewItem(
         exercise: Exercise,
         workoutExercises: Array<ExerciseSet>,
-        onWorkoutExerciseChange: (Array<ExerciseSet>) -> Unit
+        onWorkoutExerciseChange: (Array<ExerciseSet>) -> Unit,
+        onInfoExerciseChange: (Exercise?) -> Unit,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
             Text(exercise.name)
+            IconButton(onClick = {
+                onInfoExerciseChange(exercise)
+            }) {
+                Icon(Icons.Default.Info, "Exercise Info")
+            }
             IconButton(onClick = {
                 onWorkoutExerciseChange(workoutExercises + arrayOf(ExerciseSet(exercise, "", arrayOf(10, 10, 10))))
             }) {
@@ -394,6 +473,7 @@ object WorkoutCreationView {
         index: Int,
         exercises: Array<ExerciseSet>,
         onExercisesChange: (Array<ExerciseSet>) -> Unit,
+        onInfoExerciseChange: (Exercise?) -> Unit,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -401,14 +481,11 @@ object WorkoutCreationView {
         ) {
             Text(exercise.exercise.name)
 
-            val setsStr = StringBuilder()
-            for (i in 0 until exercise.sets.size) {
-                setsStr.append(exercise.sets[i])
-                if (i != exercise.sets.size - 1) {
-                    setsStr.append(", ")
-                }
+            IconButton(onClick = {
+                onInfoExerciseChange(exercise.exercise)
+            }) {
+                Icon(Icons.Default.Info, "Exercise Info")
             }
-            Text("$setsStr")
             IconButton(onClick = {
                 onExercisesChange(exercises.filterIndexed { i, _ ->
                     i != index
