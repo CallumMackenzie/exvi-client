@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -25,7 +24,6 @@ import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.*
 import com.soywiz.krypto.SecureRandom
-import kotlin.math.abs
 
 object WorkoutCreationView {
 
@@ -33,7 +31,9 @@ object WorkoutCreationView {
         "Pull Day", "Push Day", "Leg Day", "Chest Day",
         "Bicep Bonanza", "Quad Isolation", "Calf Cruncher",
         "Forearm Fiesta", "The Quadfather", "Quadzilla",
-        "Shoulders", "Back Builder", "Core", "Cardio Day 1"
+        "Shoulders", "Back Builder", "Core", "Cardio Day 1",
+        "Deltoid Destroyer", "Shoulder Shredder", "Core Killer",
+        "More Core", "Roko's Rhomboids"
     )
 
     @Composable
@@ -77,6 +77,9 @@ object WorkoutCreationView {
         var infoExercise by rememberSaveable { mutableStateOf<Exercise?>(null) }
         val onInfoExerciseChange: (Exercise?) -> Unit = { infoExercise = it }
 
+        var currentRightView by rememberSaveable { mutableStateOf("search") }
+        val onCurrentRightViewChange: (String) -> Unit = { currentRightView = it }
+
         BoxWithConstraints(Modifier.fillMaxSize().padding(10.dp)) {
             if (maxWidth < 600.dp) {
                 Column(
@@ -95,12 +98,9 @@ object WorkoutCreationView {
                             CancelWorkoutButton(onViewChange, promptCancel, onPromptCancelChange)
                         }
                     }
-                    Expandable(
+                    Box(
                         Modifier.fillMaxWidth()
-                            .heightIn(max = 300.dp),
-                        header = {
-                            Text("Workout Exercises")
-                        }
+                            .fillMaxHeight(0.4f)
                     ) {
                         WorkoutExerciseListView(
                             exercises,
@@ -108,30 +108,26 @@ object WorkoutCreationView {
                             onInfoExerciseChange
                         )
                     }
-                    Expandable(
-                        Modifier.fillMaxWidth()
-                            .heightIn(max = 300.dp),
-                        header = {
-                            Text("All Exercises")
-                        }
-                    ) {
-                        ExerciseSearchView(
-                            model.exerciseManager,
-                            exercises,
-                            onExercisesChange,
-                            exerciseSearchContent,
-                            onExerciseSearchContentChange,
-                            onInfoExerciseChange
+                    ExviBox(Modifier.fillMaxSize()) {
+                        StringSelectionView(
+                            views = hashMapOf(
+                                "Search" to {
+                                    ExerciseSearchView(
+                                        model.exerciseManager,
+                                        exercises,
+                                        onExercisesChange,
+                                        exerciseSearchContent,
+                                        onExerciseSearchContentChange,
+                                        onInfoExerciseChange
+                                    )
+                                },
+                                "Info" to {
+                                    ExerciseInfoView(infoExercise)
+                                }
+                            ),
+                            currentView = currentRightView,
+                            onCurrentViewChange = onCurrentRightViewChange
                         )
-                    }
-                    Expandable(
-                        Modifier.fillMaxWidth()
-                            .heightIn(max = 400.dp),
-                        header = {
-                            Text("Exercise Info")
-                        }
-                    ) {
-                        ExerciseInfoView(infoExercise)
                     }
                 }
             } else {
@@ -156,12 +152,9 @@ object WorkoutCreationView {
                         verticalAlignment = Alignment.Top,
                         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
                     ) {
-                        Expandable(
+                        Box(
                             Modifier.fillMaxWidth(0.5f)
-                                .heightIn(max = 400.dp),
-                            header = {
-                                Text("Workout Exercises")
-                            }
+                                .fillMaxHeight()
                         ) {
                             WorkoutExerciseListView(
                                 exercises,
@@ -169,34 +162,26 @@ object WorkoutCreationView {
                                 onInfoExerciseChange
                             )
                         }
-                        Expandable(
-                            Modifier.fillMaxWidth()
-                                .heightIn(max = 400.dp),
-                            header = {
-                                Text("All Exercises")
-                            }
-                        ) {
-                            ExerciseSearchView(
-                                model.exerciseManager,
-                                exercises, onExercisesChange,
-                                exerciseSearchContent,
-                                onExerciseSearchContentChange,
-                                onInfoExerciseChange
+                        ExviBox(Modifier.fillMaxWidth()) {
+                            StringSelectionView(
+                                views = hashMapOf(
+                                    "Search" to {
+                                        ExerciseSearchView(
+                                            model.exerciseManager,
+                                            exercises,
+                                            onExercisesChange,
+                                            exerciseSearchContent,
+                                            onExerciseSearchContentChange,
+                                            onInfoExerciseChange
+                                        )
+                                    },
+                                    "Info" to {
+                                        ExerciseInfoView(infoExercise)
+                                    }
+                                ),
+                                currentView = currentRightView,
+                                onCurrentViewChange = onCurrentRightViewChange
                             )
-                        }
-                    }
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.Top,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
-                    ) {
-                        Expandable(
-                            Modifier.fillMaxWidth(),
-                            header = {
-                                Text("Exercise Info")
-                            }
-                        ) {
-                            ExerciseInfoView(infoExercise)
                         }
                     }
                 }
@@ -406,11 +391,14 @@ object WorkoutCreationView {
 
     @Composable
     private fun ExviBox(
+        modifier: Modifier? = null,
         content: @Composable () -> Unit
     ) {
         Box(
-            Modifier.border(1.dp, Color.Black)
-                .padding(10.dp),
+            modifier = modifier?.then(
+                Modifier.border(1.dp, Color.Black)
+                    .padding(10.dp)
+            ) ?: Modifier.border(1.dp, Color.Black).padding(10.dp),
             contentAlignment = Alignment.Center
         ) {
             content()

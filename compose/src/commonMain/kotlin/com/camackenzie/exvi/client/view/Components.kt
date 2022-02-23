@@ -32,9 +32,10 @@ fun UsernameField(
     TextField(
         value = username,
         onValueChange = { it ->
-            if (it.length <= 30
-                && it.matches(usernameRegex)
-            ) onUsernameChange(it)
+            val lower = it.lowercase()
+            if (lower.length <= 30
+                && lower.matches(usernameRegex)
+            ) onUsernameChange(lower)
         },
         label = { Text("Username") },
         placeholder = { Text("Username") },
@@ -189,5 +190,63 @@ fun Expandable(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun StringSelectionView(
+    views: Map<String, @Composable () -> Unit>,
+    onCurrentViewChange: (String) -> Unit,
+    currentView: String,
+    modifier: Modifier = Modifier.fillMaxSize(),
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top
+) {
+    SelectionView(
+        views,
+        views.keys.associateWith {
+            {
+                Button(onClick = {
+                    onCurrentViewChange(it)
+                }) {
+                    Text(it)
+                }
+            }
+        },
+        currentView,
+        modifier,
+        horizontalAlignment,
+        verticalArrangement
+    )
+}
+
+@Composable
+fun <T> SelectionView(
+    views: Map<T, @Composable () -> Unit>,
+    headers: Map<T, @Composable () -> Unit>,
+    currentView: T,
+    modifier: Modifier = Modifier.fillMaxSize(),
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = horizontalAlignment,
+        verticalArrangement = verticalArrangement
+    ) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.Start),
+            verticalAlignment = Alignment.Top
+        ) {
+            for ((_, comp) in headers) {
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+                    comp()
+                }
+            }
+        }
+        views[currentView]?.invoke()
     }
 }

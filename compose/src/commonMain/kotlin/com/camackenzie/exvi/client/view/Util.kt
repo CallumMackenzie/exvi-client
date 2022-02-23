@@ -1,7 +1,10 @@
 package com.camackenzie.exvi.client.view
 
+import androidx.compose.foundation.background
 import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.*
+import androidx.compose.runtime.*
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.ActiveWorkout
 import com.camackenzie.exvi.core.model.BodyStats
@@ -11,6 +14,10 @@ import com.camackenzie.exvi.core.util.None
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 val SelfSerializableSaver = mapSaver<SelfSerializable>(save = {
     mapOf("json" to it.toJson(), "uid" to it.getUID())
