@@ -5,12 +5,14 @@
  */
 package com.camackenzie.exvi.client.model
 
+import com.camackenzie.exvi.core.model.BodyStats
 import com.camackenzie.exvi.core.model.Exercise
 import com.camackenzie.exvi.core.model.ExerciseSet
 import com.camackenzie.exvi.core.model.Workout
 import kotlin.collections.ArrayList
 import kotlin.collections.List
 import kotlin.collections.HashMap
+import kotlin.math.max
 
 /**
  *
@@ -57,7 +59,7 @@ class WorkoutGenerator(
         }
 
         // Get the number of exercises, with at least the highest number locked
-        val nExercises: Int = Math.max(
+        val nExercises: Int = max(
             Random.intInRange(
                 params.minExercises,
                 params.maxExercises
@@ -91,14 +93,14 @@ class WorkoutGenerator(
                 val individualPriorities: ArrayList<Double> = ArrayList()
                 var exerPriority = 0.0
                 for (prob in probs) {
-                    val probPriority: Double = prob.getPriority(this, i)
+                    val probPriority: Double = prob.getPriority(this, ex, i)
                     exerPriority += probPriority
                     individualPriorities.add(exerPriority)
                 }
 
                 // Add the exercise priority if it has contributed
                 if (exerPriority > 0
-                    || params.providers.size == 0
+                    || params.providers.isEmpty()
                 ) {
                     exercisePriorities.add(
                         ExercisePriorityTracker(
@@ -118,7 +120,7 @@ class WorkoutGenerator(
 
             // Ensure sufficient exercises exist
             if (exercisePriorities.size == 0) {
-                System.err.println("Insufficient exercises selected.")
+                println("Insufficient exercises selected.")
                 continue
             }
 
@@ -142,7 +144,7 @@ class WorkoutGenerator(
             validExers.shuffle()
 
             // Select exercise
-            val selectedExer: ExercisePriorityTracker = validExers.get(0)
+            val selectedExer: ExercisePriorityTracker = validExers[0]
             // Generate exercise set based on most presiding probability
             val generated = selectedExer.providers
                 .map { pr -> pr.first.generateExerciseSet(this, selectedExer.exercise) }
@@ -229,4 +231,34 @@ class WorkoutGenerator(
         val providers: Array<Pair<ExercisePriorityProvider, Double>>,
         val priority: Double
     )
+
+    companion object {
+        fun random(
+            exerciseManager: ExerciseManager,
+            bodyStats: BodyStats = BodyStats.average()
+        ): WorkoutGenerator {
+            return WorkoutGenerator(
+                WorkoutGeneratorParams(
+                    bodyStats = bodyStats
+                ), exerciseManager
+            )
+        }
+
+        fun arms(
+            exerciseManager: ExerciseManager,
+            bodyStats: BodyStats = BodyStats.average()
+        ): WorkoutGenerator {
+            return WorkoutGenerator(
+                exerciseManager = exerciseManager,
+                params = WorkoutGeneratorParams(
+                    bodyStats = bodyStats,
+                    providers = armPriorities()
+                )
+            )
+        }
+
+        fun armPriorities(): Array<ExercisePriorityProvider> {
+            TODO()
+        }
+    }
 }
