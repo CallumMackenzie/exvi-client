@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -85,7 +86,7 @@ object WorkoutCreationView {
         var currentRightView by rememberSaveable { mutableStateOf("search") }
         val onCurrentRightViewChange: (String) -> Unit = { currentRightView = it }
 
-        var generatorParams by rememberSaveable {
+        var generatorParams by remember {
             mutableStateOf(
                 WorkoutGeneratorParams(providers = generators["Arms"]!!.invoke())
             )
@@ -93,6 +94,9 @@ object WorkoutCreationView {
         val onGeneratorParamsChanged: (WorkoutGeneratorParams) -> Unit = { generatorParams = it }
 
         val workout = constructWorkout(provided, workoutName, workoutDescription, exercises)
+
+        var lockedExers by rememberSaveable { mutableStateOf(setOf<Int>()) }
+        val onLockedExersChanged: (Set<Int>) -> Unit = { lockedExers = it }
 
         BoxWithConstraints(Modifier.fillMaxSize().padding(10.dp)) {
             if (maxWidth < 600.dp) {
@@ -119,7 +123,9 @@ object WorkoutCreationView {
                         WorkoutExerciseListView(
                             exercises,
                             onExercisesChange,
-                            onInfoExerciseChange
+                            onInfoExerciseChange,
+                            lockedExers,
+                            onLockedExersChanged
                         )
                     }
                     ExviBox(Modifier.fillMaxSize()) {
@@ -135,7 +141,8 @@ object WorkoutCreationView {
                             onCurrentRightViewChange,
                             generatorParams,
                             onGeneratorParamsChanged,
-                            workout
+                            workout,
+                            lockedExers
                         )
                     }
                 }
@@ -168,7 +175,9 @@ object WorkoutCreationView {
                             WorkoutExerciseListView(
                                 exercises,
                                 onExercisesChange,
-                                onInfoExerciseChange
+                                onInfoExerciseChange,
+                                lockedExers,
+                                onLockedExersChanged
                             )
                         }
                         ExviBox(Modifier.fillMaxWidth()) {
@@ -184,7 +193,8 @@ object WorkoutCreationView {
                                 onCurrentRightViewChange,
                                 generatorParams,
                                 onGeneratorParamsChanged,
-                                workout
+                                workout,
+                                lockedExers
                             )
                         }
                     }
@@ -205,7 +215,8 @@ object WorkoutCreationView {
         onCurrentViewChange: (String) -> Unit,
         generatorParams: WorkoutGeneratorParams,
         onGeneratorParamsChanged: (WorkoutGeneratorParams) -> Unit,
-        workout: Workout
+        workout: Workout,
+        lockedExers: Set<Int>
     ) {
         StringSelectionView(
             views = hashMapOf(
@@ -227,7 +238,8 @@ object WorkoutCreationView {
                         model, workout,
                         onExercisesChange,
                         generatorParams,
-                        onGeneratorParamsChanged
+                        onGeneratorParamsChanged,
+                        lockedExers
                     )
                 }
             ),
@@ -264,9 +276,9 @@ object WorkoutCreationView {
         workout: Workout,
         onExercisesChange: (Array<ExerciseSet>) -> Unit,
         params: WorkoutGeneratorParams,
-        onGeneratorParamsChanged: (WorkoutGeneratorParams) -> Unit
+        onGeneratorParamsChanged: (WorkoutGeneratorParams) -> Unit,
+        lockedExers: Set<Int>
     ) {
-
         Row(
             Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.Top,
@@ -275,7 +287,7 @@ object WorkoutCreationView {
             Button(onClick = {
                 model.exerciseManager.loadStandardExercisesIfEmpty()
                 val generator = WorkoutGenerator(model.exerciseManager, params)
-                val newWorkout = generator.generateWorkout(workout)
+                val newWorkout = generator.generateWorkout(workout, lockedExers.toTypedArray())
                 onExercisesChange(newWorkout.exercises.toTypedArray())
             }) {
                 Text("Generate")
@@ -490,7 +502,9 @@ object WorkoutCreationView {
         exercises: Array<ExerciseSet>,
         onExercisesChange: (Array<ExerciseSet>) -> Unit,
         onInfoExerciseChange: (Exercise?) -> Unit,
-        listViewModifier: Modifier = Modifier.fillMaxSize()
+        lockedExers: Set<Int>,
+        onLockedExersChanged: (Set<Int>) -> Unit,
+        listViewModifier: Modifier = Modifier.fillMaxSize(),
     ) {
         ExviBox {
             LazyColumn(
@@ -499,7 +513,11 @@ object WorkoutCreationView {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 items(exercises.size) {
-                    WorkoutExerciseListViewItem(exercises[it], it, exercises, onExercisesChange, onInfoExerciseChange)
+                    WorkoutExerciseListViewItem(
+                        exercises[it], it, exercises, onExercisesChange, onInfoExerciseChange,
+                        lockedExers,
+                        onLockedExersChanged
+                    )
                 }
                 if (exercises.isEmpty()) {
                     item {
@@ -542,6 +560,8 @@ object WorkoutCreationView {
         exercises: Array<ExerciseSet>,
         onExercisesChange: (Array<ExerciseSet>) -> Unit,
         onInfoExerciseChange: (Exercise?) -> Unit,
+        lockedExers: Set<Int>,
+        onLockedExersChanged: (Set<Int>) -> Unit
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -554,6 +574,19 @@ object WorkoutCreationView {
             }) {
                 Icon(Icons.Default.Info, "Exercise Info")
             }
+            Switch(
+                checked = lockedExers.contains(index),
+                onCheckedChange = { checked ->
+                    if (checked) {
+                        val newExers = setOf(*lockedExers.toTypedArray(), index)
+                        onLockedExersChanged(newExers)
+                    } else {
+                        onLockedExersChanged(lockedExers.filter {
+                            it != index
+                        }.toSet())
+                    }
+                }
+            )
             IconButton(onClick = {
                 onExercisesChange(exercises.filterIndexed { i, _ ->
                     i != index
