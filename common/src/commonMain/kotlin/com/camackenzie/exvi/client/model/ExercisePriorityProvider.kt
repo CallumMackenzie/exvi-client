@@ -5,16 +5,16 @@
  */
 package com.camackenzie.exvi.client.model
 
-import com.camackenzie.exvi.core.model.Exercise
-import com.camackenzie.exvi.core.model.ExerciseSet
-import com.camackenzie.exvi.core.model.Workout
-import com.camackenzie.exvi.core.model.Muscle
+import com.camackenzie.exvi.core.model.*
+import com.camackenzie.exvi.core.util.SelfSerializable
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 
 /**
  *
  * @author callum
  */
-interface ExercisePriorityProvider {
+sealed interface ExercisePriorityProvider : SelfSerializable {
     fun getPriority(g: WorkoutGenerator, exercise: Exercise, exerciseIndex: Int): Double
 
     fun generateExerciseSet(g: WorkoutGenerator, ex: Exercise): ExerciseSet {
@@ -30,12 +30,12 @@ interface ExercisePriorityProvider {
     }
 }
 
-interface ExerciseSetGenerator {
+sealed interface ExerciseSetGenerator {
     fun generateExerciseSet(g: WorkoutGenerator, ex: Exercise): ExerciseSet
 }
 
 @kotlinx.serialization.Serializable
-abstract class BoundedPriorityProvider : ExercisePriorityProvider {
+sealed class BoundedPriorityProvider : ExercisePriorityProvider {
     abstract val start: Int
     abstract val end: Int
 
@@ -43,7 +43,7 @@ abstract class BoundedPriorityProvider : ExercisePriorityProvider {
         return i in start until end
     }
 
-    protected fun getPriority(index: Int, onValid: () -> Double, onInvalid: () -> Double = { 0.0 }): Double {
+    protected fun getPriorityBounded(index: Int, onInvalid: () -> Double = { 0.0 }, onValid: () -> Double): Double {
         return if (this.isInBounds(index)) onValid() else onInvalid()
     }
 }
@@ -57,15 +57,162 @@ object DefaultExerciseSetGenerator : ExerciseSetGenerator {
 
 @kotlinx.serialization.Serializable
 class ExerciseMusclePriority(
-    val muscle: Muscle,
+    val muscle: MuscleWorkData,
     val priority: Double = 1.0,
     override val start: Int = 0,
     override val end: Int = Int.MAX_VALUE
 ) : BoundedPriorityProvider() {
 
     override fun getPriority(g: WorkoutGenerator, exercise: Exercise, exerciseIndex: Int): Double {
-        return this.getPriority(exerciseIndex, onValid = {
+        return this.getPriorityBounded(exerciseIndex) {
             if (exercise.worksMuscle(muscle)) priority else 0.0
-        })
+        }
+    }
+
+    override fun getUID(): String {
+        return uid
+    }
+
+    override fun toJson(): String {
+        return Json.encodeToString(this)
+    }
+
+    companion object {
+        const val uid = "ExerciseMusclePriority"
+    }
+}
+
+@kotlinx.serialization.Serializable
+class ExerciseTypePriority(
+    val type: ExerciseType,
+    val priority: Double = 1.0,
+    override val start: Int = 0,
+    override val end: Int = Int.MAX_VALUE
+) : BoundedPriorityProvider() {
+
+    override fun getPriority(g: WorkoutGenerator, exercise: Exercise, exerciseIndex: Int): Double {
+        return this.getPriorityBounded(exerciseIndex) {
+            if (exercise.isType(type)) priority else 0.0
+        }
+    }
+
+    override fun getUID(): String {
+        return uid
+    }
+
+    override fun toJson(): String {
+        return Json.encodeToString(this)
+    }
+
+    companion object {
+        const val uid = "ExerciseTypePriority"
+    }
+}
+
+@kotlinx.serialization.Serializable
+class ExerciseEquipmentPriority(
+    val equipment: ExerciseEquipment,
+    val priority: Double = 1.0,
+    override val start: Int = 0,
+    override val end: Int = Int.MAX_VALUE
+) : BoundedPriorityProvider() {
+
+    override fun getPriority(g: WorkoutGenerator, exercise: Exercise, exerciseIndex: Int): Double {
+        return this.getPriorityBounded(exerciseIndex) {
+            if (exercise.usesEquipment(equipment)) priority else 0.0
+        }
+    }
+
+    override fun getUID(): String {
+        return uid
+    }
+
+    override fun toJson(): String {
+        return Json.encodeToString(this)
+    }
+
+    companion object {
+        const val uid = "ExerciseEquipmentPriority"
+    }
+}
+
+@kotlinx.serialization.Serializable
+class ExerciseExperiencePriority(
+    val experience: ExerciseExperienceLevel,
+    val priority: Double = 1.0,
+    override val start: Int = 0,
+    override val end: Int = Int.MAX_VALUE
+) : BoundedPriorityProvider() {
+
+    override fun getPriority(g: WorkoutGenerator, exercise: Exercise, exerciseIndex: Int): Double {
+        return this.getPriorityBounded(exerciseIndex) {
+            if (exercise.experienceLevel == experience) priority else 0.0
+        }
+    }
+
+    override fun getUID(): String {
+        return uid
+    }
+
+    override fun toJson(): String {
+        return Json.encodeToString(this)
+    }
+
+    companion object {
+        const val uid = "ExerciseExperiencePriority"
+    }
+}
+
+@kotlinx.serialization.Serializable
+class ExerciseForceTypePriority(
+    val forceType: ExerciseForceType,
+    val priority: Double = 1.0,
+    override val start: Int = 0,
+    override val end: Int = Int.MAX_VALUE
+) : BoundedPriorityProvider() {
+
+    override fun getPriority(g: WorkoutGenerator, exercise: Exercise, exerciseIndex: Int): Double {
+        return this.getPriorityBounded(exerciseIndex) {
+            if (exercise.forceType == forceType) priority else 0.0
+        }
+    }
+
+    override fun getUID(): String {
+        return uid
+    }
+
+    override fun toJson(): String {
+        return Json.encodeToString(this)
+    }
+
+    companion object {
+        const val uid = "ExerciseForceTypePriority"
+    }
+}
+
+@kotlinx.serialization.Serializable
+class ExerciseMechanicsPriority(
+    val mechanics: ExerciseMechanics,
+    val priority: Double = 1.0,
+    override val start: Int = 0,
+    override val end: Int = Int.MAX_VALUE
+) : BoundedPriorityProvider() {
+
+    override fun getPriority(g: WorkoutGenerator, exercise: Exercise, exerciseIndex: Int): Double {
+        return this.getPriorityBounded(exerciseIndex) {
+            if (exercise.mechanics == mechanics) priority else 0.0
+        }
+    }
+
+    override fun getUID(): String {
+        return uid
+    }
+
+    override fun toJson(): String {
+        return Json.encodeToString(this)
+    }
+
+    companion object {
+        const val uid = "ExerciseMechanicsPriority"
     }
 }

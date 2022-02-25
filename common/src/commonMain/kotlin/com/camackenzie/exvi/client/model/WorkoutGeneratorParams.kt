@@ -6,31 +6,22 @@
 package com.camackenzie.exvi.client.model
 
 import com.camackenzie.exvi.core.model.BodyStats
+import com.camackenzie.exvi.core.util.SelfSerializable
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 
 /**
  *
  * @author callum
  */
-class WorkoutGeneratorParams constructor(
-    minExercises: Int = 6,
-    maxExercises: Int = 10,
-    priorityRange: Double = 0.1,
-    bodyStats: BodyStats = BodyStats.average(),
-    providers: Array<ExercisePriorityProvider> = arrayOf<ExercisePriorityProvider>()
-) {
-    var minExercises = 6
-    var maxExercises = 10
-    var priorityRange = 0.1
-    var providers: Array<ExercisePriorityProvider>
-    var bodyStats: BodyStats
-
-    init {
-        this.minExercises = minExercises
-        this.maxExercises = maxExercises
-        this.priorityRange = priorityRange
-        this.providers = providers
-        this.bodyStats = bodyStats
-    }
+@kotlinx.serialization.Serializable
+class WorkoutGeneratorParams(
+    var minExercises: Int = 6,
+    var maxExercises: Int = 9,
+    var priorityRange: Double = 0.1,
+    var bodyStats: BodyStats = BodyStats.average(),
+    var providers: Array<ExercisePriorityProvider> = emptyArray()
+) : SelfSerializable {
 
     fun withBodyStats(bs: BodyStats): WorkoutGeneratorParams {
         bodyStats = bs
@@ -67,5 +58,17 @@ class WorkoutGeneratorParams constructor(
     fun withExerciseCount(n: Int): WorkoutGeneratorParams {
         setExerciseCount(n)
         return this
+    }
+
+    override fun getUID(): String {
+        return uid
+    }
+
+    override fun toJson(): String {
+        return Json.encodeToString(this)
+    }
+
+    companion object {
+        const val uid = "WorkoutGeneratorParams"
     }
 }

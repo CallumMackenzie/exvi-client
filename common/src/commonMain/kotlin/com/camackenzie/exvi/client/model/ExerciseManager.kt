@@ -32,6 +32,12 @@ data class ExerciseManager(var exercises: HashSet<Exercise> = HashSet()) : SelfS
         addAll(Json.decodeFromString<Array<Exercise>>(readTextFile("exercises.json")))
     }
 
+    fun loadStandardExercisesIfEmpty() {
+        if (!this.hasExercises()) {
+            this.loadStandardExercises()
+        }
+    }
+
     fun hasExercises(): Boolean {
         return exercises.size != 0
     }

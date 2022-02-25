@@ -17,6 +17,8 @@ import kotlinx.serialization.json.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.camackenzie.exvi.client.model.WorkoutGenerator
+import com.camackenzie.exvi.client.model.WorkoutGeneratorParams
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 val SelfSerializableSaver = mapSaver<SelfSerializable>(save = {
@@ -30,6 +32,7 @@ val SelfSerializableSaver = mapSaver<SelfSerializable>(save = {
         BodyStats.uid -> Json.decodeFromString<BodyStats>(json)
         None.uid -> Json.decodeFromString<None>(json)
         Exercise.uid -> Json.decodeFromString<Exercise>(json)
+        WorkoutGeneratorParams.uid -> Json.decodeFromString<WorkoutGeneratorParams>(json)
         else -> throw Exception("Could not restore type \"$uid\" from: $it")
     }
 })

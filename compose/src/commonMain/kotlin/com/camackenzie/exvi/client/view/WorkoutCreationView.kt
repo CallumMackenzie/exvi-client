@@ -19,9 +19,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.camackenzie.exvi.client.model.ExerciseManager
+import com.camackenzie.exvi.client.model.*
 import com.camackenzie.exvi.core.api.toJson
-import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.*
 import com.soywiz.krypto.SecureRandom
 
@@ -34,6 +33,12 @@ object WorkoutCreationView {
         "Shoulders", "Back Builder", "Core", "Cardio Day 1",
         "Deltoid Destroyer", "Shoulder Shredder", "Core Killer",
         "More Core", "Roko's Rhomboids"
+    )
+
+    private val generators = mapOf(
+        "Random" to { emptyArray() },
+        "Arms" to WorkoutGenerator::armPriorities,
+        "Legs" to WorkoutGenerator::legPriorities
     )
 
     @Composable
@@ -80,6 +85,15 @@ object WorkoutCreationView {
         var currentRightView by rememberSaveable { mutableStateOf("search") }
         val onCurrentRightViewChange: (String) -> Unit = { currentRightView = it }
 
+        var generatorParams by rememberSaveable {
+            mutableStateOf(
+                WorkoutGeneratorParams(providers = generators["Arms"]!!.invoke())
+            )
+        }
+        val onGeneratorParamsChanged: (WorkoutGeneratorParams) -> Unit = { generatorParams = it }
+
+        val workout = constructWorkout(provided, workoutName, workoutDescription, exercises)
+
         BoxWithConstraints(Modifier.fillMaxSize().padding(10.dp)) {
             if (maxWidth < 600.dp) {
                 Column(
@@ -94,7 +108,7 @@ object WorkoutCreationView {
                             verticalArrangement = Arrangement.Center
                         ) {
                             WorkoutNameField(workoutName, onWorkoutNameChange)
-                            FinishWorkoutButton(model, onViewChange, provided, workoutName, exercises)
+                            FinishWorkoutButton(model, onViewChange, workout)
                             CancelWorkoutButton(onViewChange, promptCancel, onPromptCancelChange)
                         }
                     }
@@ -109,24 +123,19 @@ object WorkoutCreationView {
                         )
                     }
                     ExviBox(Modifier.fillMaxSize()) {
-                        StringSelectionView(
-                            views = hashMapOf(
-                                "Search" to {
-                                    ExerciseSearchView(
-                                        model.exerciseManager,
-                                        exercises,
-                                        onExercisesChange,
-                                        exerciseSearchContent,
-                                        onExerciseSearchContentChange,
-                                        onInfoExerciseChange
-                                    )
-                                },
-                                "Info" to {
-                                    ExerciseInfoView(infoExercise)
-                                }
-                            ),
-                            currentView = currentRightView,
-                            onCurrentViewChange = onCurrentRightViewChange
+                        ViewSetOne(
+                            model,
+                            exercises,
+                            onExercisesChange,
+                            exerciseSearchContent,
+                            onExerciseSearchContentChange,
+                            infoExercise,
+                            onInfoExerciseChange,
+                            currentRightView,
+                            onCurrentRightViewChange,
+                            generatorParams,
+                            onGeneratorParamsChanged,
+                            workout
                         )
                     }
                 }
@@ -143,7 +152,7 @@ object WorkoutCreationView {
                             horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
                         ) {
                             WorkoutNameField(workoutName, onWorkoutNameChange)
-                            FinishWorkoutButton(model, onViewChange, provided, workoutName, exercises)
+                            FinishWorkoutButton(model, onViewChange, workout)
                             CancelWorkoutButton(onViewChange, promptCancel, onPromptCancelChange)
                         }
                     }
@@ -163,28 +172,118 @@ object WorkoutCreationView {
                             )
                         }
                         ExviBox(Modifier.fillMaxWidth()) {
-                            StringSelectionView(
-                                views = hashMapOf(
-                                    "Search" to {
-                                        ExerciseSearchView(
-                                            model.exerciseManager,
-                                            exercises,
-                                            onExercisesChange,
-                                            exerciseSearchContent,
-                                            onExerciseSearchContentChange,
-                                            onInfoExerciseChange
-                                        )
-                                    },
-                                    "Info" to {
-                                        ExerciseInfoView(infoExercise)
-                                    }
-                                ),
-                                currentView = currentRightView,
-                                onCurrentViewChange = onCurrentRightViewChange
+                            ViewSetOne(
+                                model,
+                                exercises,
+                                onExercisesChange,
+                                exerciseSearchContent,
+                                onExerciseSearchContentChange,
+                                infoExercise,
+                                onInfoExerciseChange,
+                                currentRightView,
+                                onCurrentRightViewChange,
+                                generatorParams,
+                                onGeneratorParamsChanged,
+                                workout
                             )
                         }
                     }
                 }
+            }
+        }
+    }
+
+    @Composable
+    private fun ViewSetOne(
+        model: Model, exercises: Array<ExerciseSet>,
+        onExercisesChange: (Array<ExerciseSet>) -> Unit,
+        exerciseSearchContent: String,
+        onExerciseSearchContentChange: (String) -> Unit,
+        infoExercise: Exercise?,
+        onInfoExerciseChange: (Exercise?) -> Unit,
+        currentView: String,
+        onCurrentViewChange: (String) -> Unit,
+        generatorParams: WorkoutGeneratorParams,
+        onGeneratorParamsChanged: (WorkoutGeneratorParams) -> Unit,
+        workout: Workout
+    ) {
+        StringSelectionView(
+            views = hashMapOf(
+                "Search" to {
+                    ExerciseSearchView(
+                        model.exerciseManager,
+                        exercises,
+                        onExercisesChange,
+                        exerciseSearchContent,
+                        onExerciseSearchContentChange,
+                        onInfoExerciseChange
+                    )
+                },
+                "Info" to {
+                    ExerciseInfoView(infoExercise)
+                },
+                "Generator" to {
+                    WorkoutGeneratorView(
+                        model, workout,
+                        onExercisesChange,
+                        generatorParams,
+                        onGeneratorParamsChanged
+                    )
+                }
+            ),
+            currentView = currentView,
+            onCurrentViewChange = onCurrentViewChange
+        )
+    }
+
+    private fun constructWorkout(
+        provided: Any,
+        workoutName: String,
+        workoutDescription: String,
+        exercises: Array<ExerciseSet>
+    ): Workout {
+        val baseWorkout = if (provided::class == Workout::class)
+            provided as Workout else null
+        val newExercises = arrayListOf<ExerciseSet>(*exercises)
+        return if (baseWorkout != null) Workout(
+            workoutName,
+            workoutDescription,
+            newExercises,
+            baseWorkout.id
+        )
+        else Workout(
+            workoutName,
+            workoutDescription,
+            newExercises
+        )
+    }
+
+    @Composable
+    private fun WorkoutGeneratorView(
+        model: Model,
+        workout: Workout,
+        onExercisesChange: (Array<ExerciseSet>) -> Unit,
+        params: WorkoutGeneratorParams,
+        onGeneratorParamsChanged: (WorkoutGeneratorParams) -> Unit
+    ) {
+
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
+        ) {
+            Button(onClick = {
+                model.exerciseManager.loadStandardExercisesIfEmpty()
+                val generator = WorkoutGenerator(model.exerciseManager, params)
+                val newWorkout = generator.generateWorkout(workout)
+                onExercisesChange(newWorkout.exercises.toTypedArray())
+            }) {
+                Text("Generate")
+            }
+            Button(onClick = {
+                println(params.toJson())
+            }) {
+                Text("Check JSON")
             }
         }
     }
@@ -209,26 +308,9 @@ object WorkoutCreationView {
     private fun FinishWorkoutButton(
         model: Model,
         onViewChange: ViewChangeFun,
-        provided: Any,
-        workoutName: String,
-        exercises: Array<ExerciseSet>
+        workout: Workout
     ) {
         Button(onClick = {
-            val baseWorkout = if (provided::class == Workout::class)
-                provided as Workout else null
-            val newExercises = arrayListOf<ExerciseSet>(*exercises)
-
-            val workout = if (baseWorkout != null) Workout(
-                workoutName,
-                "",
-                newExercises,
-                baseWorkout.id
-            )
-            else Workout(
-                workoutName,
-                "",
-                newExercises
-            )
             model.workoutManager!!.putWorkouts(
                 arrayOf(workout),
                 onFail = {
@@ -335,9 +417,7 @@ object WorkoutCreationView {
         onInfoExerciseChange: (Exercise?) -> Unit,
         listViewModifier: Modifier = Modifier.fillMaxSize(),
     ) {
-        if (!manager.hasExercises()) {
-            manager.loadStandardExercises()
-        }
+        manager.loadStandardExercisesIfEmpty()
         val allExercises = manager.exercises.toTypedArray()
         allExercises.sortBy {
             var sum = 0
