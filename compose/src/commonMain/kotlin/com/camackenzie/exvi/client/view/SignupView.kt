@@ -13,40 +13,41 @@ import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
+import kotlin.math.sign
 
 object SignupView {
 
+    private class SignupData(
+        username: String = "",
+        password: String = "",
+        email: String = "",
+        phone: String = "",
+        code: String = "",
+        error: String = "",
+        sendingCode: Boolean = false,
+        creatingAccount: Boolean = false,
+        verificationCodeSent: Boolean = false
+    ) {
+        var username by mutableStateOf(username)
+        var password by mutableStateOf(password)
+        var email by mutableStateOf(email)
+        var phone by mutableStateOf(phone)
+        var code by mutableStateOf(code)
+        var error by mutableStateOf(error)
+        var verificationCodeSent by mutableStateOf(verificationCodeSent)
+        var creatingAccount by mutableStateOf(creatingAccount)
+        var sendingCode by mutableStateOf(sendingCode)
+
+        val setUsername: (String) -> Unit = { this.username = it }
+        val setPassword: (String) -> Unit = { this.password = it }
+        val setCode: (String) -> Unit = { this.code = it }
+        val setEmail: (String) -> Unit = { this.email = it }
+        val setPhone: (String) -> Unit = { this.phone = it }
+    }
+
     @Composable
     fun View(appState: AppState) {
-        var password by rememberSaveable { mutableStateOf("") }
-        val passwordChanged: (String) -> Unit = { password = it }
-
-        var username by rememberSaveable { mutableStateOf("") }
-        val usernameChanged: (String) -> Unit = { username = it }
-
-        var email by rememberSaveable { mutableStateOf("") }
-        val emailChanged: (String) -> Unit = { email = it }
-
-        var phone by rememberSaveable { mutableStateOf("") }
-        val phoneChanged: (String) -> Unit = { phone = it }
-
-        var code by rememberSaveable { mutableStateOf("") }
-        val codeChanged: (String) -> Unit = { code = it }
-
-        var sendCodeButtonEnabled by rememberSaveable { mutableStateOf(true) }
-        val sendCodeButtonEnabledChanged: (Boolean) -> Unit = { sendCodeButtonEnabled = it }
-
-        var sendCodeButtonText by rememberSaveable { mutableStateOf("Send Verification Code") }
-        val sendCodeButtonTextChanged: (String) -> Unit = { sendCodeButtonText = it }
-
-        var signupButtonEnabled by rememberSaveable { mutableStateOf(true) }
-        val signupButtonEnabledChanged: (Boolean) -> Unit = { signupButtonEnabled = it }
-
-        var signupButtonText by rememberSaveable { mutableStateOf("Create Account") }
-        val signupButtonTextChanged: (String) -> Unit = { signupButtonText = it }
-
-        var errorText by rememberSaveable { mutableStateOf("") }
-        val onErrorTextChanged: (String) -> Unit = { errorText = it }
+        val signupData = remember { SignupData() }
 
         Column(
             Modifier.fillMaxSize()
@@ -58,7 +59,7 @@ object SignupView {
                 Button(
                     onClick = {
                         appState.setView(ExviView.Login)
-                    }, enabled = sendCodeButtonEnabled && signupButtonEnabled
+                    }, enabled = !signupData.sendingCode && !signupData.creatingAccount
                 ) {
                     Text("Back to Login")
                 }
@@ -69,66 +70,76 @@ object SignupView {
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(10.dp)
             )
-            UsernameField(username, usernameChanged, sendCodeButtonEnabled && signupButtonEnabled)
-            EmailField(email, emailChanged, sendCodeButtonEnabled && signupButtonEnabled)
-            PhoneField(phone, phoneChanged, sendCodeButtonEnabled && signupButtonEnabled)
-            PasswordField(password, passwordChanged, signupButtonEnabled)
-            VerificationCodeField(code, codeChanged, signupButtonEnabled)
+            val sendingReq = signupData.sendingCode || signupData.creatingAccount
+            UsernameField(
+                signupData.username,
+                signupData.setUsername,
+                !sendingReq
+            )
+            EmailField(
+                signupData.email,
+                signupData.setEmail,
+                !sendingReq
+            )
+            PhoneField(signupData.phone, signupData.setPhone, !sendingReq)
+            PasswordField(signupData.password, signupData.setPassword, !signupData.creatingAccount)
+            VerificationCodeField(signupData.code, signupData.setCode, !signupData.creatingAccount)
             Button(
                 onClick = {
-                    sendCodeButtonEnabledChanged(false)
-                    sendCodeButtonTextChanged("Sending Verification Code")
-                    Account.requestVerification(username, email, phone,
+                    signupData.sendingCode = true
+                    Account.requestVerification(signupData.username, signupData.email, signupData.phone,
                         onFail = {
-                            println(it.toJson())
-                            onErrorTextChanged(it.body)
-                            sendCodeButtonTextChanged("Send Verification Code")
+                            signupData.error = it.body
+                            signupData.verificationCodeSent = false
                         },
                         onSuccess = {
-                            onErrorTextChanged("")
-                            sendCodeButtonTextChanged("Resend Verification Code")
+                            signupData.error = ""
+                            signupData.verificationCodeSent = true
                         },
                         onComplete = {
-                            sendCodeButtonEnabledChanged(true)
+                            signupData.sendingCode = false
                         })
                 },
-                enabled = sendCodeButtonEnabled
+                enabled = !sendingReq
             ) {
-                Text(sendCodeButtonText)
+                Text(
+                    if (signupData.sendingCode) "Sending Verification Code"
+                    else if (signupData.verificationCodeSent) "Code Sent"
+                    else "Send Verification Code"
+                )
             }
             Button(
                 onClick = {
-                    signupButtonEnabledChanged(false)
-                    sendCodeButtonEnabledChanged(false)
-                    signupButtonTextChanged("Creating Account")
-                    Account.requestSignup(username, code, password,
+                    signupData.creatingAccount = true
+                    Account.requestSignup(signupData.username, signupData.code, signupData.password,
                         onFail = {
                             println(it.toJson())
-                            onErrorTextChanged(it.body)
-                            signupButtonTextChanged("Create Account")
+                            signupData.error = it.body
                         },
                         onSuccess = {
-                            onErrorTextChanged("")
+                            signupData.error = ""
                             appState.model.accountManager.activeAccount = Account.fromAccessKey(
-                                username = username,
+                                username = signupData.username,
                                 accessKey = it.accessKey
                             )
                             appState.setView(ExviView.Home)
                         },
                         onComplete = {
-                            signupButtonEnabledChanged(true)
-                            sendCodeButtonEnabledChanged(true)
+                            signupData.creatingAccount = false
                         })
                 },
-                enabled = signupButtonEnabled
+                enabled = !signupData.creatingAccount
             ) {
-                Text(signupButtonText)
+                Text(
+                    if (signupData.creatingAccount) "Creating Acccount"
+                    else "Create Account"
+                )
             }
-            if (!signupButtonEnabled || !sendCodeButtonEnabled) {
+            if (sendingReq) {
                 CircularProgressIndicator(Modifier.padding(10.dp))
             }
-            if (signupButtonEnabled && sendCodeButtonEnabled && errorText.isNotBlank()) {
-                Text(text = errorText)
+            if (!sendingReq && signupData.error.isNotBlank()) {
+                Text(text = signupData.error)
             }
         }
     }
