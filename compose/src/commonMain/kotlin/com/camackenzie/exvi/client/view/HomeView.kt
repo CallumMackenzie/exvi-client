@@ -10,7 +10,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.core.api.toJson
@@ -192,7 +191,7 @@ object HomeView {
                     bodyStats.totalMass.unit.toString().lowercase()
                 }s"
             )
-            Text("Sex: ${bodyStats!!.sex.toString().lowercase()}")
+            Text("Sex: ${bodyStats.sex.toString().lowercase()}")
         }
     }
 
@@ -327,7 +326,7 @@ object HomeView {
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(
-                "${workout.name}",
+                workout.name,
                 textAlign = TextAlign.Center,
                 fontSize = 20.sp
             )

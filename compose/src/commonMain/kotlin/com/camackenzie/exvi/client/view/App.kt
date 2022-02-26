@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -31,9 +30,7 @@ fun App() {
     appState.currentView.compose(appState)
 }
 
-@Serializable
 enum class ExviView(
-    @kotlinx.serialization.Transient
     private val viewFun: ViewFun
 ) {
     Login(@Composable {
@@ -47,8 +44,6 @@ enum class ExviView(
     }),
     WorkoutCreation(@Composable {
         WorkoutCreationView.View(it)
-    }),
-    AccountSettings(@Composable {
     }),
     None(@Composable {
         Text(
@@ -65,11 +60,11 @@ enum class ExviView(
 }
 
 class AppState(
-    model: Model = Model(),
+    val model: Model = Model(),
     currentView: ExviView = ExviView.Login,
     previousView: ExviView = ExviView.None,
     provided: SelfSerializable = None,
-    coroutineScope: CoroutineScope
+    val coroutineScope: CoroutineScope
 ) {
     var currentView by mutableStateOf(currentView)
         private set
@@ -77,8 +72,6 @@ class AppState(
         private set
     var provided by mutableStateOf(provided)
         private set
-    val model = model
-    val coroutineScope = coroutineScope
 
     fun setView(view: ExviView, args: ArgProviderFun = ::noArgs) {
         previousView = currentView
@@ -93,7 +86,7 @@ class AppState(
     }
 
     companion object {
-        fun saver(coroutineScope: CoroutineScope) = mapSaver<AppState>(
+        fun saver(coroutineScope: CoroutineScope) = mapSaver(
             save = {
                 mapOf(
                     "currView" to it.currentView,
@@ -104,7 +97,7 @@ class AppState(
             },
             restore = {
                 AppState(
-                    Json.decodeFromString<Model>(it["model"] as String),
+                    Json.decodeFromString(it["model"] as String),
                     it["currView"] as ExviView,
                     it["prevView"] as ExviView,
                     selfSerializableFromMap(it["provided"] as Map<String, Any?>),

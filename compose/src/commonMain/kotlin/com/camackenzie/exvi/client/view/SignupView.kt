@@ -13,9 +13,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.core.api.toJson
-import com.camackenzie.exvi.client.model.Model
-import kotlinx.coroutines.CoroutineScope
-import kotlin.math.sign
 
 object SignupView {
 
@@ -165,7 +162,7 @@ object SignupView {
                 enabled = !signupData.creatingAccount
             ) {
                 Text(
-                    if (signupData.creatingAccount) "Creating Acccount"
+                    if (signupData.creatingAccount) "Creating Account"
                     else "Create Account"
                 )
             }
