@@ -11,21 +11,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
-import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
 
 object EntryView {
 
+    private class LoginData(
+        loginEnabled: Boolean = true,
+        password: String = "",
+        username: String = ""
+    ) {
+        var loginEnabled by mutableStateOf(loginEnabled)
+        var password by mutableStateOf(password)
+        var username by mutableStateOf(username)
+
+        val setUsername: (String) -> Unit = { this.username = it }
+        val setPassword: (String) -> Unit = { this.password = it }
+    }
+
     @Composable
     fun View(appState: AppState) {
-        var loginEnabled by rememberSaveable { mutableStateOf(true) }
-        val loginEnabledChanged: (Boolean) -> Unit = { loginEnabled = it }
-
-        var password by rememberSaveable { mutableStateOf("") }
-        val passwordChanged: (String) -> Unit = { password = it }
-
-        var username by rememberSaveable { mutableStateOf("") }
-        val usernameChanged: (String) -> Unit = { username = it }
+        val loginData = remember { LoginData() }
 
         BoxWithConstraints(Modifier.fillMaxSize()) {
             if (maxWidth < 600.dp) {
@@ -36,16 +41,13 @@ object EntryView {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     LoginView(
-                        username,
-                        usernameChanged,
-                        password,
-                        passwordChanged,
-                        loginEnabled,
-                        loginEnabledChanged,
-                        appState.model,
+                        appState,
+                        loginData
+                    )
+                    SignupSplashView(
+                        loginData.loginEnabled,
                         appState::setView
                     )
-                    SignupSplashView(loginEnabled, appState::setView)
                 }
             } else {
                 Row(
@@ -55,16 +57,13 @@ object EntryView {
                     horizontalArrangement = Arrangement.Center
                 ) {
                     LoginView(
-                        username,
-                        usernameChanged,
-                        password,
-                        passwordChanged,
-                        loginEnabled,
-                        loginEnabledChanged,
-                        appState.model,
+                        appState,
+                        loginData
+                    )
+                    SignupSplashView(
+                        loginData.loginEnabled,
                         appState::setView
                     )
-                    SignupSplashView(loginEnabled, appState::setView)
                 }
             }
         }
@@ -72,15 +71,10 @@ object EntryView {
 
     @Composable
     private fun LoginView(
-        username: String, onUsernameChange: (String) -> Unit,
-        password: String,
-        onPasswordChange: (String) -> Unit,
-        loginEnabled: Boolean,
-        onLoginEnabledChange: (Boolean) -> Unit,
-        model: Model,
-        onViewChange: ViewChangeFun
+        appState: AppState,
+        loginData: LoginData
     ) {
-        var errorText by rememberSaveable { mutableStateOf("") }
+        var errorText by remember { mutableStateOf("") }
 
         Column(
             verticalArrangement = Arrangement.Center,
@@ -93,8 +87,8 @@ object EntryView {
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(10.dp)
             )
-            UsernameField(username, onUsernameChange, loginEnabled)
-            PasswordField(password, onPasswordChange, loginEnabled)
+            UsernameField(loginData.username, loginData.setUsername, loginData.loginEnabled)
+            PasswordField(loginData.password, loginData.setPassword, loginData.loginEnabled)
             Row(
                 modifier = Modifier.padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -102,26 +96,28 @@ object EntryView {
             ) {
                 Button(
                     onClick = {
-                        onLoginEnabledChange(false)
-                        Account.requestLogin(username, password, onFail = {
-                            errorText = it.body
-                            onLoginEnabledChange(true)
-                        }, onSuccess = {
-                            model.accountManager.activeAccount = Account.fromAccessKey(
-                                username = username,
-                                accessKey = it.accessKey
-                            )
-                            onViewChange(ExviView.Home, ::noArgs)
-                        })
-                    }, enabled = loginEnabled
+                        loginData.loginEnabled = false
+                        Account.requestLogin(loginData.username,
+                            loginData.password,
+                            onFail = {
+                                errorText = it.body
+                                loginData.loginEnabled = true
+                            }, onSuccess = {
+                                appState.model.accountManager.activeAccount = Account.fromAccessKey(
+                                    username = loginData.username,
+                                    accessKey = it.accessKey
+                                )
+                                appState.setView(ExviView.Home)
+                            })
+                    }, enabled = loginData.loginEnabled
                 ) {
-                    Text(if (loginEnabled) "Login" else "Logging In")
+                    Text(if (loginData.loginEnabled) "Login" else "Logging In")
                 }
-                if (!loginEnabled) {
+                if (!loginData.loginEnabled) {
                     CircularProgressIndicator(Modifier.padding(10.dp))
                 }
             }
-            if (loginEnabled && errorText.isNotBlank()) {
+            if (loginData.loginEnabled && errorText.isNotBlank()) {
                 Text(text = errorText)
             }
         }

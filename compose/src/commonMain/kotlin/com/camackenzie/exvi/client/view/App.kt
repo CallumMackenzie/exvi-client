@@ -22,8 +22,9 @@ typealias ViewFun = @Composable (AppState) -> Unit
 
 @Composable
 fun App() {
-    // Global state
-    val appState by rememberSaveable(stateSaver = AppState.Saver) { mutableStateOf(AppState()) }
+    val appState by rememberSaveable(stateSaver = AppState.Saver) {
+        mutableStateOf(AppState())
+    }
 
     appState.currentView.compose(appState)
 }
@@ -31,7 +32,7 @@ fun App() {
 @Serializable
 enum class ExviView(
     @kotlinx.serialization.Transient
-    private val viewFun: @Composable (AppState) -> Unit
+    private val viewFun: ViewFun
 ) {
     Login(@Composable {
         EntryView.View(it)
