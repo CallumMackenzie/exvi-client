@@ -55,10 +55,7 @@ object SignupView {
                         "email" to it.email,
                         "phone" to it.phone,
                         "code" to it.code,
-                        "error" to it.error,
-                        "sndingCd" to it.sendingCode,
-                        "crAcc" to it.creatingAccount,
-                        "codeSent" to it.verificationCodeSent,
+                        "error" to it.error
                     )
                 },
                 restore = {
@@ -68,10 +65,7 @@ object SignupView {
                         it["email"] as String,
                         it["phone"] as String,
                         it["code"] as String,
-                        it["error"] as String,
-                        it["sndingCd"] as Boolean,
-                        it["crAcc"] as Boolean,
-                        it["codeSent"] as Boolean
+                        it["error"] as String
                     )
                 }
             )

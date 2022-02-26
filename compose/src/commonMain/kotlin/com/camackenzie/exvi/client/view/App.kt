@@ -24,7 +24,7 @@ typealias ViewFun = @Composable (AppState) -> Unit
 @Composable
 fun App() {
     val coroutineScope = rememberCoroutineScope()
-    val appState by rememberSaveable(stateSaver = AppState.Saver) {
+    val appState by rememberSaveable(stateSaver = AppState.saver(coroutineScope)) {
         mutableStateOf(AppState(coroutineScope = coroutineScope))
     }
 
@@ -93,7 +93,7 @@ class AppState(
     }
 
     companion object {
-        val Saver = mapSaver<AppState>(
+        fun saver(coroutineScope: CoroutineScope) = mapSaver<AppState>(
             save = {
                 mapOf(
                     "currView" to it.currentView,
@@ -107,7 +107,8 @@ class AppState(
                     Json.decodeFromString<Model>(it["model"] as String),
                     it["currView"] as ExviView,
                     it["prevView"] as ExviView,
-                    selfSerializableFromMap(it["provided"] as Map<String, Any?>)
+                    selfSerializableFromMap(it["provided"] as Map<String, Any?>),
+                    coroutineScope
                 )
             }
         )
