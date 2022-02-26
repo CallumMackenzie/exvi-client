@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.util.None
 import com.camackenzie.exvi.core.util.SelfSerializable
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
@@ -22,8 +23,9 @@ typealias ViewFun = @Composable (AppState) -> Unit
 
 @Composable
 fun App() {
+    val coroutineScope = rememberCoroutineScope()
     val appState by rememberSaveable(stateSaver = AppState.Saver) {
-        mutableStateOf(AppState())
+        mutableStateOf(AppState(coroutineScope = coroutineScope))
     }
 
     appState.currentView.compose(appState)
@@ -66,7 +68,8 @@ class AppState(
     model: Model = Model(),
     currentView: ExviView = ExviView.Login,
     previousView: ExviView = ExviView.None,
-    provided: SelfSerializable = None
+    provided: SelfSerializable = None,
+    coroutineScope: CoroutineScope
 ) {
     var currentView by mutableStateOf(currentView)
         private set
@@ -75,6 +78,7 @@ class AppState(
     var provided by mutableStateOf(provided)
         private set
     val model = model
+    val coroutineScope = coroutineScope
 
     fun setView(view: ExviView, args: ArgProviderFun = ::noArgs) {
         previousView = currentView

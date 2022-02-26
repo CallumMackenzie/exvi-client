@@ -179,7 +179,7 @@ object SignupView {
                 CircularProgressIndicator(Modifier.padding(10.dp))
             }
             if (!sendingReq && signupData.error.isNotBlank()) {
-                Text(text = signupData.error)
+                Text(text = signupData.error, textAlign = TextAlign.Center, modifier = Modifier.padding(5.dp))
             }
         }
     }
