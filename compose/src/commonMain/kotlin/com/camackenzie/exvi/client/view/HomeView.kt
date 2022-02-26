@@ -20,12 +20,8 @@ import com.camackenzie.exvi.core.model.Workout
 object HomeView {
 
     @Composable
-    fun View(
-        sender: ExviView,
-        onViewChange: ViewChangeFun,
-        model: Model
-    ) {
-        ensureActiveAccount(model, onViewChange)
+    fun View(appState: AppState) {
+        ensureActiveAccount(appState.model, appState::setView)
 
         var workouts by remember { mutableStateOf(emptyArray<Workout>()) }
         val onWorkoutsChanged: (Array<Workout>) -> Unit = { workouts = it }
@@ -41,7 +37,7 @@ object HomeView {
 
         val refreshWorkouts: () -> Unit = {
             onRetrievingWorkoutsChanged(true)
-            model.workoutManager?.getWorkouts(
+            appState.model.workoutManager?.getWorkouts(
                 onSuccess = onWorkoutsChanged,
                 onFail = {
                     println(it.toJson())
@@ -53,7 +49,7 @@ object HomeView {
 
         if (!workoutsSynced) {
             onWorkoutsSyncedChanged(true)
-            model.workoutManager?.invalidateLocalCache()
+            appState.model.workoutManager?.invalidateLocalCache()
             refreshWorkouts()
         }
 
@@ -62,16 +58,14 @@ object HomeView {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TopBar(model, onViewChange)
+            TopBar(appState.model, appState::setView)
             Button(onClick = {
-                onViewChange(ExviView.WorkoutCreation, ::noArgs)
+                appState.setView(ExviView.WorkoutCreation)
             }) {
                 Text("Create Workout")
             }
             Body(
-                sender,
-                model,
-                onViewChange,
+                appState,
                 workouts,
                 onWorkoutsChanged,
                 retrievingWorkouts,
@@ -85,8 +79,7 @@ object HomeView {
 
     @Composable
     private fun Body(
-        sender: ExviView, model: Model,
-        onViewChange: ViewChangeFun,
+        appState: AppState,
         workouts: Array<Workout>,
         onWorkoutsChanged: (Array<Workout>) -> Unit,
         retrievingWorkouts: Boolean,
@@ -111,9 +104,7 @@ object HomeView {
                             Text("Your Workouts")
                         }) {
                         WorkoutsView(
-                            sender,
-                            model,
-                            onViewChange,
+                            appState,
                             workouts,
                             onWorkoutsChanged,
                             retrievingWorkouts,
@@ -127,7 +118,7 @@ object HomeView {
                         header = {
                             Text("Your Progress")
                         }) {
-                        AccountView(model)
+                        AccountView(appState.model)
                     }
                 }
             } else {
@@ -142,9 +133,7 @@ object HomeView {
                             Text("Your Workouts")
                         }) {
                         WorkoutsView(
-                            sender,
-                            model,
-                            onViewChange,
+                            appState,
                             workouts,
                             onWorkoutsChanged,
                             retrievingWorkouts,
@@ -158,7 +147,7 @@ object HomeView {
                         header = {
                             Text("Your Progress")
                         }) {
-                        AccountView(model)
+                        AccountView(appState.model)
                     }
                 }
             }
@@ -167,8 +156,7 @@ object HomeView {
 
     @Composable
     private fun WorkoutsView(
-        sender: ExviView, model: Model,
-        onViewChange: ViewChangeFun,
+        appState: AppState,
         workouts: Array<Workout>,
         onWorkoutsChanged: (Array<Workout>) -> Unit,
         retrievingWorkouts: Boolean,
@@ -183,9 +171,7 @@ object HomeView {
             horizontalArrangement = Arrangement.Center
         ) {
             WorkoutListView(
-                sender,
-                onViewChange,
-                model,
+                appState,
                 workouts,
                 onWorkoutsChanged,
                 retrievingWorkouts,
@@ -241,9 +227,7 @@ object HomeView {
 
     @Composable
     private fun WorkoutListView(
-        sender: ExviView,
-        onViewChange: ViewChangeFun,
-        model: Model,
+        appState: AppState,
         workouts: Array<Workout>,
         onWorkoutsChanged: (Array<Workout>) -> Unit,
         retrievingWorkouts: Boolean,
@@ -269,7 +253,7 @@ object HomeView {
             } else {
                 IconButton(onClick = {
                     onRetrievingWorkoutsChanged(true)
-                    model.workoutManager!!.invalidateLocalCache()
+                    appState.model.workoutManager!!.invalidateLocalCache()
                     refreshWorkouts()
                 }) {
                     Icon(Icons.Default.Refresh, "Refresh Workout List")
@@ -281,8 +265,8 @@ object HomeView {
                     if (workouts.isNotEmpty()) {
                         items(workouts.size) {
                             WorkoutListViewItem(
-                                model,
-                                onViewChange,
+                                appState.model,
+                                appState::setView,
                                 workouts[it],
                                 refreshWorkouts
                             )
@@ -290,9 +274,9 @@ object HomeView {
                     } else {
                         item {
                             NoWorkoutsPrompt(
-                                onViewChange,
+                                appState::setView,
                                 onSwitchingViewChange,
-                                sender
+                                appState.previousView
                             )
                         }
                     }

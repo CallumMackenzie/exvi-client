@@ -17,11 +17,7 @@ import com.camackenzie.exvi.client.model.Model
 object EntryView {
 
     @Composable
-    fun View(
-        sender: ExviView,
-        onViewChange: ViewChangeFun,
-        model: Model
-    ) {
+    fun View(appState: AppState) {
         var loginEnabled by rememberSaveable { mutableStateOf(true) }
         val loginEnabledChanged: (Boolean) -> Unit = { loginEnabled = it }
 
@@ -46,10 +42,10 @@ object EntryView {
                         passwordChanged,
                         loginEnabled,
                         loginEnabledChanged,
-                        model,
-                        onViewChange
+                        appState.model,
+                        appState::setView
                     )
-                    SignupSplashView(loginEnabled, onViewChange)
+                    SignupSplashView(loginEnabled, appState::setView)
                 }
             } else {
                 Row(
@@ -65,10 +61,10 @@ object EntryView {
                         passwordChanged,
                         loginEnabled,
                         loginEnabledChanged,
-                        model,
-                        onViewChange
+                        appState.model,
+                        appState::setView
                     )
-                    SignupSplashView(loginEnabled, onViewChange)
+                    SignupSplashView(loginEnabled, appState::setView)
                 }
             }
         }

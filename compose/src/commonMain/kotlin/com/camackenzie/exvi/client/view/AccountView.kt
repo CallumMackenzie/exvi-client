@@ -7,9 +7,7 @@ object AccountSettingsView {
 
     @Composable
     fun View(
-        sender: ExviView,
-        onViewChange: ViewChangeFun,
-        model: Model
+        appState: AppState
     ) {
 
     }

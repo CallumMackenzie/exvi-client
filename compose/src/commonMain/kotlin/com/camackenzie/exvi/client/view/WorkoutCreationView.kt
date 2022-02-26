@@ -43,15 +43,11 @@ object WorkoutCreationView {
     )
 
     private data class ViewData(
-        val sender: ExviView,
-        val onViewChange: ViewChangeFun,
-        val model: Model,
-        val provided: Any,
+        val appState: AppState,
         val coroutineScope: CoroutineScope
     ) {
-        fun setView(view: ExviView, provider: ArgProviderFun) {
-            onViewChange(view, provider)
-        }
+        val model
+            get() = appState.model
     }
 
     private class WorkoutData(
@@ -131,15 +127,12 @@ object WorkoutCreationView {
 
     @Composable
     fun View(
-        sender: ExviView,
-        onViewChange: ViewChangeFun,
-        model: Model,
-        provided: Any
+        appState: AppState
     ) {
-        ensureActiveAccount(model, onViewChange)
+        ensureActiveAccount(appState.model, appState::setView)
 
-        val viewData = ViewData(sender, onViewChange, model, provided, rememberCoroutineScope())
-        val workoutData = remember { WorkoutData(provided) }
+        val viewData = ViewData(appState, rememberCoroutineScope())
+        val workoutData = remember { WorkoutData(appState.provided) }
         val workoutSearchData = remember { WorkoutSearchData() }
         val selectorViewData = remember { SelectorViewData() }
 
@@ -158,7 +151,7 @@ object WorkoutCreationView {
                         ) {
                             WorkoutNameField(workoutData)
                             FinishWorkoutButton(viewData, workoutData)
-                            CancelWorkoutButton(onViewChange)
+                            CancelWorkoutButton(appState::setView)
                         }
                     }
                     Box(
@@ -190,7 +183,7 @@ object WorkoutCreationView {
                         ) {
                             WorkoutNameField(workoutData)
                             FinishWorkoutButton(viewData, workoutData)
-                            CancelWorkoutButton(onViewChange)
+                            CancelWorkoutButton(appState::setView)
                         }
                     }
                     Row(
@@ -312,7 +305,7 @@ object WorkoutCreationView {
                 }
             )
             viewData.model.workoutManager!!.validateLocalCache()
-            viewData.setView(ExviView.Home, ::noArgs)
+            viewData.appState.setView(ExviView.Home)
         }) {
             Text("Finish")
         }

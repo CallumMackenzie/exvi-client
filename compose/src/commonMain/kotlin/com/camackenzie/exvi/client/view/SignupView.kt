@@ -17,11 +17,7 @@ import com.camackenzie.exvi.client.model.Model
 object SignupView {
 
     @Composable
-    fun View(
-        sender: ExviView,
-        onViewChange: ViewChangeFun,
-        model: Model
-    ) {
+    fun View(appState: AppState) {
         var password by rememberSaveable { mutableStateOf("") }
         val passwordChanged: (String) -> Unit = { password = it }
 
@@ -58,10 +54,10 @@ object SignupView {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (sender == ExviView.Login) {
+            if (appState.previousView == ExviView.Login) {
                 Button(
                     onClick = {
-                        onViewChange(ExviView.Login, ::noArgs)
+                        appState.setView(ExviView.Login)
                     }, enabled = sendCodeButtonEnabled && signupButtonEnabled
                 ) {
                     Text("Back to Login")
@@ -113,11 +109,11 @@ object SignupView {
                         },
                         onSuccess = {
                             onErrorTextChanged("")
-                            model.accountManager.activeAccount = Account.fromAccessKey(
+                            appState.model.accountManager.activeAccount = Account.fromAccessKey(
                                 username = username,
                                 accessKey = it.accessKey
                             )
-                            onViewChange(ExviView.Home, ::noArgs)
+                            appState.setView(ExviView.Home)
                         },
                         onComplete = {
                             signupButtonEnabledChanged(true)

@@ -21,11 +21,14 @@ import com.camackenzie.exvi.client.model.WorkoutGenerator
 import com.camackenzie.exvi.client.model.WorkoutGeneratorParams
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
-val SelfSerializableSaver = mapSaver<SelfSerializable>(save = {
-    mapOf("json" to it.toJson(), "uid" to it.getUID())
-}, restore = {
-    val json = it["json"] as String
-    when (val uid = it["uid"] as String) {
+fun selfSerializableFromMap(map: Map<String, Any?>): SelfSerializable =
+    selfSerializableFromJson(map["json"] as String, map["uid"] as String)
+
+fun selfSerializableToMap(ss: SelfSerializable): Map<String, Any> =
+    mapOf("json" to ss.toJson(), "uid" to ss.getUID())
+
+fun selfSerializableFromJson(json: String, uid: String): SelfSerializable =
+    when (uid) {
         Workout.uid -> Json.decodeFromString<Workout>(json)
         Model.uid -> Json.decodeFromString<Model>(json)
         ActiveWorkout.uid -> Json.decodeFromString<ActiveWorkout>(json)
@@ -33,8 +36,13 @@ val SelfSerializableSaver = mapSaver<SelfSerializable>(save = {
         None.uid -> Json.decodeFromString<None>(json)
         Exercise.uid -> Json.decodeFromString<Exercise>(json)
         WorkoutGeneratorParams.uid -> Json.decodeFromString<WorkoutGeneratorParams>(json)
-        else -> throw Exception("Could not restore type \"$uid\" from: $it")
+        else -> throw Exception("Could not restore type \"$uid\"")
     }
+
+val SelfSerializableSaver = mapSaver<SelfSerializable>(save = {
+    selfSerializableToMap(it)
+}, restore = {
+    selfSerializableFromMap(it)
 })
 
 fun noArgs(): SelfSerializable {
