@@ -13,6 +13,7 @@ import com.camackenzie.exvi.core.util.EncodedStringCache
 import com.camackenzie.exvi.core.util.SelfSerializable
 import com.camackenzie.exvi.core.util.cached
 import com.soywiz.krypto.encoding.fromBase64
+import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.*
 
@@ -59,105 +60,108 @@ class Account private constructor(
         ).append("...").toString()
     }
 
-//    fun saveCredentials(path: String) {
-//        try {
-//            Files.writeString(
-//                Path.of(path + fileName),
-//                crendentialsString
-//            )
-//        } catch (e: IOException) {
-//            System.err.println(e)
-//        }
-//    }
-
     companion object {
         fun requestVerification(
-            username: String, email: String, phone: String,
+            username: String,
+            email: String,
+            phone: String,
+            coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+            coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
             onFail: (APIResult<String>) -> Unit = {},
             onSuccess: () -> Unit = {},
             onComplete: () -> Unit = {}
-        ) {
-            APIRequest.requestAsync(
-                APIEndpoints.VERIFICATION,
-                VerificationRequest(username, email, phone),
-                APIRequest.jsonHeaders()
-            ) { request ->
-                if (request.failed()) {
-                    onFail(request)
-                } else {
-                    onSuccess()
-                }
-                onComplete()
-            }
+        ): Job = APIRequest.requestAsync(
+            APIEndpoints.VERIFICATION,
+            VerificationRequest(username, email, phone),
+            coroutineScope = coroutineScope,
+            coroutineDispatcher = coroutineDispatcher
+        ) { request ->
+            if (request.failed()) onFail(request) else onSuccess()
+            onComplete()
         }
 
         fun requestSignup(
             username: String,
             verificationCode: String,
             passwordRaw: String,
+            coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+            coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
             onFail: (APIResult<String>) -> Unit = {},
             onSuccess: (AccountAccessKeyResult) -> Unit = {},
             onComplete: () -> Unit = {}
-        ) {
-            val passwordHash: String = PasswordUtils.hashAndEncryptPassword(passwordRaw)
-            APIRequest.requestAsync(
-                APIEndpoints.SIGN_UP, AccountCreationRequest(
-                    username, verificationCode, passwordHash
-                )
-            ) { result ->
-                if (result.failed()) {
-                    onFail(result)
-                } else {
-                    val accessKeyResult = Json.decodeFromString<AccountAccessKeyResult>(result.body)
-                    onSuccess(accessKeyResult)
-                }
-                onComplete()
+        ): Job = APIRequest.requestAsync(
+            APIEndpoints.SIGN_UP,
+            AccountCreationRequest(
+                username,
+                verificationCode,
+                PasswordUtils.hashAndEncryptPassword(passwordRaw)
+            ),
+            coroutineScope = coroutineScope,
+            coroutineDispatcher = coroutineDispatcher
+        ) { result ->
+            if (result.failed()) {
+                onFail(result)
+            } else {
+                val accessKeyResult = Json.decodeFromString<AccountAccessKeyResult>(result.body)
+                onSuccess(accessKeyResult)
             }
+            onComplete()
         }
+
 
         private fun requestLoginRaw(
-            username: String, passwordHash: String, callback: (APIResult<String>) -> Unit
-        ) {
-            APIRequest.requestAsync(
-                APIEndpoints.LOGIN, LoginRequest(username, passwordHash), APIRequest.jsonHeaders(), callback
-            )
-        }
+            username: String,
+            passwordHash: String,
+            coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+            coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
+            callback: (APIResult<String>) -> Unit
+        ): Job = APIRequest.requestAsync(
+            APIEndpoints.LOGIN,
+            LoginRequest(username, passwordHash),
+            coroutineScope = coroutineScope,
+            coroutineDispatcher = coroutineDispatcher,
+            callback = callback
+        )
 
         private fun requestUserSaltRaw(
-            username: String, callback: (APIResult<String>) -> Unit
-        ) {
-            APIRequest.requestAsync(
-                APIEndpoints.GET_SALT, RetrieveSaltRequest(username), APIRequest.jsonHeaders(), callback
-            )
-        }
+            username: String,
+            coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+            coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
+            callback: (APIResult<String>) -> Unit
+        ): Job = APIRequest.requestAsync(
+            APIEndpoints.GET_SALT,
+            RetrieveSaltRequest(username),
+            coroutineScope = coroutineScope,
+            coroutineDispatcher = coroutineDispatcher,
+            callback = callback
+        )
 
         fun requestLogin(
             username: String,
             passwordRaw: String,
+            coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+            coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
             onFail: (APIResult<String>) -> Unit = {},
             onSuccess: (AccountAccessKeyResult) -> Unit = {},
             onComplete: () -> Unit = {}
-        ) {
-            requestUserSaltRaw(username) { saltResponse ->
-                if (saltResponse.failed()) {
-                    onFail(saltResponse)
-                } else {
-                    val salt = Json.decodeFromString<AccountSaltResult>(saltResponse.body)
-                    val decryptedSalt = salt.salt.fromBase64().decodeToString()
-                    val finalPassword: String = PasswordUtils.hashAndSaltAndEncryptPassword(
-                        passwordRaw, decryptedSalt
-                    )
-                    requestLoginRaw(username, finalPassword) { loginResult ->
-                        if (loginResult.failed()) {
-                            onFail(loginResult)
-                        } else {
-                            val accessKeyResult = Json.decodeFromString<AccountAccessKeyResult>(loginResult.body)
-                            onSuccess(accessKeyResult)
-                        }
+        ): Job = requestUserSaltRaw(username, coroutineScope, coroutineDispatcher) { saltResponse ->
+            if (saltResponse.failed()) {
+                onFail(saltResponse)
+            } else {
+                val salt = Json.decodeFromString<AccountSaltResult>(saltResponse.body)
+                val decryptedSalt = salt.salt.fromBase64().decodeToString()
+                val finalPassword: String = PasswordUtils.hashAndSaltAndEncryptPassword(
+                    passwordRaw, decryptedSalt
+                )
+                requestLoginRaw(username, finalPassword, coroutineScope, coroutineDispatcher) { loginResult ->
+                    if (loginResult.failed()) onFail(loginResult)
+                    else {
+                        val accessKeyResult = Json.decodeFromString<AccountAccessKeyResult>(loginResult.body)
+                        onSuccess(accessKeyResult)
                     }
                 }
-                onComplete()
             }
+            onComplete()
         }
 
         fun fromCrendentialsString(s: String): Account {

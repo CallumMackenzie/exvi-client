@@ -12,17 +12,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.client.model.Model
+import kotlinx.coroutines.CoroutineScope
 
 object EntryView {
 
     private class LoginData(
+        coroutineScope: CoroutineScope,
         loginEnabled: Boolean = true,
         password: String = "",
-        username: String = ""
+        username: String = "",
     ) {
         var loginEnabled by mutableStateOf(loginEnabled)
         var password by mutableStateOf(password)
         var username by mutableStateOf(username)
+        val coroutineScope: CoroutineScope = coroutineScope
 
         val setUsername: (String) -> Unit = { this.username = it }
         val setPassword: (String) -> Unit = { this.password = it }
@@ -30,7 +33,8 @@ object EntryView {
 
     @Composable
     fun View(appState: AppState) {
-        val loginData = remember { LoginData() }
+        val coroutineScope = rememberCoroutineScope()
+        val loginData = remember { LoginData(coroutineScope) }
 
         BoxWithConstraints(Modifier.fillMaxSize()) {
             if (maxWidth < 600.dp) {
@@ -99,6 +103,7 @@ object EntryView {
                         loginData.loginEnabled = false
                         Account.requestLogin(loginData.username,
                             loginData.password,
+                            loginData.coroutineScope,
                             onFail = {
                                 errorText = it.body
                                 loginData.loginEnabled = true
