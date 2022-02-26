@@ -18,6 +18,7 @@ import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.Workout
 
 object HomeView {
+
     @Composable
     fun View(
         sender: ExviView,
@@ -26,16 +27,16 @@ object HomeView {
     ) {
         ensureActiveAccount(model, onViewChange)
 
-        var workouts by rememberSaveable { mutableStateOf(emptyArray<Workout>()) }
+        var workouts by remember { mutableStateOf(emptyArray<Workout>()) }
         val onWorkoutsChanged: (Array<Workout>) -> Unit = { workouts = it }
 
-        var retrievingWorkouts by rememberSaveable { mutableStateOf(false) }
+        var retrievingWorkouts by remember { mutableStateOf(false) }
         val onRetrievingWorkoutsChanged: (Boolean) -> Unit = { retrievingWorkouts = it }
 
         var switchingView by rememberSaveable { mutableStateOf(false) }
         val onSwitchingViewChange: (Boolean) -> Unit = { switchingView = it }
 
-        var workoutsSynced by rememberSaveable { mutableStateOf(false) }
+        var workoutsSynced by remember { mutableStateOf(false) }
         val onWorkoutsSyncedChanged: (Boolean) -> Unit = { workoutsSynced = it }
 
         val refreshWorkouts: () -> Unit = {
