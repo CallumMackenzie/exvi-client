@@ -14,8 +14,9 @@ import kotlinx.serialization.json.*
  *
  * @author callum
  */
-sealed interface ExercisePriorityProvider : SelfSerializable {
-    fun getPriority(g: WorkoutGenerator, exercise: Exercise, exerciseIndex: Int): Double
+@kotlinx.serialization.Serializable
+sealed class ExercisePriorityProvider : SelfSerializable {
+    abstract fun getPriority(g: WorkoutGenerator, exercise: Exercise, exerciseIndex: Int): Double
 
     fun generateExerciseSet(g: WorkoutGenerator, ex: Exercise): ExerciseSet {
         return DefaultExerciseSetGenerator.generateExerciseSet(g, ex)
@@ -30,12 +31,13 @@ sealed interface ExercisePriorityProvider : SelfSerializable {
     }
 }
 
-sealed interface ExerciseSetGenerator {
-    fun generateExerciseSet(g: WorkoutGenerator, ex: Exercise): ExerciseSet
+@kotlinx.serialization.Serializable
+sealed class ExerciseSetGenerator {
+    abstract fun generateExerciseSet(g: WorkoutGenerator, ex: Exercise): ExerciseSet
 }
 
 @kotlinx.serialization.Serializable
-sealed class BoundedPriorityProvider : ExercisePriorityProvider {
+sealed class BoundedPriorityProvider : ExercisePriorityProvider() {
     abstract val start: Int
     abstract val end: Int
 
@@ -49,7 +51,7 @@ sealed class BoundedPriorityProvider : ExercisePriorityProvider {
 }
 
 @kotlinx.serialization.Serializable
-object DefaultExerciseSetGenerator : ExerciseSetGenerator {
+object DefaultExerciseSetGenerator : ExerciseSetGenerator() {
     override fun generateExerciseSet(g: WorkoutGenerator, ex: Exercise): ExerciseSet {
         return ExerciseSet(ex, "rep", arrayOf(10, 10, 10))
     }
@@ -84,7 +86,7 @@ class ExerciseMusclePriority(
 
 @kotlinx.serialization.Serializable
 class ExerciseTypePriority(
-    val type: ExerciseType,
+    val exerciseType: ExerciseType,
     val priority: Double = 1.0,
     override val start: Int = 0,
     override val end: Int = Int.MAX_VALUE
@@ -92,7 +94,7 @@ class ExerciseTypePriority(
 
     override fun getPriority(g: WorkoutGenerator, exercise: Exercise, exerciseIndex: Int): Double {
         return this.getPriorityBounded(exerciseIndex) {
-            if (exercise.isType(type)) priority else 0.0
+            if (exercise.isType(exerciseType)) priority else 0.0
         }
     }
 

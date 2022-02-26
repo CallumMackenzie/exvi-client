@@ -38,9 +38,9 @@ object HomeView {
         var workoutsSynced by rememberSaveable { mutableStateOf(false) }
         val onWorkoutsSyncedChanged: (Boolean) -> Unit = { workoutsSynced = it }
 
-        val refreshWorkouts = {
+        val refreshWorkouts: () -> Unit = {
             onRetrievingWorkoutsChanged(true)
-            model.workoutManager!!.getWorkouts(
+            model.workoutManager?.getWorkouts(
                 onSuccess = onWorkoutsChanged,
                 onFail = {
                     println(it.toJson())
@@ -52,7 +52,7 @@ object HomeView {
 
         if (!workoutsSynced) {
             onWorkoutsSyncedChanged(true)
-            model.workoutManager!!.invalidateLocalCache()
+            model.workoutManager?.invalidateLocalCache()
             refreshWorkouts()
         }
 

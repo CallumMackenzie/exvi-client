@@ -250,3 +250,19 @@ fun <T> SelectionView(
         views[currentView]?.invoke()
     }
 }
+
+@Composable
+fun ExviBox(
+    modifier: Modifier? = null,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = modifier?.then(
+            Modifier.border(1.dp, Color.Black)
+                .padding(10.dp)
+        ) ?: Modifier.border(1.dp, Color.Black).padding(10.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        content()
+    }
+}

@@ -1,6 +1,5 @@
 package com.camackenzie.exvi.client.view
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -11,10 +10,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,6 +22,8 @@ import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.core.model.*
 import com.soywiz.krypto.SecureRandom
 import kotlinx.coroutines.*
+import kotlinx.serialization.json.*
+import kotlinx.serialization.*
 
 object WorkoutCreationView {
 
@@ -45,7 +46,8 @@ object WorkoutCreationView {
         val sender: ExviView,
         val onViewChange: ViewChangeFun,
         val model: Model,
-        val provided: Any
+        val provided: Any,
+        val coroutineScope: CoroutineScope
     ) {
         fun setView(view: ExviView, provider: ArgProviderFun) {
             onViewChange(view, provider)
@@ -57,22 +59,29 @@ object WorkoutCreationView {
         var description: MutableState<String>,
         var exercises: MutableState<Array<ExerciseSet>>,
         var infoExercise: MutableState<Exercise?>,
-        val provided: Any,
+        val provided: Workout?,
         var params: MutableState<WorkoutGeneratorParams> = mutableStateOf(WorkoutGeneratorParams(providers = generators["Arms"]!!.invoke())),
-        var lockedExercises: MutableState<Set<Int>> = mutableStateOf(setOf())
+        var lockedExercises: MutableState<Set<Int>> = mutableStateOf(setOf()),
+        var exerciseProcessRunning: MutableState<Boolean> = mutableStateOf(false)
     ) {
         constructor(
             name: String,
             description: String,
             exercises: Array<ExerciseSet>,
-            selectedExercise: Exercise?,
-            provided: Any
+            infoExercise: Exercise?,
+            provided: Any?,
+            params: WorkoutGeneratorParams = WorkoutGeneratorParams(providers = generators["Arms"]!!.invoke()),
+            lockedExercises: Set<Int> = setOf(),
+            exerciseProcessRunning: Boolean = false
         ) : this(
             mutableStateOf(name),
             mutableStateOf(description),
             mutableStateOf(exercises),
-            mutableStateOf(selectedExercise),
-            provided,
+            mutableStateOf(infoExercise),
+            if (provided is Workout) provided else null,
+            mutableStateOf(params),
+            mutableStateOf(lockedExercises),
+            mutableStateOf(exerciseProcessRunning)
         )
 
         constructor(provided: Any)
@@ -111,18 +120,87 @@ object WorkoutCreationView {
                 }.toSet()
             }
         }
+
+        companion object {
+            @Suppress("UNCHECKED_CAST")
+            val Saver = mapSaver<WorkoutData>(save = {
+                mapOf(
+                    "name" to it.name.value,
+                    "desc" to it.description.value,
+                    "exers" to it.exercises.value,
+                    "infoExer" to it.infoExercise.value,
+                    "provided" to it.provided?.toJson(),
+                    "params" to it.params.value.toJson(),
+                    "locked" to it.lockedExercises.value
+                )
+            }, restore = {
+                val workoutStr = it["provided"] as String?
+                WorkoutData(
+                    it["name"] as String,
+                    it["desc"] as String,
+                    it["exers"] as Array<ExerciseSet>,
+                    it["infoExer"] as Exercise?,
+                    if (workoutStr == null) null else Json.decodeFromString<Workout>(workoutStr),
+                    Json.decodeFromString<WorkoutGeneratorParams>(it["params"] as String),
+                    it["locked"] as Set<Int>
+                )
+            })
+        }
     }
 
     private data class WorkoutSearchData(
-        var searchContent: MutableState<String>
+        var searchContent: MutableState<String>,
+        var exercisesSorted: MutableState<Boolean>,
+        var searchExercises: MutableState<Array<Exercise>>,
+        var processRunning: MutableState<Boolean>
     ) {
-        constructor(searchContent: String = "") : this(mutableStateOf(searchContent))
+        constructor(
+            searchContent: String = "",
+            exercisesSorted: Boolean = false,
+            searchExercises: Array<Exercise> = emptyArray(),
+            processRunning: Boolean = false
+        ) : this(
+            mutableStateOf(searchContent),
+            mutableStateOf(exercisesSorted),
+            mutableStateOf(searchExercises),
+            mutableStateOf(processRunning)
+        )
+
+        fun hasExercises(): Boolean {
+            return searchExercises.value.isNotEmpty()
+        }
+
+        companion object {
+            val Saver = mapSaver<WorkoutSearchData>(save = {
+                mapOf(
+                    "searchContent" to it.searchContent.value,
+                    "procsRunning" to it.processRunning.value
+                )
+            }, restore = {
+                WorkoutSearchData(
+                    searchContent = it["searchContent"] as String,
+                    processRunning = it["procsRunning"] as Boolean
+                )
+            })
+        }
     }
 
     private data class SelectorViewData(
         var rightPane: MutableState<String>
     ) {
         constructor(rightPane: String = "Info") : this(mutableStateOf(rightPane))
+
+        companion object {
+            val Saver = mapSaver<SelectorViewData>(save = {
+                mapOf(
+                    "rightPane" to it.rightPane.value
+                )
+            }, restore = {
+                SelectorViewData(
+                    it["rightPane"] as String
+                )
+            })
+        }
     }
 
     @Composable
@@ -134,12 +212,16 @@ object WorkoutCreationView {
     ) {
         ensureActiveAccount(model, onViewChange)
 
-        val coroutineScope = rememberCoroutineScope()
-
-        val viewData = ViewData(sender, onViewChange, model, provided)
-        val workoutData by rememberSaveable { mutableStateOf(WorkoutData(provided)) }
-        val workoutSearchData by rememberSaveable { mutableStateOf(WorkoutSearchData()) }
-        val selectorViewData by rememberSaveable { mutableStateOf(SelectorViewData()) }
+        val viewData = ViewData(sender, onViewChange, model, provided, rememberCoroutineScope())
+        val workoutData by rememberSaveable(stateSaver = WorkoutData.Saver) {
+            mutableStateOf(WorkoutData(provided))
+        }
+        val workoutSearchData by rememberSaveable(stateSaver = WorkoutSearchData.Saver) {
+            mutableStateOf(WorkoutSearchData())
+        }
+        val selectorViewData by rememberSaveable(stateSaver = SelectorViewData.Saver) {
+            mutableStateOf(SelectorViewData())
+        }
 
         BoxWithConstraints(Modifier.fillMaxSize().padding(10.dp)) {
             if (maxWidth < 600.dp) {
@@ -242,28 +324,6 @@ object WorkoutCreationView {
         )
     }
 
-    private fun constructWorkout(
-        provided: Any,
-        workoutName: String,
-        workoutDescription: String,
-        exercises: Array<ExerciseSet>
-    ): Workout {
-        val baseWorkout = if (provided::class == Workout::class)
-            provided as Workout else null
-        val newExercises = arrayListOf<ExerciseSet>(*exercises)
-        return if (baseWorkout != null) Workout(
-            workoutName,
-            workoutDescription,
-            newExercises,
-            baseWorkout.id
-        )
-        else Workout(
-            workoutName,
-            workoutDescription,
-            newExercises
-        )
-    }
-
     @Composable
     private fun WorkoutGeneratorView(
         viewData: ViewData,
@@ -275,17 +335,21 @@ object WorkoutCreationView {
             horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
         ) {
             Button(onClick = {
-                viewData.model.exerciseManager.loadStandardExercisesIfEmpty()
-                val generator = WorkoutGenerator(
-                    viewData.model.exerciseManager,
-                    workoutData.params.value
-                )
-                val newWorkout = generator.generateWorkout(
-                    workoutData.createWorkout(),
-                    workoutData.lockedExercises.value.toTypedArray()
-                )
-                workoutData.exercises.value = newWorkout.exercises.toTypedArray()
-            }) {
+                viewData.coroutineScope.launch(Dispatchers.Default) {
+                    workoutData.exerciseProcessRunning.value = true
+                    viewData.model.exerciseManager.loadStandardExercisesIfEmpty()
+                    val generator = WorkoutGenerator(
+                        viewData.model.exerciseManager,
+                        workoutData.params.value
+                    )
+                    val newWorkout = generator.generateWorkout(
+                        workoutData.createWorkout(),
+                        workoutData.lockedExercises.value.toTypedArray()
+                    )
+                    workoutData.exercises.value = newWorkout.exercises.toTypedArray()
+                    workoutData.exerciseProcessRunning.value = false
+                }
+            }, enabled = !workoutData.exerciseProcessRunning.value) {
                 Text("Generate")
             }
             Button(onClick = {
@@ -421,17 +485,37 @@ object WorkoutCreationView {
         listViewModifier: Modifier = Modifier.fillMaxSize(),
     ) {
         val exerciseManager = viewData.model.exerciseManager
-        exerciseManager.loadStandardExercisesIfEmpty()
-        val allExercises = exerciseManager.exercises.toTypedArray()
-        allExercises.sortBy {
-            var sum = 0
-            for (word in searchData.searchContent.value.split("\\s+")) {
-                sum += if (it.name.contains(word, true)) {
-                    it.name.length - word.length
-                } else 100
+
+        if (!searchData.processRunning.value && !searchData.hasExercises()) {
+            viewData.coroutineScope.launch(Dispatchers.IO) {
+                searchData.processRunning.value = true
+                exerciseManager.loadStandardExercisesIfEmpty()
+                searchData.searchExercises.value = exerciseManager.exercises.toTypedArray()
+                searchData.exercisesSorted.value = false
+                searchData.processRunning.value = false
             }
-            sum
         }
+
+        if (!searchData.processRunning.value
+            && searchData.hasExercises()
+            && !searchData.exercisesSorted.value
+        ) {
+            viewData.coroutineScope.launch(Dispatchers.Default) {
+                searchData.processRunning.value = true
+                searchData.searchExercises.value.sortBy {
+                    var sum = 0
+                    for (word in searchData.searchContent.value.split("\\s+")) {
+                        sum += if (it.name.contains(word, true)) {
+                            it.name.length - word.length
+                        } else 100
+                    }
+                    sum
+                }
+                searchData.exercisesSorted.value = true
+                searchData.processRunning.value = false
+            }
+        }
+
         Column(
             listViewModifier,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -446,6 +530,7 @@ object WorkoutCreationView {
                     onValueChange = {
                         if (!it.contains("\n")) {
                             searchData.searchContent.value = it
+                            searchData.exercisesSorted.value = false
                         }
                     },
                     label = { Text("Exercise Name") },
@@ -460,29 +545,20 @@ object WorkoutCreationView {
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    items(allExercises.size) {
-                        AllExercisesListViewItem(workoutData, allExercises[it])
+                    if (!searchData.processRunning.value) {
+                        items(searchData.searchExercises.value.size) {
+                            AllExercisesListViewItem(workoutData, searchData.searchExercises.value[it])
+                        }
+                    } else {
+                        item {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
             }
         }
     }
 
-    @Composable
-    private fun ExviBox(
-        modifier: Modifier? = null,
-        content: @Composable () -> Unit
-    ) {
-        Box(
-            modifier = modifier?.then(
-                Modifier.border(1.dp, Color.Black)
-                    .padding(10.dp)
-            ) ?: Modifier.border(1.dp, Color.Black).padding(10.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            content()
-        }
-    }
 
     @Composable
     private fun WorkoutExerciseListView(
@@ -495,10 +571,18 @@ object WorkoutCreationView {
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(workoutData.exercises.value.size) {
-                    WorkoutExerciseListViewItem(workoutData, it)
+                if (!workoutData.exerciseProcessRunning.value) {
+                    items(workoutData.exercises.value.size) {
+                        WorkoutExerciseListViewItem(workoutData, it)
+                    }
+                } else {
+                    item {
+                        CircularProgressIndicator()
+                    }
                 }
-                if (workoutData.exercises.value.isEmpty()) {
+                if (workoutData.exercises.value.isEmpty()
+                    && !workoutData.exerciseProcessRunning.value
+                ) {
                     item {
                         Text("There are no exercises in this workout")
                     }
