@@ -15,6 +15,7 @@ group = "com.camackenzie"
 version = "1.0"
 
 allprojects {
+
     repositories {
         google()
         mavenCentral()
