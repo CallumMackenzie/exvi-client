@@ -90,10 +90,17 @@ object WorkoutCreationView {
         }
 
         fun removeExercise(index: Int) {
+            // Unlock exercise
             lockExercise(index, false)
+            // Shift indexes
+            lockedExercises = lockedExercises.map {
+                if (it >= index) it - 1 else it
+            }.toSet()
+            // Remove exercise
             exercises = exercises.filterIndexed { i, _ ->
                 i != index
             }.toTypedArray()
+
         }
 
         fun lockExercise(index: Int, lock: Boolean) {
