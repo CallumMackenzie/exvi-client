@@ -1,5 +1,5 @@
 
-val exviCoreVersion = "bbf68ad9a85a39b3fbb6127824c84e26ff5d3854"
+val exviCoreVersion = "a8f1e557fa8495210a6bddd1c5f263ef7697a6b6"
 
 plugins {
     id("com.android.library")

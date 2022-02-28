@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.Workout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 object HomeView {
 
@@ -22,7 +24,8 @@ object HomeView {
         workouts: Array<Workout> = emptyArray(),
         retrievingWorkouts: Boolean = false,
         workoutsSynced: Boolean = false,
-        val appState: AppState
+        val appState: AppState,
+        val coroutineScope: CoroutineScope
     ) {
         var workouts by mutableStateOf(workouts)
         var retrievingWorkouts by mutableStateOf(retrievingWorkouts)
@@ -39,6 +42,8 @@ object HomeView {
         fun refreshWorkouts() {
             retrievingWorkouts = true
             appState.model.workoutManager?.getWorkouts(
+                dispatcher = Dispatchers.Main,
+                coroutineScope = coroutineScope,
                 onSuccess = { workouts = it },
                 onFail = {
                     println(it.toJson())
@@ -53,7 +58,8 @@ object HomeView {
     fun View(appState: AppState) {
         ensureActiveAccount(appState.model, appState::setView)
 
-        val workoutListData = remember { WorkoutListData(appState = appState) }
+        val coroutineScope = rememberCoroutineScope()
+        val workoutListData = remember { WorkoutListData(appState = appState, coroutineScope = coroutineScope) }
 
         workoutListData.ensureWorkoutsSynced()
 
