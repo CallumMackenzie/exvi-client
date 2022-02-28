@@ -13,6 +13,7 @@ import kotlin.collections.HashMap
 import kotlin.math.max
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import kotlin.math.round
 
 /**
  *
@@ -163,20 +164,20 @@ class WorkoutGenerator(
         return wkr
     }
 
-    fun blendExerciseSets(
+    private fun blendExerciseSets(
         exercise: Exercise,
-        exercises: List<ExerciseSet>
+        exercises: List<WeightedExerciseSet>
     ): ExerciseSet {
         var exs = exercises.toMutableList()
         if (exs.size == 0) {
-            return ExerciseSet(exercise, "rep", arrayOf(8, 8, 8))
+            return ExerciseSet(exercise, "", emptyArray<SingleExerciseSet>())
         }
 
         // Find the most used unit
         val unitTypeCount: HashMap<String, Int> = HashMap()
         for (ex in exs) {
-            val unitCount: Int = unitTypeCount[ex.unit] ?: 0
-            unitTypeCount[ex.unit] = unitCount + 1
+            val unitCount: Int = unitTypeCount[ex.exerciseSet.unit] ?: 0
+            unitTypeCount[ex.exerciseSet.unit] = unitCount + 1
         }
         var currentBestUnit = ""
         var currentHighestUnitVal = 0
@@ -189,31 +190,46 @@ class WorkoutGenerator(
         val unit = currentBestUnit
 
         // Filter out units which do not match most used unit
-        exs.retainAll { ex -> ex.unit == unit }
+        exs.retainAll { ex -> ex.exerciseSet.unit == unit }
+
+        // Function to iterate over all valid sets and return the count
+        fun forEachValidSet(valid: (WeightedExerciseSet) -> kotlin.Unit, invalid: () -> kotlin.Unit = {}): Int {
+            var nValidSets = 0
+            for (k in exs.indices)
+                if (k < exs[k].exerciseSet.sets.size) {
+                    valid(exs[k])
+                    ++nValidSets
+                } else invalid()
+            return nValidSets
+        }
 
         // Retrieve the average set count
         var avgSetCount = 0
         for (ex in exs) {
-            avgSetCount += ex.sets.size
+            avgSetCount += ex.exerciseSet.sets.size
         }
         avgSetCount /= exs.size
 
-        // Retrieve the average rep counts for each set
-        val sets = IntArray(avgSetCount)
+        // Retrieve the average single weighted rep sets
+        val sets = Array(avgSetCount) { SingleExerciseSet(0) }
         for (i in sets.indices) {
-            var nValidSets = exs.size
-            for (k in exs.indices) {
-                if (k < exs[k].sets.size) {
-                    sets[i] += exs[k].sets[i]
-                } else {
-                    --nValidSets
-                }
-            }
-            sets[i] /= nValidSets
+            var probWeightSum = 0.0
+            var totalReps = 0.0
+            var totalWeight = Mass(MassUnit.Kilogram, 0.0)
+            val nValidSets = forEachValidSet({
+                val singleSet = it.exerciseSet.sets[i]
+
+                probWeightSum += it.weight
+                totalReps += singleSet.reps * it.weight
+                totalWeight += singleSet.weight * it.weight
+            })
+            sets[i].reps = round(totalReps / probWeightSum).toInt()
+            sets[i].weight = totalWeight / probWeightSum
+            sets[i].timing = emptyArray()
         }
 
         // Compose & return data
-        return ExerciseSet(exercise, unit, sets.toTypedArray())
+        return ExerciseSet(exercise, unit, sets)
     }
 
     private inner class ExercisePriorityTracker(

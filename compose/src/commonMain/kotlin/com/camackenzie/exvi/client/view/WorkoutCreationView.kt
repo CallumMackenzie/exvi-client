@@ -520,7 +520,9 @@ object WorkoutCreationView {
                 Icon(Icons.Default.Info, "Exercise Info")
             }
             IconButton(onClick = {
-                workoutData.addExercise(ExerciseSet(exercise, "rep", arrayOf(10, 10, 10)))
+                workoutData.addExercise(
+                    ExerciseSet(exercise, "rep", arrayOf(8, 8, 8))
+                )
             }) {
                 Icon(Icons.Default.Add, "Add Exercise")
             }

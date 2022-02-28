@@ -1,4 +1,6 @@
 
+val exviCoreVersion = "bbf68ad9a85a39b3fbb6127824c84e26ff5d3854"
+
 plugins {
     id("com.android.library")
     kotlin("multiplatform")
@@ -24,7 +26,7 @@ kotlin {
         val commonMain by getting {
             resources.srcDirs("resources")
             dependencies {
-                api("com.github.CallumMackenzie.exvi-core:exvi-core:60de9c79c9627229e6ae22569a8016b236387111")
+                api("com.github.CallumMackenzie.exvi-core:exvi-core:$exviCoreVersion")
             }
         }
         val androidMain by getting {
