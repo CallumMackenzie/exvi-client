@@ -18,39 +18,44 @@ import com.camackenzie.exvi.core.model.Workout
 
 object HomeView {
 
+    private class WorkoutListData(
+        workouts: Array<Workout> = emptyArray(),
+        retrievingWorkouts: Boolean = false,
+        workoutsSynced: Boolean = false,
+        val appState: AppState
+    ) {
+        var workouts by mutableStateOf(workouts)
+        var retrievingWorkouts by mutableStateOf(retrievingWorkouts)
+        var workoutsSynced by mutableStateOf(workoutsSynced)
+
+        fun ensureWorkoutsSynced() {
+            if (!workoutsSynced) {
+                workoutsSynced = true
+                appState.model.workoutManager?.invalidateLocalCache()
+                refreshWorkouts()
+            }
+        }
+
+        fun refreshWorkouts() {
+            retrievingWorkouts = true
+            appState.model.workoutManager?.getWorkouts(
+                onSuccess = { workouts = it },
+                onFail = {
+                    println(it.toJson())
+                }, onComplete = {
+                    retrievingWorkouts = false
+                }
+            )
+        }
+    }
+
     @Composable
     fun View(appState: AppState) {
         ensureActiveAccount(appState.model, appState::setView)
 
-        var workouts by remember { mutableStateOf(emptyArray<Workout>()) }
-        val onWorkoutsChanged: (Array<Workout>) -> Unit = { workouts = it }
+        val workoutListData = remember { WorkoutListData(appState = appState) }
 
-        var retrievingWorkouts by remember { mutableStateOf(false) }
-        val onRetrievingWorkoutsChanged: (Boolean) -> Unit = { retrievingWorkouts = it }
-
-        var switchingView by rememberSaveable { mutableStateOf(false) }
-        val onSwitchingViewChange: (Boolean) -> Unit = { switchingView = it }
-
-        var workoutsSynced by remember { mutableStateOf(false) }
-        val onWorkoutsSyncedChanged: (Boolean) -> Unit = { workoutsSynced = it }
-
-        val refreshWorkouts: () -> Unit = {
-            onRetrievingWorkoutsChanged(true)
-            appState.model.workoutManager?.getWorkouts(
-                onSuccess = onWorkoutsChanged,
-                onFail = {
-                    println(it.toJson())
-                }, onComplete = {
-                    onRetrievingWorkoutsChanged(false)
-                }
-            )
-        }
-
-        if (!workoutsSynced) {
-            onWorkoutsSyncedChanged(true)
-            appState.model.workoutManager?.invalidateLocalCache()
-            refreshWorkouts()
-        }
+        workoutListData.ensureWorkoutsSynced()
 
         Column(
             Modifier.padding(5.dp).fillMaxSize(),
@@ -65,13 +70,7 @@ object HomeView {
             }
             Body(
                 appState,
-                workouts,
-                onWorkoutsChanged,
-                retrievingWorkouts,
-                onRetrievingWorkoutsChanged,
-                switchingView,
-                onSwitchingViewChange,
-                refreshWorkouts
+                workoutListData
             )
         }
     }
@@ -79,13 +78,7 @@ object HomeView {
     @Composable
     private fun Body(
         appState: AppState,
-        workouts: Array<Workout>,
-        onWorkoutsChanged: (Array<Workout>) -> Unit,
-        retrievingWorkouts: Boolean,
-        onRetrievingWorkoutsChanged: (Boolean) -> Unit,
-        switchingView: Boolean,
-        onSwitchingViewChange: (Boolean) -> Unit,
-        refreshWorkouts: () -> Unit
+        workoutListData: WorkoutListData
     ) {
         BoxWithConstraints(
             Modifier.fillMaxWidth(),
@@ -104,13 +97,7 @@ object HomeView {
                         }) {
                         WorkoutsView(
                             appState,
-                            workouts,
-                            onWorkoutsChanged,
-                            retrievingWorkouts,
-                            onRetrievingWorkoutsChanged,
-                            switchingView,
-                            onSwitchingViewChange,
-                            refreshWorkouts
+                            workoutListData
                         )
                     }
                     Expandable(Modifier.fillMaxWidth(),
@@ -133,13 +120,7 @@ object HomeView {
                         }) {
                         WorkoutsView(
                             appState,
-                            workouts,
-                            onWorkoutsChanged,
-                            retrievingWorkouts,
-                            onRetrievingWorkoutsChanged,
-                            switchingView,
-                            onSwitchingViewChange,
-                            refreshWorkouts
+                            workoutListData
                         )
                     }
                     Expandable(Modifier.fillMaxWidth(),
@@ -156,13 +137,7 @@ object HomeView {
     @Composable
     private fun WorkoutsView(
         appState: AppState,
-        workouts: Array<Workout>,
-        onWorkoutsChanged: (Array<Workout>) -> Unit,
-        retrievingWorkouts: Boolean,
-        onRetrievingWorkoutsChanged: (Boolean) -> Unit,
-        switchingView: Boolean,
-        onSwitchingViewChange: (Boolean) -> Unit,
-        refreshWorkouts: () -> Unit
+        workoutListData: WorkoutListData
     ) {
         Row(
             Modifier.fillMaxWidth(),
@@ -171,13 +146,7 @@ object HomeView {
         ) {
             WorkoutListView(
                 appState,
-                workouts,
-                onWorkoutsChanged,
-                retrievingWorkouts,
-                onRetrievingWorkoutsChanged,
-                switchingView,
-                onSwitchingViewChange,
-                refreshWorkouts
+                workoutListData
             )
         }
     }
@@ -227,13 +196,7 @@ object HomeView {
     @Composable
     private fun WorkoutListView(
         appState: AppState,
-        workouts: Array<Workout>,
-        onWorkoutsChanged: (Array<Workout>) -> Unit,
-        retrievingWorkouts: Boolean,
-        onRetrievingWorkoutsChanged: (Boolean) -> Unit,
-        switchingView: Boolean,
-        onSwitchingViewChange: (Boolean) -> Unit,
-        refreshWorkouts: () -> Unit
+        wld: WorkoutListData
     ) {
 
         Row(
@@ -241,7 +204,7 @@ object HomeView {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            if (retrievingWorkouts) {
+            if (wld.retrievingWorkouts) {
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -251,59 +214,45 @@ object HomeView {
                 }
             } else {
                 IconButton(onClick = {
-                    onRetrievingWorkoutsChanged(true)
+                    wld.retrievingWorkouts = true
                     appState.model.workoutManager!!.invalidateLocalCache()
-                    refreshWorkouts()
+                    wld.refreshWorkouts()
                 }) {
                     Icon(Icons.Default.Refresh, "Refresh Workout List")
                 }
             }
 
-            if (!retrievingWorkouts && !switchingView) {
+            if (!wld.retrievingWorkouts) {
                 LazyColumn {
-                    if (workouts.isNotEmpty()) {
-                        items(workouts.size) {
+                    if (wld.workouts.isNotEmpty()) {
+                        items(wld.workouts.size) {
                             WorkoutListViewItem(
                                 appState.model,
                                 appState::setView,
-                                workouts[it],
-                                refreshWorkouts
+                                wld.workouts[it],
+                                wld::refreshWorkouts
                             )
                         }
                     } else {
                         item {
-                            NoWorkoutsPrompt(
-                                appState::setView,
-                                onSwitchingViewChange,
-                                appState.previousView
-                            )
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text("You have no workouts", textAlign = TextAlign.Center)
+                                Button(onClick = {
+                                    appState.setView(ExviView.WorkoutCreation)
+                                }) {
+                                    Text(
+                                        if (appState.previousView == ExviView.Signup)
+                                            "Create your first workout" else
+                                            "Create a new workout"
+                                    )
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
-    }
-
-    @Composable
-    private fun NoWorkoutsPrompt(
-        onViewChange: ViewChangeFun,
-        onSwitchingViewChange: (Boolean) -> Unit,
-        sender: ExviView
-    ) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text("You have no workouts", textAlign = TextAlign.Center)
-            Button(onClick = {
-                onSwitchingViewChange(true)
-                onViewChange(ExviView.WorkoutCreation, ::noArgs)
-            }) {
-                Text(
-                    if (sender == ExviView.Signup)
-                        "Create your first workout" else
-                        "Create a new workout"
-                )
             }
         }
     }
