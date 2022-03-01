@@ -2,13 +2,12 @@ package com.camackenzie.exvi.client.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -58,12 +57,14 @@ object WorkoutCreationView {
         provided: Workout?,
         params: WorkoutGeneratorParams = WorkoutGeneratorParams(providers = generators["Arms"]!!.invoke()),
         lockedExercises: Set<Int> = setOf(),
-        exerciseProcessRunning: Boolean = false
+        exerciseProcessRunning: Boolean = false,
+        editorExercise: ExerciseSet? = null
     ) {
         var name by mutableStateOf(name)
         var description by mutableStateOf(description)
         var exercises by mutableStateOf(exercises)
         var infoExercise by mutableStateOf(infoExercise)
+        var editorExercise by mutableStateOf(editorExercise)
         var params by mutableStateOf(params)
         var lockedExercises by mutableStateOf(lockedExercises)
         var exerciseProcessRunning by mutableStateOf(exerciseProcessRunning)
@@ -235,6 +236,9 @@ object WorkoutCreationView {
                 },
                 "Generator" to {
                     WorkoutGeneratorView(viewData, workoutData)
+                },
+                "Editor" to {
+                    ExerciseSetEditorView(viewData, workoutData)
                 }
             ),
             currentView = selectorData.rightPane,
@@ -344,6 +348,63 @@ object WorkoutCreationView {
                 }) {
                     Text("Exit")
                 }
+            }
+        }
+    }
+
+    @Composable
+    private fun ExerciseSetEditorView(
+        viewData: ViewData,
+        workoutData: WorkoutData,
+        modifier: Modifier = Modifier.fillMaxSize()
+    ) {
+
+        Column(
+            modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
+        ) {
+            if (workoutData.editorExercise != null) {
+                val exerciseSet = workoutData.editorExercise!!
+                Text(
+                    exerciseSet.exercise.name,
+                    fontSize = 25.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(10.dp)
+                )
+
+                Text("Sets")
+                LazyRow(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    items(exerciseSet.sets.size) {
+                        val regex = Regex("[0-9]*")
+                        val set = exerciseSet.sets[it]
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            TextField(
+                                modifier = Modifier.width(30.dp),
+                                value = set.reps.toString(),
+                                onValueChange = {
+                                    if (it.matches(regex) && it.length <= 5) {
+                                        set.reps = it.toInt()
+                                    }
+                                },
+                                label = { Text("${exerciseSet.unit.substring(0, 1).uppercase()}${exerciseSet.unit.substring(1)}s") },
+                                placeholder = { Text("10") }
+                            )
+                        }
+                    }
+                }
+            } else {
+                Text(
+                    "There is no exercise currently selected for editing",
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }
@@ -549,6 +610,11 @@ object WorkoutCreationView {
         ) {
             Text(exerciseSet.exercise.name, Modifier.fillMaxWidth(0.5f))
 
+            IconButton(onClick = {
+                wd.editorExercise = exerciseSet
+            }) {
+                Icon(Icons.Default.Edit, "Edit Exercise")
+            }
             IconButton(onClick = {
                 wd.infoExercise = exerciseSet.exercise
             }) {
