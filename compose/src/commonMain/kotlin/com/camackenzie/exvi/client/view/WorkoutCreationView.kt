@@ -9,7 +9,6 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +19,7 @@ import com.camackenzie.exvi.client.model.*
 import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.core.model.*
 import com.soywiz.krypto.SecureRandom
+import com.google.accompanist.flowlayout.FlowRow
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.*
@@ -53,29 +53,36 @@ object WorkoutCreationView {
         name: String,
         description: String,
         exercises: Array<ExerciseSet>,
-        infoExercise: Exercise?,
         provided: Workout?,
         params: WorkoutGeneratorParams = WorkoutGeneratorParams(providers = generators["Arms"]!!.invoke()),
         lockedExercises: Set<Int> = setOf(),
         exerciseProcessRunning: Boolean = false,
-        editorExercise: ExerciseSet? = null
+        editorExercise: Int? = null,
+        infoExercise: Exercise? = null
     ) {
         var name by mutableStateOf(name)
         var description by mutableStateOf(description)
         var exercises by mutableStateOf(exercises)
         var infoExercise by mutableStateOf(infoExercise)
-        var editorExercise by mutableStateOf(editorExercise)
+        var editorExerciseIndex by mutableStateOf(editorExercise)
         var params by mutableStateOf(params)
         var lockedExercises by mutableStateOf(lockedExercises)
         var exerciseProcessRunning by mutableStateOf(exerciseProcessRunning)
         val provided = provided
+
+        var editorExercise: ExerciseSet?
+            get() = if (editorExerciseIndex == null) null else exercises[editorExerciseIndex!!]
+            set(ex) = if (editorExerciseIndex != null) {
+                exercises = exercises.mapIndexed { index, set ->
+                    if (index == editorExerciseIndex) ex!! else set
+                }.toTypedArray()
+            } else throw Exception()
 
         constructor(provided: Any)
                 : this(
             if (provided is Workout) provided.name else "New Workout",
             if (provided is Workout) provided.description else "",
             if (provided is Workout) provided.exercises.toTypedArray() else emptyArray<ExerciseSet>(),
-            null,
             if (provided is Workout) provided else null
         )
 
@@ -91,17 +98,19 @@ object WorkoutCreationView {
         }
 
         fun removeExercise(index: Int) {
+            // Sync with exercise set editor
+            if (index == editorExerciseIndex) editorExerciseIndex = null
             // Unlock exercise
             lockExercise(index, false)
             // Shift indexes
             lockedExercises = lockedExercises.map {
-                if (it >= index) it - 1 else it
+                it - ((if (it >= index) 1 else 0) +
+                        (if (it >= editorExerciseIndex ?: Int.MAX_VALUE) 1 else 0))
             }.toSet()
             // Remove exercise
             exercises = exercises.filterIndexed { i, _ ->
                 i != index
             }.toTypedArray()
-
         }
 
         fun lockExercise(index: Int, lock: Boolean) {
@@ -364,13 +373,23 @@ object WorkoutCreationView {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
+            // Null assertions not used because jetpack throws null ptr exception when exercise is removed
+            // Probably because of the order jetpack updates the composition tree...
             if (workoutData.editorExercise != null) {
-                val exerciseSet = workoutData.editorExercise!!
                 Text(
-                    exerciseSet.exercise.name,
+                    workoutData.editorExercise?.exercise?.name ?: "",
                     fontSize = 25.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(10.dp)
+                )
+                TextField(
+                    value = workoutData.editorExercise?.unit ?: "",
+                    onValueChange = {
+                        workoutData.editorExercise = workoutData.editorExercise?.copy(unit = it)
+                    },
+                    label = {
+                        Text("Exercise Set Unit")
+                    }
                 )
 
                 Text("Sets")
@@ -379,23 +398,40 @@ object WorkoutCreationView {
                     horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    items(exerciseSet.sets.size) {
+                    items(workoutData.editorExercise?.sets?.size ?: 0) {
                         val regex = Regex("[0-9]*")
-                        val set = exerciseSet.sets[it]
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
+                        FlowRow(
+                            Modifier.fillMaxWidth()
                         ) {
                             TextField(
-                                modifier = Modifier.width(30.dp),
-                                value = set.reps.toString(),
-                                onValueChange = {
-                                    if (it.matches(regex) && it.length <= 5) {
-                                        set.reps = it.toInt()
+                                modifier = Modifier.fillParentMaxWidth(),
+                                value = workoutData.editorExercise!!.sets[it].reps.toString(),
+                                onValueChange = { setStr ->
+                                    if (setStr.matches(regex) && setStr.length <= 5) {
+                                        val newReps = if (setStr.isBlank()) 0 else setStr.toInt()
+                                        // This is horrendous but my model is not specific to compose, so it's the
+                                        // least bad way
+                                        workoutData.editorExercise = workoutData.editorExercise!!.copy(
+                                            sets = workoutData.editorExercise!!.sets.mapIndexed { i, singleSet ->
+                                                if (i == it) singleSet.copy(reps = newReps)
+                                                else singleSet
+                                            }.toTypedArray()
+                                        )
                                     }
                                 },
-                                label = { Text("${exerciseSet.unit.substring(0, 1).uppercase()}${exerciseSet.unit.substring(1)}s") },
-                                placeholder = { Text("10") }
+                                label = {
+                                    Text(
+                                        if (workoutData.editorExercise!!.unit.length <= 1)
+                                            workoutData.editorExercise!!.unit else
+                                            "${
+                                                workoutData.editorExercise!!.unit
+                                                    .substring(0, 1).uppercase()
+                                            }${
+                                                workoutData.editorExercise!!.unit
+                                                    .substring(1)
+                                            }s"
+                                    )
+                                }
                             )
                         }
                     }
@@ -611,7 +647,7 @@ object WorkoutCreationView {
             Text(exerciseSet.exercise.name, Modifier.fillMaxWidth(0.5f))
 
             IconButton(onClick = {
-                wd.editorExercise = exerciseSet
+                wd.editorExerciseIndex = index
             }) {
                 Icon(Icons.Default.Edit, "Edit Exercise")
             }
