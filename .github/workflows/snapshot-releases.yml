@@ -1,6 +1,7 @@
 name: Build Jars For Desktop Platforms
 
 on:
+  workflow_dispatch:
   push:
     branches:
       kotlin-dev
