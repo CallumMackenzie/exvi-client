@@ -23,6 +23,7 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
+                implementation("com.google.accompanist:accompanist-flowlayout:0.20.3")
             }
         }
         val androidMain by getting
@@ -53,12 +54,8 @@ android {
 }
 
 dependencies {
-//    api("androidx.compose.ui:ui:1.2.0-alpha02")
-//    api("androidx.compose.ui:ui-text:1.2.0-alpha02")
-//    api("androidx.compose.material:material-icons-core:1.2.0-alpha02")
-//    api("androidx.compose.foundation:foundation:1.2.0-alpha02")
-//    api("androidx.compose.foundation:foundation-layout:1.2.0-alpha02")
     api(compose.ui)
     api(compose.material)
     api(compose.foundation)
+    implementation("com.google.accompanist:accompanist-flowlayout:0.20.3")
 }

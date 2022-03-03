@@ -6,10 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.ui.*
 import androidx.compose.runtime.*
 import com.camackenzie.exvi.client.model.Model
-import com.camackenzie.exvi.core.model.ActiveWorkout
-import com.camackenzie.exvi.core.model.BodyStats
-import com.camackenzie.exvi.core.model.Exercise
-import com.camackenzie.exvi.core.model.Workout
 import com.camackenzie.exvi.core.util.None
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlinx.serialization.*
@@ -19,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.camackenzie.exvi.client.model.WorkoutGenerator
 import com.camackenzie.exvi.client.model.WorkoutGeneratorParams
+import com.camackenzie.exvi.core.model.*
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 fun selfSerializableFromMap(map: Map<String, Any?>): SelfSerializable =
