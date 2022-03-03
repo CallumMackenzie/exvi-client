@@ -286,7 +286,9 @@ object HomeView {
                 textAlign = TextAlign.Center,
                 fontSize = 20.sp
             )
-            IconButton(onClick = {}, enabled = !deletingWorkout) {
+            IconButton(onClick = {
+                onViewChange(ExviView.ActiveWorkout, workout::newActiveWorkout)
+            }, enabled = !deletingWorkout) {
                 Icon(Icons.Default.PlayArrow, "Start Workout")
             }
             IconButton(onClick = {
