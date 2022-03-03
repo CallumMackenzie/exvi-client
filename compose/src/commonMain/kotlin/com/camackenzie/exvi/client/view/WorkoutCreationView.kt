@@ -51,10 +51,10 @@ object WorkoutCreationView {
 
     private class WorkoutData(
         name: String,
-        description: String,
-        exercises: Array<ExerciseSet>,
-        infoExercise: Exercise?,
-        provided: Workout?,
+        description: String = "",
+        exercises: Array<ExerciseSet> = emptyArray(),
+        infoExercise: Exercise? = null,
+        provided: Workout? = null,
         params: WorkoutGeneratorParams = WorkoutGeneratorParams(providers = generators["Arms"]!!.invoke()),
         lockedExercises: Set<Int> = setOf(),
         exerciseProcessRunning: Boolean = false,
@@ -239,12 +239,29 @@ object WorkoutCreationView {
                 },
                 "Editor" to {
                     ExerciseSetEditorView(viewData, workoutData)
+                },
+                "Workout" to {
+                    WorkoutDescriptionEditor(workoutData)
                 }
             ),
             currentView = selectorData.rightPane,
             onCurrentViewChange = {
                 selectorData.rightPane = it
             }
+        )
+    }
+
+    @Composable
+    private fun WorkoutDescriptionEditor(workoutData: WorkoutData) {
+        TextField(
+            value = workoutData.description,
+            onValueChange = {
+                workoutData.description = it
+            },
+            label = {
+                Text("Workout Description")
+            },
+            placeholder = { Text("Description") }
         )
     }
 
@@ -394,7 +411,13 @@ object WorkoutCreationView {
                                         set.reps = it.toInt()
                                     }
                                 },
-                                label = { Text("${exerciseSet.unit.substring(0, 1).uppercase()}${exerciseSet.unit.substring(1)}s") },
+                                label = {
+                                    Text(
+                                        "${
+                                            exerciseSet.unit.substring(0, 1).uppercase()
+                                        }${exerciseSet.unit.substring(1)}s"
+                                    )
+                                },
                                 placeholder = { Text("10") }
                             )
                         }
