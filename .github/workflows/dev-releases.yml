@@ -1,4 +1,4 @@
-name: Build Jars For Desktop Platforms
+name: Build Dev Jars For Desktop Platforms
 
 on:
   workflow_dispatch:
