@@ -3,7 +3,7 @@ name: Build Jars For Desktop Platforms
 on:
   push:
     branches:
-      kotlin
+      kotlin-dev
 
 jobs:
   build-ubuntu:
@@ -32,7 +32,7 @@ jobs:
       - name: Archive Linux Build
         uses: actions/upload-artifact@v2
         with:
-          name: linux-jar
+          name: linux-jar-snapshot
           path: desktop/build/compose/jars/*.jar
 
   build-windows:
@@ -61,7 +61,7 @@ jobs:
       - name: Archive Windows Build
         uses: actions/upload-artifact@v2
         with:
-          name: windows-jar
+          name: windows-jar-snapshot
           path: desktop/build/compose/jars/*.jar
 
   build-osx:
@@ -90,5 +90,5 @@ jobs:
       - name: Archive MacOS Build
         uses: actions/upload-artifact@v2
         with:
-          name: macos-jar
+          name: macos-jar-snapshot
           path: desktop/build/compose/jars/*.jar
