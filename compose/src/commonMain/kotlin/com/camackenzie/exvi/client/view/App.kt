@@ -45,6 +45,9 @@ enum class ExviView(
     WorkoutCreation(@Composable {
         WorkoutCreationView.View(it)
     }),
+    ActiveWorkout(@Composable {
+        ActiveWorkoutView.View(it)
+    }),
     None(@Composable {
         Text(
             "Exvi Fitness", fontSize = 30.sp,
@@ -86,6 +89,7 @@ class AppState(
     }
 
     companion object {
+        @Suppress("UNCHECKED_CAST")
         fun saver(coroutineScope: CoroutineScope) = mapSaver(
             save = {
                 mapOf(

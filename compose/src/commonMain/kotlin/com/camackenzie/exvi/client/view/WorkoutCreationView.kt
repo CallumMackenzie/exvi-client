@@ -85,12 +85,11 @@ object WorkoutCreationView {
             if (provided is Workout) provided else null
         )
 
-        fun createWorkout(): Workout {
-            return if (provided is Workout)
+        val workout: Workout
+            get() = if (provided is Workout)
                 Workout(name, description, arrayListOf(*exercises), provided.id)
             else
                 Workout(name, description, arrayListOf(*exercises))
-        }
 
         fun addExercise(ex: ExerciseSet) {
             exercises += ex
@@ -292,7 +291,7 @@ object WorkoutCreationView {
                         workoutData.params
                     )
                     val newWorkout = generator.generateWorkout(
-                        workoutData.createWorkout(),
+                        workoutData.workout,
                         workoutData.lockedExercises.toTypedArray()
                     )
                     workoutData.exercises = newWorkout.exercises.toTypedArray()
@@ -332,7 +331,7 @@ object WorkoutCreationView {
     ) {
         Button(onClick = {
             viewData.model.workoutManager!!.putWorkouts(
-                arrayOf(workoutData.createWorkout()),
+                arrayOf(workoutData.workout),
                 onFail = {
                     println(it.toJson())
                 },

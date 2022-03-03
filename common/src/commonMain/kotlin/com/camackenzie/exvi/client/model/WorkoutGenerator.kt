@@ -193,14 +193,9 @@ class WorkoutGenerator(
         exs.retainAll { ex -> ex.exerciseSet.unit == unit }
 
         // Function to iterate over all valid sets and return the count
-        fun forEachValidSet(valid: (WeightedExerciseSet) -> kotlin.Unit, invalid: () -> kotlin.Unit = {}): Int {
-            var nValidSets = 0
+        fun forEachValidSet(valid: (WeightedExerciseSet) -> kotlin.Unit, invalid: () -> kotlin.Unit = {}) {
             for (k in exs.indices)
-                if (k < exs[k].exerciseSet.sets.size) {
-                    valid(exs[k])
-                    ++nValidSets
-                } else invalid()
-            return nValidSets
+                if (k < exs[k].exerciseSet.sets.size) valid(exs[k]) else invalid()
         }
 
         // Retrieve the average set count
@@ -216,7 +211,7 @@ class WorkoutGenerator(
             var probWeightSum = 0.0
             var totalReps = 0.0
             var totalWeight = Mass(MassUnit.Kilogram, 0.0)
-            val nValidSets = forEachValidSet({
+            forEachValidSet({
                 val singleSet = it.exerciseSet.sets[i]
 
                 probWeightSum += it.weight
@@ -272,21 +267,21 @@ class WorkoutGenerator(
 
         fun armPriorities(): Array<ExercisePriorityProvider> {
             return arrayOf(
-                ExerciseMusclePriority(Muscle.ARMS.workData(1.0), 1.75),
-                ExerciseExperiencePriority(ExerciseExperienceLevel.BEGINNER),
+                ExerciseMusclePriority(Muscle.Arms.workData(1.0), 1.75),
+                ExerciseExperiencePriority(ExerciseExperienceLevel.Beginner),
                 ExerciseTypePriority(
-                    ExerciseType.STRENGTH,
+                    ExerciseType.Strength,
                     start = 2
                 ),
                 ExerciseTypePriority(
-                    ExerciseType.WARMUP, 0.5,
+                    ExerciseType.Warmup, 0.5,
                     end = 2
                 ),
                 ExerciseForceTypePriority(
-                    ExerciseForceType.DYNAMIC_STRETCHING, 1.25,
+                    ExerciseForceType.DynamicStretching, 1.25,
                     end = 2
                 ),
-                ExerciseExperiencePriority(ExerciseExperienceLevel.INTERMEDIATE, 0.3),
+                ExerciseExperiencePriority(ExerciseExperienceLevel.Intermediate, 0.3),
                 ExerciseEquipmentPriority(ExerciseEquipment("bodyweight"), 0.7),
                 ExerciseEquipmentPriority(ExerciseEquipment("dumbbell"), 0.5, start = 2),
                 ExerciseEquipmentPriority(ExerciseEquipment("kettle bells"), 0.2, start = 2)
@@ -302,17 +297,17 @@ class WorkoutGenerator(
 
         fun legPriorities(): Array<ExercisePriorityProvider> {
             return arrayOf(
-                ExerciseMusclePriority(Muscle.LEGS.workData(1.0)),
+                ExerciseMusclePriority(Muscle.Legs.workData(1.0)),
                 ExerciseTypePriority(
-                    ExerciseType.STRENGTH,
+                    ExerciseType.Strength,
                     start = 2
                 ),
                 ExerciseTypePriority(
-                    ExerciseType.WARMUP,
+                    ExerciseType.Warmup,
                     end = 2
                 ),
-                ExerciseExperiencePriority(ExerciseExperienceLevel.BEGINNER),
-                ExerciseExperiencePriority(ExerciseExperienceLevel.INTERMEDIATE)
+                ExerciseExperiencePriority(ExerciseExperienceLevel.Beginner),
+                ExerciseExperiencePriority(ExerciseExperienceLevel.Intermediate)
             )
         }
     }
