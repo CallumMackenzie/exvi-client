@@ -234,6 +234,8 @@ fun <T> SelectionView(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement
     ) {
+        // TODO: Make a flow row
+        // TODO: Improve selected page styling
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.Start),

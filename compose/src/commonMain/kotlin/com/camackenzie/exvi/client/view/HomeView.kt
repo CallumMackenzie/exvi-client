@@ -40,13 +40,14 @@ object HomeView {
         }
 
         fun refreshWorkouts() {
+            // TODO: Ensure no undefined behaviour with global coroutine scope
             retrievingWorkouts = true
             appState.model.workoutManager?.getWorkouts(
                 dispatcher = Dispatchers.Main,
-                coroutineScope = coroutineScope,
+                coroutineScope = appState.coroutineScope,
                 onSuccess = { workouts = it },
                 onFail = {
-                    println(it.toJson())
+                    println("Workout request error: ${it.toJson()}")
                 }, onComplete = {
                     retrievingWorkouts = false
                 }
