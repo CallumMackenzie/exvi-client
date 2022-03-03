@@ -408,19 +408,23 @@ object WorkoutCreationView {
                     }
                 )
 
+                // TODO: Refactor this mess
                 Text("Sets")
                 LazyRow(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    items(workoutData.editorExercise?.sets?.size ?: 0) {
+                    val nSets = workoutData.editorExercise?.sets?.size ?: 0
+                    items(nSets) {
                         val regex = Regex("[0-9]*")
-                        FlowRow(
-                            Modifier.fillMaxWidth()
+                        Row(
+                            Modifier.fillParentMaxWidth(1f / nSets),
+                            horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                            verticalAlignment = Alignment.Top
                         ) {
                             TextField(
-                                modifier = Modifier.fillParentMaxWidth(),
+                                modifier = Modifier.fillMaxWidth(),
                                 value = workoutData.editorExercise!!.sets[it].reps.toString(),
                                 onValueChange = { setStr ->
                                     if (setStr.matches(regex) && setStr.length <= 5) {

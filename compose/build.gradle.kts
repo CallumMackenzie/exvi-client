@@ -23,7 +23,6 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
-                implementation("com.google.accompanist:accompanist-flowlayout:0.20.3")
             }
         }
         val androidMain by getting
@@ -57,5 +56,4 @@ dependencies {
     api(compose.ui)
     api(compose.material)
     api(compose.foundation)
-    implementation("com.google.accompanist:accompanist-flowlayout:0.20.3")
 }
