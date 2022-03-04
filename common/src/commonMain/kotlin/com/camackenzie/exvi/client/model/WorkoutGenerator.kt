@@ -21,20 +21,20 @@ import kotlin.math.round
  */
 @kotlinx.serialization.Serializable
 class WorkoutGenerator(
-    var exerciseManager: ExerciseManager,
-    var params: WorkoutGeneratorParams = WorkoutGeneratorParams()
+        var exerciseManager: ExerciseManager,
+        var params: WorkoutGeneratorParams = WorkoutGeneratorParams()
 ) : SelfSerializable {
 
     fun generateWorkout(
-        wkr: Workout,
-        lockedExercises: Set<ExerciseSet>
+            wkr: Workout,
+            lockedExercises: Set<ExerciseSet>
     ): Workout {
         return this.generateWorkout(wkr, List(lockedExercises.size) { index -> index }.toTypedArray())
     }
 
     fun generateWorkout(
-        workout: Workout = Workout("New Workout", "", arrayListOf()),
-        lockedIndexes: Array<Int> = emptyArray()
+            workout: Workout = Workout("New Workout", "", arrayListOf()),
+            lockedIndexes: Array<Int> = emptyArray()
     ): Workout {
         // Create a new workout
         val wkr = Workout(workout)
@@ -60,11 +60,11 @@ class WorkoutGenerator(
 
         // Get the number of exercises, with at least the highest number locked
         val nExercises: Int = max(
-            Random.intInRange(
-                params.minExercises,
-                params.maxExercises
-            ),
-            highestLocked + 1
+                Random.intInRange(
+                        params.minExercises,
+                        params.maxExercises
+                ),
+                highestLocked + 1
         )
         val exs: ArrayList<ExerciseSet> = ArrayList(nExercises)
 
@@ -92,16 +92,16 @@ class WorkoutGenerator(
 
                 // Add the exercise priority if it has contributed
                 if (exerPriority > 0
-                    || params.providers.isEmpty()
+                        || params.providers.isEmpty()
                 ) {
                     exercisePriorities.add(
-                        ExercisePriorityTracker(
-                            ex,
-                            probs.mapIndexed { index, v ->
-                                v to individualPriorities[index]
-                            }.toTypedArray(),
-                            exerPriority
-                        )
+                            ExercisePriorityTracker(
+                                    ex,
+                                    probs.mapIndexed { index, v ->
+                                        v to individualPriorities[index]
+                                    }.toTypedArray(),
+                                    exerPriority
+                            )
                     )
                 }
             }
@@ -119,12 +119,12 @@ class WorkoutGenerator(
             // Get exercises with priority similar to the currentHighestUnitVal
             val validExers: ArrayList<ExercisePriorityTracker> = ArrayList()
             val maxPriority: Double = exercisePriorities[exercisePriorities.size - 1]
-                .priority
+                    .priority
             for (j in exercisePriorities.size - 1 downTo 0) {
                 val exp: ExercisePriorityTracker = exercisePriorities[j]
                 if ((exp.priority + params.priorityRange > maxPriority
-                            && exp.priority - params.priorityRange < maxPriority)
-                    || j == exercisePriorities.size - 1
+                                && exp.priority - params.priorityRange < maxPriority)
+                        || j == exercisePriorities.size - 1
                 ) {
                     validExers.add(exp)
                 } else {
@@ -139,7 +139,7 @@ class WorkoutGenerator(
             val selectedExer: ExercisePriorityTracker = validExers[0]
             // Generate exercise set based on most presiding probability
             val generated = selectedExer.providers
-                .map { pr -> pr.first.generateExerciseSet(this, selectedExer.exercise) }
+                    .map { pr -> pr.first.generateExerciseSet(this, selectedExer.exercise) }
 
             // Add exercise set to workout & remove the exercise from the exercises array to
             // avoid repeats
@@ -150,10 +150,10 @@ class WorkoutGenerator(
             for (k in 0 until selectedExer.providers.size) {
                 val provider = selectedExer.providers[k]
                 provider.first.registerMatch(
-                    this,
-                    wkr,
-                    provider.second,
-                    selectedExer.priority
+                        this,
+                        wkr,
+                        provider.second,
+                        selectedExer.priority
                 )
             }
         }
@@ -165,8 +165,8 @@ class WorkoutGenerator(
     }
 
     private fun blendExerciseSets(
-        exercise: Exercise,
-        exercises: List<WeightedExerciseSet>
+            exercise: Exercise,
+            exercises: List<WeightedExerciseSet>
     ): ExerciseSet {
         var exs = exercises.toMutableList()
         if (exs.size == 0) {
@@ -228,9 +228,9 @@ class WorkoutGenerator(
     }
 
     private inner class ExercisePriorityTracker(
-        val exercise: Exercise,
-        val providers: Array<Pair<ExercisePriorityProvider, Double>>,
-        val priority: Double
+            val exercise: Exercise,
+            val providers: Array<Pair<ExercisePriorityProvider, Double>>,
+            val priority: Double
     )
 
     companion object {
@@ -238,76 +238,68 @@ class WorkoutGenerator(
         const val uid = "WorkoutGenerator"
 
         fun fromPriorities(
-            exerciseManager: ExerciseManager,
-            bodyStats: BodyStats = BodyStats.average(),
-            providers: Array<ExercisePriorityProvider>
-        ): WorkoutGenerator {
-            return WorkoutGenerator(
+                exerciseManager: ExerciseManager,
+                bodyStats: BodyStats = BodyStats.average(),
+                providers: Array<ExercisePriorityProvider>
+        ): WorkoutGenerator = WorkoutGenerator(
                 exerciseManager,
                 WorkoutGeneratorParams(
-                    bodyStats = bodyStats,
-                    providers = providers
+                        bodyStats = bodyStats,
+                        providers = providers
                 )
-            )
-        }
+        )
 
         fun random(
-            exerciseManager: ExerciseManager,
-            bodyStats: BodyStats = BodyStats.average()
-        ): WorkoutGenerator {
-            return fromPriorities(exerciseManager, bodyStats, emptyArray())
-        }
+                exerciseManager: ExerciseManager,
+                bodyStats: BodyStats = BodyStats.average()
+        ): WorkoutGenerator = fromPriorities(exerciseManager, bodyStats, emptyArray())
 
         fun arms(
-            exerciseManager: ExerciseManager,
-            bodyStats: BodyStats = BodyStats.average()
-        ): WorkoutGenerator {
-            return fromPriorities(exerciseManager, bodyStats, armPriorities())
-        }
+                exerciseManager: ExerciseManager,
+                bodyStats: BodyStats = BodyStats.average()
+        ): WorkoutGenerator = fromPriorities(exerciseManager, bodyStats, armPriorities())
 
-        fun armPriorities(): Array<ExercisePriorityProvider> {
-            return arrayOf(
+        fun armPriorities(): Array<ExercisePriorityProvider> = arrayOf(
                 ExerciseMusclePriority(Muscle.Arms.workData(1.0), 1.75),
                 ExerciseExperiencePriority(ExerciseExperienceLevel.Beginner),
                 ExerciseTypePriority(
-                    ExerciseType.Strength,
-                    start = 2
+                        ExerciseType.Strength,
+                        start = 2
                 ),
                 ExerciseTypePriority(
-                    ExerciseType.Warmup, 0.5,
-                    end = 2
+                        ExerciseType.Warmup, 0.5,
+                        end = 2
                 ),
                 ExerciseForceTypePriority(
-                    ExerciseForceType.DynamicStretching, 1.25,
-                    end = 2
+                        ExerciseForceType.DynamicStretching, 1.25,
+                        end = 2
                 ),
                 ExerciseExperiencePriority(ExerciseExperienceLevel.Intermediate, 0.3),
                 ExerciseEquipmentPriority(ExerciseEquipment("bodyweight"), 0.7),
                 ExerciseEquipmentPriority(ExerciseEquipment("dumbbell"), 0.5, start = 2),
                 ExerciseEquipmentPriority(ExerciseEquipment("kettle bells"), 0.2, start = 2)
-            )
-        }
+        )
 
         fun legs(
-            exerciseManager: ExerciseManager,
-            bodyStats: BodyStats = BodyStats.average()
+                exerciseManager: ExerciseManager,
+                bodyStats: BodyStats = BodyStats.average()
         ): WorkoutGenerator {
             return fromPriorities(exerciseManager, bodyStats, legPriorities())
         }
 
         fun legPriorities(): Array<ExercisePriorityProvider> {
             return arrayOf(
-                ExerciseMusclePriority(Muscle.Legs.workData(1.0)),
-                ExerciseTypePriority(
-                    ExerciseType.Strength,
-                    start = 2
-                ),
-                ExerciseTypePriority(
-                    ExerciseType.Warmup,
-                    end = 2
-                ),
-                ExerciseExperiencePriority(ExerciseExperienceLevel.Beginner),
-                ExerciseExperiencePriority(ExerciseExperienceLevel.Intermediate)
+                    ExerciseMusclePriority(Muscle.Legs.workData(1.0)),
+                    ExerciseTypePriority(
+                            ExerciseType.Strength,
+                            start = 2
+                    ),
+                    ExerciseTypePriority(
+                            ExerciseType.Warmup,
+                            end = 2
+                    ),
+                    ExerciseExperiencePriority(ExerciseExperienceLevel.Beginner),
+                    ExerciseExperiencePriority(ExerciseExperienceLevel.Intermediate)
             )
         }
     }

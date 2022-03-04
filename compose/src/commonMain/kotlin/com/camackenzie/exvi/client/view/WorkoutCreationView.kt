@@ -144,7 +144,7 @@ object WorkoutCreationView {
     fun View(
         appState: AppState
     ) {
-        ensureActiveAccount(appState.model, appState::setView)
+        ensureActiveAccount(appState)
 
         val viewData = ViewData(appState, rememberCoroutineScope())
         val workoutData = remember { WorkoutData(appState.provided) }

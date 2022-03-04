@@ -9,10 +9,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="298ed9ae-577a-4d40-905d-659aeb161d8e" name="Changes" comment="Update compose version">
+    <list default="true" id="298ed9ae-577a-4d40-905d-659aeb161d8e" name="Changes" comment="Update core version &amp; start adding active workout page">
+      <change afterPath="$PROJECT_DIR$/.idea/kotlinScripting.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compose/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/compose/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/desktop/src/jvmMain/kotlin/com/camackenzie/exvi/client/desktop/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/desktop/src/jvmMain/kotlin/com/camackenzie/exvi/client/desktop/Main.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/commonMain/kotlin/com/camackenzie/exvi/client/model/WorkoutGenerator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/commonMain/kotlin/com/camackenzie/exvi/client/model/WorkoutGenerator.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/HomeView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/HomeView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/Util.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/Util.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/WorkoutCreationView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/WorkoutCreationView.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
