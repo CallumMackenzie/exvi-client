@@ -1,3 +1,4 @@
+
 plugins {
     id("com.android.library")
     kotlin("multiplatform")
@@ -23,7 +24,7 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
-                api("com.google.accompanist:accompanist-flowlayout:0.20.3")
+                api("com.google.accompanist:accompanist-flowlayout:0.23.1")
             }
         }
         val androidMain by getting
