@@ -31,12 +31,10 @@ object HomeView {
         var retrievingWorkouts by mutableStateOf(retrievingWorkouts)
         var workoutsSynced by mutableStateOf(workoutsSynced)
 
-        fun ensureWorkoutsSynced() {
-            if (!workoutsSynced) {
-                workoutsSynced = true
-                appState.model.workoutManager?.invalidateLocalCache()
-                refreshWorkouts()
-            }
+        fun ensureWorkoutsSynced() = if (!workoutsSynced) {
+            workoutsSynced = true
+            appState.model.workoutManager?.invalidateLocalCache()
+            refreshWorkouts()
         }
 
         fun refreshWorkouts() {
