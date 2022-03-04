@@ -109,6 +109,9 @@ class AppState(
                 )
             }
         )
+
+        @Composable
+        fun testAppState(): AppState = AppState(coroutineScope = rememberCoroutineScope())
     }
 
 }

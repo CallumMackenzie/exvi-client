@@ -1,7 +1,7 @@
 plugins {
     id("com.android.library")
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "1.0.0"
+    id("org.jetbrains.compose") version "1.1.0"
     kotlin("plugin.serialization") version "1.4.31"
 }
 
@@ -23,6 +23,7 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
+                api("com.google.accompanist:accompanist-flowlayout:0.20.3")
             }
         }
         val androidMain by getting

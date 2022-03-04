@@ -43,7 +43,7 @@ object HomeView {
             // TODO: Ensure no undefined behaviour with global coroutine scope
             retrievingWorkouts = true
             appState.model.workoutManager?.getWorkouts(
-                dispatcher = Dispatchers.Main,
+                dispatcher = Dispatchers.Default,
                 coroutineScope = appState.coroutineScope,
                 onSuccess = { workouts = it },
                 onFail = {

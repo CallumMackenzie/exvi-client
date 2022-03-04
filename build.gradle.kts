@@ -1,4 +1,6 @@
 buildscript {
+    val kotlinPluginVersion = "1.6.10"
+
     repositories {
         gradlePluginPortal()
         jcenter()
@@ -6,7 +8,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinPluginVersion")
         classpath("com.android.tools.build:gradle:7.0.0")
     }
 }
@@ -20,7 +22,8 @@ allprojects {
         google()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        maven(url = "https://jitpack.io")
+        maven("https://jitpack.io")
+        maven("https://oss.sonatype.org/content/repositories/snapshots")
         mavenLocal()
     }
 }

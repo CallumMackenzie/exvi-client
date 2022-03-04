@@ -1,5 +1,6 @@
 package com.camackenzie.exvi.client.desktop
 
+import androidx.compose.desktop.ui.tooling.preview.Preview
 import com.camackenzie.exvi.client.view.App
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
