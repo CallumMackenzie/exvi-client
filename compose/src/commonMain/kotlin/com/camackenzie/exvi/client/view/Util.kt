@@ -46,9 +46,9 @@ fun noArgs(): SelfSerializable {
     return None
 }
 
-fun ensureActiveAccount(model: Model, onViewChange: ViewChangeFun) {
-    if (!model.accountManager.hasActiveAccount()) {
+fun ensureActiveAccount(appState: AppState) {
+    if (!appState.model.accountManager.hasActiveAccount()) {
         println("No active account, switching to login view")
-        onViewChange(ExviView.Login, ::noArgs)
+        appState.setView(ExviView.Login)
     }
 }

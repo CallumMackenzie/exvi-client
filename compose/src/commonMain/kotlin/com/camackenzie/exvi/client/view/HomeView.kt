@@ -40,11 +40,10 @@ object HomeView {
         }
 
         fun refreshWorkouts() {
-            // TODO: Ensure no undefined behaviour with global coroutine scope
             retrievingWorkouts = true
             appState.model.workoutManager?.getWorkouts(
                 dispatcher = Dispatchers.Default,
-                coroutineScope = appState.coroutineScope,
+                coroutineScope = coroutineScope,
                 onSuccess = { workouts = it },
                 onFail = {
                     println("Workout request error: ${it.toJson()}")
@@ -57,12 +56,10 @@ object HomeView {
 
     @Composable
     fun View(appState: AppState) {
-        ensureActiveAccount(appState.model, appState::setView)
+        ensureActiveAccount(appState)
 
         val coroutineScope = rememberCoroutineScope()
         val workoutListData = remember { WorkoutListData(appState = appState, coroutineScope = coroutineScope) }
-
-        workoutListData.ensureWorkoutsSynced()
 
         Column(
             Modifier.padding(5.dp).fillMaxSize(),
@@ -205,6 +202,7 @@ object HomeView {
         appState: AppState,
         wld: WorkoutListData
     ) {
+        wld.ensureWorkoutsSynced()
 
         Row(
             Modifier.fillMaxWidth(),

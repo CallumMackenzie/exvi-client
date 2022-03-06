@@ -1,3 +1,4 @@
+val accompanistVersion = "0.23.1"
 
 plugins {
     id("com.android.library")
@@ -24,7 +25,7 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
-//                api("com.google.accompanist:accompanist-flowlayout:0.23.1")
+                api("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
             }
         }
         val androidMain by getting
@@ -58,4 +59,5 @@ dependencies {
     api(compose.ui)
     api(compose.material)
     api(compose.foundation)
+    api("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
 }

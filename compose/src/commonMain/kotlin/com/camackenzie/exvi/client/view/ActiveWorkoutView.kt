@@ -30,6 +30,7 @@ object ActiveWorkoutView {
 
     @Composable
     fun View(appState: AppState) {
+        ensureActiveAccount(appState)
         if (appState.provided !is ActiveWorkout) {
             println("No active workout provided")
             appState.setView(ExviView.Home)
@@ -37,12 +38,7 @@ object ActiveWorkoutView {
 
         val workoutData = remember { WorkoutData((appState.provided as ActiveWorkout).copy()) }
 
-        Row(
-            Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Top
-        ) {
-            Text(workoutData.workout.name)
-        }
+        Text(workoutData.workout.name)
     }
+
 }
