@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.util.None
 import com.camackenzie.exvi.core.util.SelfSerializable
@@ -75,6 +76,16 @@ class AppState(
         private set
     var provided by mutableStateOf(provided)
         private set
+
+    val settings
+        get() = model.settings
+
+    init {
+        if (settings.hasKey("activeUser")) {
+            model.accountManager.activeAccount = Account.fromCrendentialsString(settings.getString("activeUser"))
+            setView(ExviView.Home)
+        }
+    }
 
     fun setView(view: ExviView, args: ArgProviderFun = ::noArgs) {
         previousView = currentView

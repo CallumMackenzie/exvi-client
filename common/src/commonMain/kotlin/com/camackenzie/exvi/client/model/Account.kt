@@ -12,6 +12,7 @@ import com.camackenzie.exvi.core.util.CryptographyUtils
 import com.camackenzie.exvi.core.util.EncodedStringCache
 import com.camackenzie.exvi.core.util.SelfSerializable
 import com.camackenzie.exvi.core.util.cached
+import com.russhwolf.settings.Settings
 import com.soywiz.krypto.encoding.fromBase64
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
@@ -24,7 +25,7 @@ import kotlinx.serialization.*
 @kotlinx.serialization.Serializable
 class Account private constructor(
     val username: String,
-    private val accessKey: EncodedStringCache,
+    private var accessKey: EncodedStringCache,
     var bodyStats: BodyStats = BodyStats.average(),
 ) : SelfSerializable {
 
@@ -37,13 +38,8 @@ class Account private constructor(
     private val fileName: String
         get() = (CryptographyUtils.hashSHA256(username) + username + ".user")
 
-    private val crendentialsString: String
+    val crendentialsString: String
         get() = CryptographyUtils.encodeString(this.toJson())
-
-    fun signOut() {
-        println("Signing out user $username")
-        // TODO
-    }
 
     override fun getUID(): String {
         return "UserAccount"

@@ -149,9 +149,14 @@ object SignupView {
                         },
                         onSuccess = {
                             signupData.error = ""
-                            appState.model.accountManager.activeAccount = Account.fromAccessKey(
+                            val account = Account.fromAccessKey(
                                 username = signupData.username,
                                 accessKey = it.accessKey
+                            )
+                            appState.model.accountManager.activeAccount = account
+                            appState.settings.putString(
+                                "activeUser",
+                                account.crendentialsString
                             )
                             appState.setView(ExviView.Home)
                         },

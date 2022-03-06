@@ -191,7 +191,7 @@ object HomeView {
     ) {
         IconButton(onClick = {
             onViewChange(ExviView.Login, ::noArgs)
-            model.accountManager.signOut()
+            model.signOutCurrentAccount()
         }) {
             Icon(Icons.Default.ExitToApp, "Sign Out")
         }

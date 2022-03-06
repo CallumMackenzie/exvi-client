@@ -108,9 +108,14 @@ object EntryView {
                                 errorText = it.body
                                 loginData.loginEnabled = true
                             }, onSuccess = {
-                                appState.model.accountManager.activeAccount = Account.fromAccessKey(
+                                val account = Account.fromAccessKey(
                                     username = loginData.username,
                                     accessKey = it.accessKey
+                                )
+                                appState.model.accountManager.activeAccount = account
+                                appState.settings.putString(
+                                    "activeUser",
+                                    account.crendentialsString
                                 )
                                 appState.setView(ExviView.Home)
                             })

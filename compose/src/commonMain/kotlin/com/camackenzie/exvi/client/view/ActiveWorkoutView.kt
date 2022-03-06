@@ -43,7 +43,26 @@ object ActiveWorkoutView {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Top
         ) {
-            Text(workoutData.workout.name)
+            Text(
+                workoutData.workout.name, fontSize = 30.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(10.dp)
+            )
+            if (!workoutData.workout.hasStarted()) {
+                Button(onClick = {
+                    val started = workoutData.workout.copy()
+                    started.start()
+                    workoutData.workout = started
+                }) {
+                    Text("Start Workout")
+                }
+                Button(onClick = {
+                    appState.setView(ExviView.Home)
+                }) {
+                    Text("Back to Home")
+                }
+            } else {
+            }
         }
     }
 

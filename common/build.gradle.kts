@@ -1,5 +1,6 @@
 
 val exviCoreVersion = "d1203f67ef92941eaf832576d36055a589b6caa8"
+val mpSettingsVersion = "0.8.1"
 
 plugins {
     id("com.android.library")
@@ -27,6 +28,8 @@ kotlin {
             resources.srcDirs("resources")
             dependencies {
                 api("com.github.CallumMackenzie.exvi-core:exvi-core:$exviCoreVersion")
+                api("com.russhwolf:multiplatform-settings:$mpSettingsVersion")
+                api("com.russhwolf:multiplatform-settings-no-arg:$mpSettingsVersion")
             }
         }
         val androidMain by getting {

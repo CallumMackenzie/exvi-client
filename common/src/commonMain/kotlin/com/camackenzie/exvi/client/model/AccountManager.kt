@@ -6,6 +6,7 @@
 package com.camackenzie.exvi.client.model
 
 import com.camackenzie.exvi.core.util.SelfSerializable
+import com.russhwolf.settings.Settings
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
@@ -13,19 +14,12 @@ import kotlinx.serialization.json.*
 class AccountManager : SelfSerializable {
 
     var activeAccount: Account? = null
-        set(account) {
-            if (activeAccount != null) {
-                activeAccount!!.signOut()
-            }
-            field = account
-        }
 
     fun hasActiveAccount(): Boolean {
         return activeAccount != null
     }
 
     fun signOut() {
-        activeAccount?.signOut()
         activeAccount = null
     }
 
