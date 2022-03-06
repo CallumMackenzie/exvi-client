@@ -1,27 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="AndroidLayouts">
-    <shared>
-      <config />
-    </shared>
-  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="298ed9ae-577a-4d40-905d-659aeb161d8e" name="Changes" comment="Add row">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="96c82457-9ee9-421e-9bdb-84228443922d" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/resources/raw/cube.obj" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/resources/raw/isont.obj" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/commonMain/kotlin/com.camackenzie.exvi.client.rendering/3DRenderer.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/common/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/commonMain/kotlin/com/camackenzie/exvi/client/model/Account.kt" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/commonMain/kotlin/com/camackenzie/exvi/client/model/Account.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/commonMain/kotlin/com/camackenzie/exvi/client/model/AccountManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/commonMain/kotlin/com/camackenzie/exvi/client/model/AccountManager.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/commonMain/kotlin/com/camackenzie/exvi/client/model/Model.kt" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/commonMain/kotlin/com/camackenzie/exvi/client/model/Model.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/compose/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/compose/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/ActiveWorkoutView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/ActiveWorkoutView.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/App.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/App.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/EntryView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/EntryView.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/HomeView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/HomeView.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/SignupView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/SignupView.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,14 +56,8 @@
       </state>
     </system>
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Class" />
-        <option value="Kotlin Object" />
-        <option value="Kotlin Class" />
-      </list>
-    </option>
+  <component name="Git.Merge.Settings">
+    <option name="BRANCH" value="origin/kotlin" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
@@ -92,7 +78,7 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectId" id="25LhfMD2SH8zcfZCxzaD7vsAI6D" />
+  <component name="ProjectId" id="261XpO05Sgm5qzz5rzMYfecX6M1" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
@@ -101,31 +87,22 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
-    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../exvi-core" />
-    <property name="project.structure.last.edited" value="SDKs" />
-    <property name="project.structure.proportion" value="0.15" />
-    <property name="project.structure.side.proportion" value="0.42413792" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/common/resources/raw" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.0" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\Coding\Java\exvi-client\android\src\main\res" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="D:\Coding\Java\exvi-client\common\resources\drawable" />
       <recent name="D:\Coding\Java\exvi-client\common\resources\raw" />
-      <recent name="D:\Coding\Java\exvi-client\common\src\androidMain" />
-      <recent name="D:\Coding\Java\exvi-client\common\resources" />
-      <recent name="D:\Coding\Java\exvi-client\common" />
     </key>
   </component>
   <component name="RunManager" selected="Gradle.exvi-client [run]">
-    <configuration name="android" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
+    <configuration name="android" type="AndroidRunConfigurationType" factoryName="Android App">
       <module name="exvi-client.android" />
       <option name="DEPLOY" value="true" />
       <option name="DEPLOY_APK_FROM_BUNDLE" value="false" />
@@ -159,27 +136,6 @@
       <method v="2">
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
       </method>
-    </configuration>
-    <configuration name="exvi-client [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="clean" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <method v="2" />
     </configuration>
     <configuration name="exvi-client [createRuntimeImage]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
@@ -244,6 +200,27 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
+    <configuration name="exvi-client [runDistributable]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="runDistributable" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
     <configuration name="exvi-client [run]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -265,286 +242,26 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration default="true" type="JetRunConfigurationType">
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <option name="filePath" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.exvi-client [run]" />
+        <item itemvalue="Gradle.exvi-client [runDistributable]" />
         <item itemvalue="Gradle.exvi-client [packageUberJarForCurrentOS]" />
         <item itemvalue="Gradle.exvi-client [packageMsi]" />
         <item itemvalue="Gradle.exvi-client [createRuntimeImage]" />
-        <item itemvalue="Gradle.exvi-client [clean]" />
       </list>
     </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="298ed9ae-577a-4d40-905d-659aeb161d8e" name="Changes" comment="" />
-      <created>1645312376372</created>
+      <changelist id="96c82457-9ee9-421e-9bdb-84228443922d" name="Changes" comment="" />
+      <created>1646592255709</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1645312376372</updated>
+      <updated>1646592255709</updated>
     </task>
-    <task id="LOCAL-00001" summary="Working on workout creation &amp; resources">
-      <created>1645392360954</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1645392360954</updated>
-    </task>
-    <task id="LOCAL-00002" summary="Better management of local &amp; server workout state">
-      <created>1645412862709</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1645412862709</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Working on expandable views">
-      <created>1645423022503</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1645423022503</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Adding expandable views to UI">
-      <created>1645464395623</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1645464395623</updated>
-    </task>
-    <task id="LOCAL-00005" summary="Improving workout creation view">
-      <created>1645465957181</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1645465957181</updated>
-    </task>
-    <task id="LOCAL-00006" summary="Update HomeView">
-      <created>1645466423635</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1645466423635</updated>
-    </task>
-    <task id="LOCAL-00007" summary="Trying to fix CD">
-      <created>1645467422814</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1645467422814</updated>
-    </task>
-    <task id="LOCAL-00008" summary="Add gradle files">
-      <created>1645467591102</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1645467591102</updated>
-    </task>
-    <task id="LOCAL-00009" summary="Use jitpack core dependency">
-      <created>1645472888635</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1645472888635</updated>
-    </task>
-    <task id="LOCAL-00010" summary="Exercise info in workout creation view">
-      <created>1645583952874</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1645583952874</updated>
-    </task>
-    <task id="LOCAL-00011" summary="Add app icons for desktop and android">
-      <created>1645584969727</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1645584969727</updated>
-    </task>
-    <task id="LOCAL-00012" summary="Update java version compatibility to 52">
-      <created>1645586795610</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1645586795610</updated>
-    </task>
-    <task id="LOCAL-00013" summary="Switch back to java 11 target">
-      <created>1645587567128</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1645587567128</updated>
-    </task>
-    <task id="LOCAL-00014" summary="Update native release configs">
-      <created>1645589787412</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1645589787412</updated>
-    </task>
-    <task id="LOCAL-00015" summary="Working on workout generation">
-      <created>1645766046288</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1645766046288</updated>
-    </task>
-    <task id="LOCAL-00016" summary="Refactoring workout creation view to better manage state">
-      <created>1645840687872</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1645840687872</updated>
-    </task>
-    <task id="LOCAL-00017" summary="Refactoring &amp; making long running tasks asynchronous">
-      <created>1645847529196</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1645847529196</updated>
-    </task>
-    <task id="LOCAL-00018" summary="Improved state management">
-      <created>1645899417642</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1645899417642</updated>
-    </task>
-    <task id="LOCAL-00019" summary="Major view refactoring">
-      <created>1645901521813</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1645901521813</updated>
-    </task>
-    <task id="LOCAL-00020" summary="Improve login view state management">
-      <created>1645902161725</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1645902161725</updated>
-    </task>
-    <task id="LOCAL-00021" summary="Improve sign up view state management">
-      <created>1645902996324</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1645902996324</updated>
-    </task>
-    <task id="LOCAL-00022" summary="Updating coroutine scopes to be composable-specific">
-      <created>1645905174288</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1645905174288</updated>
-    </task>
-    <task id="LOCAL-00023" summary="Add global coroutine scope to app state">
-      <created>1645905634921</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1645905634921</updated>
-    </task>
-    <task id="LOCAL-00024" summary="Update coroutine configs">
-      <created>1645910294898</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1645910294898</updated>
-    </task>
-    <task id="LOCAL-00025" summary="Fix warnings">
-      <created>1645910432188</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1645910432188</updated>
-    </task>
-    <task id="LOCAL-00026" summary="Update compose sub-dependencies">
-      <created>1645989518842</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
-      <option name="project" value="LOCAL" />
-      <updated>1645989518842</updated>
-    </task>
-    <task id="LOCAL-00027" summary="Migrating to new core version &amp; enhancing workout generation">
-      <created>1646023702151</created>
-      <option name="number" value="00027" />
-      <option name="presentableId" value="LOCAL-00027" />
-      <option name="project" value="LOCAL" />
-      <updated>1646023702151</updated>
-    </task>
-    <task id="LOCAL-00028" summary="Started adding accompanist">
-      <created>1646197334161</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1646197334161</updated>
-    </task>
-    <task id="LOCAL-00029" summary="Allow editing workout description">
-      <created>1646276423853</created>
-      <option name="number" value="00029" />
-      <option name="presentableId" value="LOCAL-00029" />
-      <option name="project" value="LOCAL" />
-      <updated>1646276423853</updated>
-    </task>
-    <task id="LOCAL-00030" summary="Better exercise set editing">
-      <created>1646277864415</created>
-      <option name="number" value="00030" />
-      <option name="presentableId" value="LOCAL-00030" />
-      <option name="project" value="LOCAL" />
-      <updated>1646277864415</updated>
-    </task>
-    <task id="LOCAL-00031" summary="Minor bugfixes and added todos">
-      <created>1646278406967</created>
-      <option name="number" value="00031" />
-      <option name="presentableId" value="LOCAL-00031" />
-      <option name="project" value="LOCAL" />
-      <updated>1646278406967</updated>
-    </task>
-    <task id="LOCAL-00032" summary="Update compose version">
-      <created>1646369235614</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1646369235614</updated>
-    </task>
-    <task id="LOCAL-00033" summary="Fix coroutine state error">
-      <created>1646423398743</created>
-      <option name="number" value="00033" />
-      <option name="presentableId" value="LOCAL-00033" />
-      <option name="project" value="LOCAL" />
-      <updated>1646423398743</updated>
-    </task>
-    <task id="LOCAL-00034" summary="Formatting">
-      <created>1646423611820</created>
-      <option name="number" value="00034" />
-      <option name="presentableId" value="LOCAL-00034" />
-      <option name="project" value="LOCAL" />
-      <updated>1646423611820</updated>
-    </task>
-    <task id="LOCAL-00035" summary="Add row">
-      <created>1646526861719</created>
-      <option name="number" value="00035" />
-      <option name="presentableId" value="LOCAL-00035" />
-      <option name="project" value="LOCAL" />
-      <updated>1646526861719</updated>
-    </task>
-    <option name="localTasksCounter" value="36" />
     <servers />
-  </component>
-  <component name="UnknownFeatures">
-    <option featureType="dependencySupport" implementationName="java:androidx.compose.runtime:runtime" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -556,39 +273,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="VcsManagerConfiguration">
-    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
-    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Switch back to java 11 target" />
-    <MESSAGE value="Update native release configs" />
-    <MESSAGE value="Working on workout generation" />
-    <MESSAGE value="Refactoring workout creation view to better manage state" />
-    <MESSAGE value="Refactoring &amp; making long running tasks asynchronous" />
-    <MESSAGE value="Improved state management" />
-    <MESSAGE value="Major view refactoring" />
-    <MESSAGE value="Improve login view state management" />
-    <MESSAGE value="Improve sign up view state management" />
-    <MESSAGE value="Updating coroutine scopes to be composable-specific" />
-    <MESSAGE value="Add global coroutine scope to app state" />
-    <MESSAGE value="Update coroutine configs" />
-    <MESSAGE value="Fix warnings" />
-    <MESSAGE value="Update compose sub-dependencies" />
-    <MESSAGE value="Migrating to new core version &amp; enhancing workout generation" />
-    <MESSAGE value="Basic editing of workout exercise sets" />
-    <MESSAGE value="About to add flow row for exercise sets" />
-    <MESSAGE value="Started adding accompanist" />
-    <MESSAGE value="Allow editing workout description" />
-    <MESSAGE value="Better exercise set editing" />
-    <MESSAGE value="Minor bugfixes and added todos" />
-    <MESSAGE value="Update compose version" />
-    <MESSAGE value="Fix coroutine state error" />
-    <MESSAGE value="Formatting" />
-    <MESSAGE value="Add row" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add row" />
-  </component>
-  <component name="XSLT-Support.FileAssociations.UIState">
-    <expand />
-    <select />
   </component>
 </project>
