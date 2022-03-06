@@ -35,12 +35,14 @@ object ActiveWorkoutView {
             appState.setView(ExviView.Home)
         }
 
-
-
         val workoutData = remember { WorkoutData((appState.provided as ActiveWorkout).copy()) }
 
-        Text(workoutData.workout.name)
-
+        Row(
+            Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.Top
+        ) {
+            Text(workoutData.workout.name)
+        }
     }
-
 }
