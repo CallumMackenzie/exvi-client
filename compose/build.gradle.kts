@@ -60,6 +60,7 @@ android {
 
 dependencies {
     api(compose.ui)
+    api(compose.animationGraphics)
     api(compose.material)
     api(compose.foundation)
     api("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
