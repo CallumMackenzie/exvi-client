@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="96c82457-9ee9-421e-9bdb-84228443922d" name="Changes" comment="Add 3d muscle view prototype">
+    <list default="true" id="96c82457-9ee9-421e-9bdb-84228443922d" name="Changes" comment="Working wireframe software rendering">
+      <change afterPath="$PROJECT_DIR$/common/resources/raw/man.obj" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/rendering/Renderer.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/src/commonMain/kotlin/com.camackenzie.exvi.client.rendering/3DRenderer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/commonMain/kotlin/com.camackenzie.exvi.client.rendering/3DRenderer.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/App.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/App.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/Components.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/Components.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/Muscle3DView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/Muscle3DView.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -102,9 +104,12 @@
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\Coding\Java\exvi-client\common\resources\raw" />
     </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Coding\Java\exvi-client\common\resources\raw" />
+    </key>
   </component>
   <component name="RunManager" selected="Gradle.exvi-client [run]">
-    <configuration name="android" type="AndroidRunConfigurationType" factoryName="Android App">
+    <configuration name="android" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
       <module name="exvi-client.android" />
       <option name="DEPLOY" value="true" />
       <option name="DEPLOY_APK_FROM_BUNDLE" value="false" />
@@ -270,7 +275,14 @@
       <option name="project" value="LOCAL" />
       <updated>1646618453933</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Working wireframe software rendering">
+      <created>1646623501595</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1646623501595</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -286,6 +298,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Add 3d muscle view prototype" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add 3d muscle view prototype" />
+    <MESSAGE value="Working wireframe software rendering" />
+    <option name="LAST_COMMIT_MESSAGE" value="Working wireframe software rendering" />
   </component>
 </project>

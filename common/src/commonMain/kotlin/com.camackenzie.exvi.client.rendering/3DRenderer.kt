@@ -66,49 +66,76 @@ data class Renderer3D(
         }.toTypedArray()
 }
 
-class Camera3D(
+interface Camera3D {
+    var position: Vector3D
+    var rotation: Quaternion
+    var aspectRatio: Float
+    var fov: Angle
+    var near: Float
+    var far: Float
+    var calculateProjection: Boolean
+    var calculateCamera: Boolean
+
+    var projectionMatrix: Matrix3D
+    var cameraMatrix: Matrix3D
+
+    companion object {
+        operator fun invoke(
+            position: Position3D = Vector3D(),
+            rotation: Quaternion = Quaternion(),
+            aspectRatio: Float = 1f,
+            fov: Angle = 90.degrees,
+            near: Float = 0.1f,
+            far: Float = 100f
+        ): Camera3D = ActualCamera3D(
+            position, rotation, aspectRatio, fov, near, far
+        )
+    }
+}
+
+open class ActualCamera3D(
     position: Position3D = Vector3D(),
     rotation: Quaternion = Quaternion(),
     aspectRatio: Float = 1f,
     fov: Angle = 90.degrees,
     near: Float = 0.1f,
     far: Float = 100f
-) {
-    var position: Vector3D = position
+) : Camera3D {
+    override var position: Vector3D = position
         set(value) {
             calculateCamera = true
             field = value
         }
-    var rotation: Quaternion = rotation
+    override var rotation: Quaternion = rotation
         set(value) {
             calculateCamera = true
             field = value
         }
-    var aspectRatio: Float = aspectRatio
+    override var aspectRatio: Float = aspectRatio
         set(value) {
             calculateProjection = true
             field = value
         }
-    var fov: Angle = fov
+    override var fov: Angle = fov
         set(value) {
             calculateProjection = true
             field = value
         }
-    var near: Float = near
+    override var near: Float = near
         set(value) {
             calculateProjection = true
             field = value
         }
-    var far: Float = far
+    override var far: Float = far
         set(value) {
             calculateProjection = true
             field = value
         }
 
-    var calculateProjection = true
-    var calculateCamera = true
+    override var calculateProjection = true
+    override var calculateCamera = true
 
-    var projectionMatrix: Matrix3D = Matrix3D()
+    override var projectionMatrix: Matrix3D = Matrix3D()
         get() {
             if (calculateProjection) {
                 val fovRad: Double = 1.0 / tan(fov.degrees * 0.5 * (PI / 180.0)).toFloat()
@@ -123,9 +150,8 @@ class Camera3D(
             }
             return field
         }
-        private set
 
-    var cameraMatrix: Matrix3D = Matrix3D()
+    override var cameraMatrix: Matrix3D = Matrix3D()
         get() {
             if (calculateCamera) {
                 val up = Vector3D(0f, 1f, 0f)
@@ -136,7 +162,6 @@ class Camera3D(
             }
             return field
         }
-        private set
 }
 
 data class Triangle3D(
@@ -151,30 +176,9 @@ inline fun Array<Triangle3D>.toVectorArray(): Array<Vector3D> = Array(size * 3) 
     get(it / 3).points[it % 3]
 }
 
-data class Mesh3D(
-    val points: Array<Vector3D> = emptyArray(),
-    var transform: Matrix3D = Matrix3D()
-) {
-
-    constructor(vararg verts: Vector3D) : this(arrayOf(*verts))
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-
-        other as Mesh3D
-
-        if (!points.contentEquals(other.points)) return false
-        if (transform != other.transform) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = points.contentHashCode()
-        result = 31 * result + transform.hashCode()
-        return result
-    }
+interface Mesh3D {
+    val points: Array<Vector3D>
+    var transform: Matrix3D
 
     companion object {
         private val vertexRegex = Regex("\\s+")
@@ -218,4 +222,38 @@ data class Mesh3D(
             return triangles.toTypedArray()
         }
     }
+}
+
+open class ActualMesh3D(
+    override val points: Array<Vector3D> = emptyArray(),
+    override var transform: Matrix3D = Matrix3D()
+) : Mesh3D {
+
+    constructor(vararg verts: Vector3D) : this(arrayOf(*verts))
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as Mesh3D
+
+        if (!points.contentEquals(other.points)) return false
+        if (transform != other.transform) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = points.contentHashCode()
+        result = 31 * result + transform.hashCode()
+        return result
+    }
+
+    companion object {
+        operator fun invoke(
+            points: Array<Vector3D> = emptyArray(),
+            transform: Matrix3D = Matrix3D()
+        ): Mesh3D = ActualMesh3D(points, transform)
+    }
+
 }
