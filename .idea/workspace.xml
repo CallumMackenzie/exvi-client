@@ -4,16 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="96c82457-9ee9-421e-9bdb-84228443922d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/resources/raw/cube.obj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/resources/raw/isont.obj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/commonMain/kotlin/com.camackenzie.exvi.client.rendering/3DRenderer.kt" afterDir="false" />
+    <list default="true" id="96c82457-9ee9-421e-9bdb-84228443922d" name="Changes" comment="Pre-merge commit">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/common/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compose/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/compose/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/resources/raw/cube.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/resources/raw/isont.obj" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/App.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/App.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/HomeView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/HomeView.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
