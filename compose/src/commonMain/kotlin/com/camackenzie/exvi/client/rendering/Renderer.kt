@@ -2,6 +2,7 @@ package com.camackenzie.exvi.client.rendering
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -54,12 +55,30 @@ class RenderData(
 @Composable
 fun Renderer3D(
     renderData: RenderData,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    triRenderer: DrawScope.(Triangle3D) -> Unit = {
+        val (one, two, three) = it
+        drawCircle(color = Color.Cyan, radius = 3f, center = Offset(one.x, one.y))
+        drawCircle(color = Color.Cyan, radius = 3f, center = Offset(two.x, two.y))
+        drawCircle(color = Color.Cyan, radius = 3f, center = Offset(three.x, three.y))
+        drawLine(
+            color = Color.Red,
+            start = Offset(one.x, one.y),
+            end = Offset(two.x, two.y)
+        )
+        drawLine(
+            color = Color.Red,
+            start = Offset(two.x, two.y),
+            end = Offset(three.x, three.y)
+        )
+        drawLine(
+            color = Color.Red,
+            start = Offset(three.x, three.y),
+            end = Offset(one.x, one.y)
+        )
+    }
 ) {
-    fun currentTimeMillis(): Long = Clock.System.now().toEpochMilliseconds()
-
     Canvas(modifier) {
-
         val newAspect = size.height / size.width
         if (newAspect != renderData.camera.aspectRatio) {
             renderData.camera.aspectRatio = newAspect
@@ -72,27 +91,8 @@ fun Renderer3D(
             }
         })
 
-        val tris = renderer.renderToTriangles(*renderData.meshes)
-
-        tris.forEach { (one, two, three) ->
-            drawCircle(color = Color.Cyan, radius = 3f, center = Offset(one.x, one.y))
-            drawCircle(color = Color.Cyan, radius = 3f, center = Offset(two.x, two.y))
-            drawCircle(color = Color.Cyan, radius = 3f, center = Offset(three.x, three.y))
-            drawLine(
-                color = Color.Red,
-                start = Offset(one.x, one.y),
-                end = Offset(two.x, two.y)
-            )
-            drawLine(
-                color = Color.Red,
-                start = Offset(two.x, two.y),
-                end = Offset(three.x, three.y)
-            )
-            drawLine(
-                color = Color.Red,
-                start = Offset(three.x, three.y),
-                end = Offset(one.x, one.y)
-            )
+        renderer.renderToTriangles(*renderData.meshes).forEach {
+            triRenderer(it)
         }
     }
 }

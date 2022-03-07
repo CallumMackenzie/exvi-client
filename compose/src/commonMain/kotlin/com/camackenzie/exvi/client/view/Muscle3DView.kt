@@ -1,5 +1,7 @@
 package com.camackenzie.exvi.client.view
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.animate
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -28,18 +30,28 @@ object Muscle3DView {
             mutableStateOf(
                 ComposableMesh3D(
                     Mesh3D.fromObj(readTextFile("cube.obj")).toVectorArray(),
-                    Matrix3D().setToScale(0.1, 0.1, 0.1)
+                    Matrix3D()
                 )
             )
         }
         val camera by remember {
             mutableStateOf(
                 ComposableCamera3D(
-                    position = Vector3D(0.0, 0.0, 10.0)
+                    position = Vector3D(0.0, 0.0, 40.0)
                 )
             )
         }
         val rd = remember { RenderData(arrayOf(mesh), camera) }
+
+        remember {
+            coroutineScope.launch {
+                delay(5000)
+                animate(0f, 300f) { value, _ ->
+                    mesh.transform = mesh.transform
+                        .setToRotation(value.degrees, Vector3D(0.0, 1.0, 0.0))
+                }
+            }
+        }
 
         Column(
             Modifier.fillMaxSize(),
