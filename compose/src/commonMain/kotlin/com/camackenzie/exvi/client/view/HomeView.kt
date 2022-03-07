@@ -1,5 +1,6 @@
 package com.camackenzie.exvi.client.view
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.foundation.lazy.LazyColumn

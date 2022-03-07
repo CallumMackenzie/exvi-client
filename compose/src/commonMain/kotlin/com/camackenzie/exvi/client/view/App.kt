@@ -1,21 +1,33 @@
 package com.camackenzie.exvi.client.view
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.*
+import androidx.compose.foundation.shape.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.client.model.Model
+import com.camackenzie.exvi.client.rendering.Camera3D
+import com.camackenzie.exvi.client.rendering.Renderer3D
 import com.camackenzie.exvi.core.util.None
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import com.camackenzie.exvi.client.rendering.*
+import com.camackenzie.exvi.client.model.*
+import androidx.compose.ui.geometry.*
+import androidx.compose.ui.graphics.PointMode
+import com.soywiz.korma.geom.*
+import kotlinx.coroutines.launch
 
 typealias ArgProviderFun = () -> SelfSerializable
 typealias ViewChangeFun = (ExviView, provider: ArgProviderFun) -> Unit
@@ -65,7 +77,7 @@ enum class ExviView(
 
 class AppState(
     val model: Model = Model(),
-    currentView: ExviView = ExviView.Login,
+    currentView: ExviView = ExviView.None,
     previousView: ExviView = ExviView.None,
     provided: SelfSerializable = None,
     val coroutineScope: CoroutineScope
