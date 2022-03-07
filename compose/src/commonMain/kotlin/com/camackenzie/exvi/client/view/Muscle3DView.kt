@@ -11,95 +11,85 @@ import com.camackenzie.exvi.client.model.readTextFile
 import com.camackenzie.exvi.client.rendering.Camera3D
 import com.camackenzie.exvi.client.rendering.Mesh3D
 import com.camackenzie.exvi.client.rendering.Renderer3D
-import com.soywiz.korma.geom.Vector3D
-import com.soywiz.korma.geom.radians
 import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.Color
+import com.camackenzie.exvi.client.rendering.toVectorArray
+import com.soywiz.korma.geom.*
+import kotlinx.coroutines.delay
+import kotlinx.datetime.Clock
 
 
-class Muscle3DView {
+object Muscle3DView {
+
+    private fun currentTimeMillis(): Long = Clock.System.now().toEpochMilliseconds()
 
     @Composable
     fun View(appState: AppState) {
-        val camera = remember {
-            Camera3D(
-                position = Vector3D().setTo(0.0, 0.0, 0.0)
-            )
-        }
-        var ctr by remember { mutableStateOf(0) }
-        var mesh = remember { Mesh3D.fromObj(readTextFile("cube.obj")) }
-        val renderer = Renderer3D(camera = camera)
+        var delta by remember { mutableStateOf(0.0) }
+        var lastFrame by remember { mutableStateOf(currentTimeMillis()) }
+        val targetDelta = 16L
+        val minDelta = 1L
 
         val scope = rememberCoroutineScope()
-        val job = remember {
+        remember {
             scope.launch {
                 while (true) {
-                    kotlinx.coroutines.delay(10)
-                    mesh.transform.setToRotation(ctr.radians, Vector3D(1.0, 0.0, 0.0))
-                        .setToTranslation(
-                            0.0, 0.0, 40.0
-                        )
-                    ++ctr
+                    delay(minDelta)
+                    if (currentTimeMillis() - lastFrame >= targetDelta) {
+                        delta = (currentTimeMillis() - lastFrame) / 1000.0
+                        lastFrame = currentTimeMillis()
+                    }
                 }
             }
         }
 
-        Text(text = ctr.toString())
+        var offset by remember { mutableStateOf(0.0) }
+
+        val camera = remember {
+            Camera3D(Vector3D(0.0, 0.0, -30.0))
+        }
+
+        val verts = remember { Mesh3D.fromObj(readTextFile("cube.obj")).toVectorArray() }
+
+        offset += 3.0 * delta
+
+        Text(delta.toString())
         Canvas(Modifier.fillMaxSize()) {
             camera.aspectRatio = size.height / size.width
+            val renderer = Renderer3D(camera, postVertexShader = {
+                it.points.forEach { pt ->
+                    pt.x *= size.width
+                    pt.y *= size.height
+                }
+            })
 
-            val pts = renderer.render(mesh)
-            drawPoints(
-                points = pts.map { pt ->
-                    Offset(pt.x.toFloat() * size.width, pt.y.toFloat() * size.height)
-                },
-                PointMode.Points,
-                Color.Black,
-                strokeWidth = 10f
+            val tris = renderer.renderToTriangles(
+                Mesh3D(
+                    verts,
+                    Matrix3D().setToRotation(EulerRotation(offset.degrees, offset.degrees, offset.degrees))
+                )
             )
 
-//            for (pt in renderer.render(mesh)) {
-//                val color = Color.Black
-
-//                if (tri.p0.x.isFinite() && tri.p0.y.isFinite()
-//                    && tri.p1.x.isFinite() && tri.p1.y.isFinite()
-//                )
-//                    drawLine(
-//                        color = color,
-//                        start = Offset(
-//                            tri.p0.x.toFloat() * size.width, tri.p0.y.toFloat() * size.height
-//                        ),
-//                        end = Offset(
-//                            tri.p1.x.toFloat() * size.width, tri.p1.y.toFloat() * size.height
-//                        )
-//                    )
-//
-//                if (tri.p2.x.isFinite() && tri.p2.y.isFinite()
-//                    && tri.p1.x.isFinite() && tri.p1.y.isFinite()
-//                )
-//                    drawLine(
-//                        color = color,
-//                        start = Offset(
-//                            tri.p1.x.toFloat() * size.width, tri.p1.y.toFloat() * size.height
-//                        ),
-//                        end = Offset(
-//                            tri.p2.x.toFloat() * size.width, tri.p2.y.toFloat() * size.height
-//                        )
-//                    )
-//
-//                if (tri.p0.x.isFinite() && tri.p0.y.isFinite()
-//                    && tri.p2.x.isFinite() && tri.p2.y.isFinite()
-//                )
-//                    drawLine(
-//                        color = color,
-//                        start = Offset(
-//                            tri.p2.x.toFloat() * size.width, tri.p2.y.toFloat() * size.height
-//                        ),
-//                        end = Offset(
-//                            tri.p0.x.toFloat() * size.width, tri.p0.y.toFloat() * size.height
-//                        )
-//                    )
-//            }
+            tris.forEach { (one, two, three) ->
+                drawCircle(color = Color.Cyan, radius = 5f, center = Offset(one.x, one.y))
+                drawCircle(color = Color.Cyan, radius = 5f, center = Offset(two.x, two.y))
+                drawCircle(color = Color.Cyan, radius = 5f, center = Offset(three.x, three.y))
+                drawLine(
+                    color = Color.Red,
+                    start = Offset(one.x, one.y),
+                    end = Offset(two.x, two.y)
+                )
+                drawLine(
+                    color = Color.Red,
+                    start = Offset(two.x, two.y),
+                    end = Offset(three.x, three.y)
+                )
+                drawLine(
+                    color = Color.Red,
+                    start = Offset(three.x, three.y),
+                    end = Offset(one.x, one.y)
+                )
+            }
         }
     }
 

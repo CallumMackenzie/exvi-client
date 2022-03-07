@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="96c82457-9ee9-421e-9bdb-84228443922d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/Muscle3DView.kt" afterDir="false" />
+    <list default="true" id="96c82457-9ee9-421e-9bdb-84228443922d" name="Changes" comment="Add 3d muscle view prototype">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compose/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/compose/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/commonMain/kotlin/com.camackenzie.exvi.client.rendering/3DRenderer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/commonMain/kotlin/com.camackenzie.exvi.client.rendering/3DRenderer.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/App.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/App.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/Muscle3DView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/Muscle3DView.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -262,6 +263,14 @@
       <option name="presentableId" value="Default" />
       <updated>1646592255709</updated>
     </task>
+    <task id="LOCAL-00001" summary="Add 3d muscle view prototype">
+      <created>1646618453933</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1646618453933</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -274,5 +283,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Add 3d muscle view prototype" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add 3d muscle view prototype" />
   </component>
 </project>

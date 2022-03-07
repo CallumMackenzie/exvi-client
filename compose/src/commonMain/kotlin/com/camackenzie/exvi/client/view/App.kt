@@ -67,6 +67,9 @@ enum class ExviView(
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(10.dp)
         )
+    }),
+    Debug(@Composable {
+        Muscle3DView.View(it)
     });
 
     @Composable
@@ -77,7 +80,7 @@ enum class ExviView(
 
 class AppState(
     val model: Model = Model(),
-    currentView: ExviView = ExviView.None,
+    currentView: ExviView = ExviView.Debug,
     previousView: ExviView = ExviView.None,
     provided: SelfSerializable = None,
     val coroutineScope: CoroutineScope
