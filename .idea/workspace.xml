@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="96c82457-9ee9-421e-9bdb-84228443922d" name="Changes" comment="Pre-merge commit">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/resources/raw/cube.obj" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/resources/raw/isont.obj" beforeDir="false" />
+    <list default="true" id="96c82457-9ee9-421e-9bdb-84228443922d" name="Changes" comment="Sync pre-3d development with main dev branch">
       <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/App.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/App.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -256,6 +253,14 @@
       <option name="presentableId" value="Default" />
       <updated>1646592255709</updated>
     </task>
+    <task id="LOCAL-00001" summary="Sync pre-3d development with main dev branch">
+      <created>1646618021625</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1646618021625</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -268,5 +273,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Sync pre-3d development with main dev branch" />
+    <option name="LAST_COMMIT_MESSAGE" value="Sync pre-3d development with main dev branch" />
   </component>
 </project>

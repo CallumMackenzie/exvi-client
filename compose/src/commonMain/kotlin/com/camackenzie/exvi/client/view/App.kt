@@ -65,7 +65,7 @@ enum class ExviView(
 
 class AppState(
     val model: Model = Model(),
-    currentView: ExviView = ExviView.None,
+    currentView: ExviView = ExviView.Login,
     previousView: ExviView = ExviView.None,
     provided: SelfSerializable = None,
     val coroutineScope: CoroutineScope
