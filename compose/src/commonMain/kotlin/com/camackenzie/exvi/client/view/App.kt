@@ -33,7 +33,7 @@ fun App() {
 
 enum class ExviView(
     private val viewFun: ViewFun
-) {
+) : SelfSerializable {
     Login(@Composable {
         EntryView.View(it)
     }),
@@ -61,6 +61,14 @@ enum class ExviView(
     fun compose(appState: AppState) {
         viewFun(appState)
     }
+
+    override fun getUID(): String = uid
+
+    override fun toJson(): String = Json.encodeToString(this)
+
+    companion object {
+        const val uid = "ExviView"
+    }
 }
 
 class AppState(
@@ -68,7 +76,8 @@ class AppState(
     currentView: ExviView = ExviView.Login,
     previousView: ExviView = ExviView.None,
     provided: SelfSerializable = None,
-    val coroutineScope: CoroutineScope
+    val coroutineScope: CoroutineScope,
+    private val processRestartInit: Boolean = false
 ) {
     var currentView by mutableStateOf(currentView)
         private set
@@ -81,7 +90,7 @@ class AppState(
         get() = model.settings
 
     init {
-        if (settings.hasKey("activeUser")) {
+        if (!processRestartInit && settings.hasKey("activeUser")) {
             model.accountManager.activeAccount = Account.fromCrendentialsString(settings.getString("activeUser"))
             setView(ExviView.Home)
         }
@@ -100,19 +109,20 @@ class AppState(
         fun saver(coroutineScope: CoroutineScope) = mapSaver(
             save = {
                 mapOf(
-                    "currView" to it.currentView,
-                    "prevView" to it.previousView,
+                    "currView" to it.currentView.toJson(),
+                    "prevView" to it.previousView.toJson(),
                     "provided" to selfSerializableToMap(it.provided),
                     "model" to it.model.toJson()
                 )
             },
             restore = {
                 AppState(
-                    Json.decodeFromString(it["model"] as String),
-                    it["currView"] as ExviView,
-                    it["prevView"] as ExviView,
-                    selfSerializableFromMap(it["provided"] as Map<String, Any?>),
-                    coroutineScope
+                    model = Json.decodeFromString<Model>(it["model"] as String),
+                    currentView = Json.decodeFromString(it["currView"] as String),
+                    previousView = Json.decodeFromString(it["prevView"] as String),
+                    provided = selfSerializableFromMap(it["provided"] as Map<String, Any?>),
+                    coroutineScope = coroutineScope,
+                    processRestartInit = true
                 )
             }
         )

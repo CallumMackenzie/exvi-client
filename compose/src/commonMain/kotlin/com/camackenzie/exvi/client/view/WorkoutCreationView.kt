@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,123 +23,10 @@ import com.soywiz.krypto.SecureRandom
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.*
+import androidx.compose.runtime.saveable.Saver
+import com.camackenzie.exvi.core.util.SelfSerializable
 
 object WorkoutCreationView {
-
-    private val workoutNamePresets = arrayOf(
-        "Pull Day", "Push Day", "Leg Day", "Chest Day",
-        "Bicep Bonanza", "Quad Isolation", "Calf Cruncher",
-        "Forearm Fiesta", "The Quadfather", "Quadzilla",
-        "Shoulders", "Back Builder", "Core", "Cardio Day 1",
-        "Deltoid Destroyer", "Shoulder Shredder", "Core Killer",
-        "More Core", "Roko's Rhomboids"
-    )
-
-    private val generators = mapOf(
-        "Random" to { emptyArray() },
-        "Arms" to WorkoutGenerator::armPriorities,
-        "Legs" to WorkoutGenerator::legPriorities
-    )
-
-    private data class ViewData(
-        val appState: AppState,
-        val coroutineScope: CoroutineScope
-    ) {
-        val model
-            get() = appState.model
-    }
-
-    private class WorkoutData(
-        name: String,
-        description: String = "",
-        exercises: Array<ExerciseSet> = emptyArray(),
-        provided: Workout? = null,
-        params: WorkoutGeneratorParams = WorkoutGeneratorParams(providers = generators["Arms"]!!.invoke()),
-        lockedExercises: Set<Int> = setOf(),
-        exerciseProcessRunning: Boolean = false,
-        editorExercise: Int? = null,
-        infoExercise: Exercise? = null
-    ) {
-        var name by mutableStateOf(name)
-        var description by mutableStateOf(description)
-        var exercises by mutableStateOf(exercises)
-        var infoExercise by mutableStateOf(infoExercise)
-        var editorExerciseIndex by mutableStateOf(editorExercise)
-        var params by mutableStateOf(params)
-        var lockedExercises by mutableStateOf(lockedExercises)
-        var exerciseProcessRunning by mutableStateOf(exerciseProcessRunning)
-        val provided = provided
-
-        var editorExercise: ExerciseSet?
-            get() = if (editorExerciseIndex == null) null else exercises[editorExerciseIndex!!]
-            set(ex) = if (editorExerciseIndex != null) {
-                exercises = exercises.mapIndexed { index, set ->
-                    if (index == editorExerciseIndex) ex!! else set
-                }.toTypedArray()
-            } else throw Exception()
-
-        constructor(provided: Any)
-                : this(
-            if (provided is Workout) provided.name else "New Workout",
-            if (provided is Workout) provided.description else "",
-            if (provided is Workout) provided.exercises.toTypedArray() else emptyArray<ExerciseSet>(),
-            if (provided is Workout) provided else null
-        )
-
-        val workout: Workout
-            get() = if (provided is Workout)
-                Workout(name, description, arrayListOf(*exercises), provided.id)
-            else
-                Workout(name, description, arrayListOf(*exercises))
-
-        fun addExercise(ex: ExerciseSet) {
-            exercises += ex
-        }
-
-        fun removeExercise(index: Int) {
-            // Sync with exercise set editor
-            if (index == editorExerciseIndex) editorExerciseIndex = null
-            // Unlock exercise
-            lockExercise(index, false)
-            // Shift indexes
-            lockedExercises = lockedExercises.map {
-                it - ((if (it >= index) 1 else 0) +
-                        (if (it >= editorExerciseIndex ?: Int.MAX_VALUE) 1 else 0))
-            }.toSet()
-            // Remove exercise
-            exercises = exercises.filterIndexed { i, _ ->
-                i != index
-            }.toTypedArray()
-        }
-
-        fun lockExercise(index: Int, lock: Boolean) {
-            lockedExercises = if (lock) {
-                setOf(*lockedExercises.toTypedArray(), index)
-            } else {
-                lockedExercises.filter {
-                    it != index
-                }.toSet()
-            }
-        }
-    }
-
-    private class WorkoutSearchData(
-        searchContent: String = "",
-        exercisesSorted: Boolean = false,
-        searchExercises: Array<Exercise> = emptyArray(),
-        processRunning: Boolean = false
-    ) {
-        var searchContent by mutableStateOf(searchContent)
-        var exercisesSorted by mutableStateOf(exercisesSorted)
-        var searchExercises by mutableStateOf(searchExercises)
-        var processRunning by mutableStateOf(processRunning)
-    }
-
-    private class SelectorViewData(
-        rightPane: String = "Info"
-    ) {
-        var rightPane by mutableStateOf(rightPane)
-    }
 
     @Composable
     fun View(
@@ -147,9 +35,11 @@ object WorkoutCreationView {
         ensureActiveAccount(appState)
 
         val viewData = ViewData(appState, rememberCoroutineScope())
-        val workoutData = remember { WorkoutData(appState.provided) }
-        val workoutSearchData = remember { WorkoutSearchData() }
-        val selectorViewData = remember { SelectorViewData() }
+        val workoutData = rememberSaveable(
+            saver = WorkoutData.saver(appState.provided)
+        ) { WorkoutData(appState.provided) }
+        val workoutSearchData = rememberSaveable(saver = WorkoutSearchData.saver()) { WorkoutSearchData() }
+        val selectorViewData = rememberSaveable(saver = SelectorViewData.saver()) { SelectorViewData() }
 
         BoxWithConstraints(Modifier.fillMaxSize().padding(10.dp)) {
             if (maxWidth < 600.dp) {
@@ -688,5 +578,182 @@ object WorkoutCreationView {
             }
         }
     }
+
+
+    private val workoutNamePresets = arrayOf(
+        "Pull Day", "Push Day", "Leg Day", "Chest Day",
+        "Bicep Bonanza", "Quad Isolation", "Calf Cruncher",
+        "Forearm Fiesta", "The Quadfather", "Quadzilla",
+        "Shoulders", "Back Builder", "Core", "Cardio Day 1",
+        "Deltoid Destroyer", "Shoulder Shredder", "Core Killer",
+        "More Core", "Roko's Rhomboids"
+    )
+
+    private val generators = mapOf(
+        "Random" to { emptyArray() },
+        "Arms" to WorkoutGenerator::armPriorities,
+        "Legs" to WorkoutGenerator::legPriorities
+    )
+
+    private data class ViewData(
+        val appState: AppState,
+        val coroutineScope: CoroutineScope
+    ) {
+        val model
+            get() = appState.model
+    }
+
+    private class WorkoutData(
+        name: String,
+        description: String = "",
+        exercises: Array<ExerciseSet> = emptyArray(),
+        provided: Workout? = null,
+        params: WorkoutGeneratorParams = WorkoutGeneratorParams(providers = generators["Arms"]!!.invoke()),
+        lockedExercises: Set<Int> = setOf(),
+        exerciseProcessRunning: Boolean = false,
+        editorExercise: Int? = null,
+        infoExercise: Exercise? = null
+    ) {
+        var name by mutableStateOf(name)
+        var description by mutableStateOf(description)
+        var exercises by mutableStateOf(exercises)
+        var infoExercise by mutableStateOf(infoExercise)
+        var editorExerciseIndex by mutableStateOf(editorExercise)
+        var params by mutableStateOf(params)
+        var lockedExercises by mutableStateOf(lockedExercises)
+        var exerciseProcessRunning by mutableStateOf(exerciseProcessRunning)
+        val provided = provided
+
+        var editorExercise: ExerciseSet?
+            get() = if (editorExerciseIndex == null) null else exercises[editorExerciseIndex!!]
+            set(ex) = if (editorExerciseIndex != null) {
+                exercises = exercises.mapIndexed { index, set ->
+                    if (index == editorExerciseIndex) ex!! else set
+                }.toTypedArray()
+            } else throw Exception()
+
+        constructor(provided: Any)
+                : this(
+            if (provided is Workout) provided.name else "New Workout",
+            if (provided is Workout) provided.description else "",
+            if (provided is Workout) provided.exercises.toTypedArray() else emptyArray<ExerciseSet>(),
+            if (provided is Workout) provided else null
+        )
+
+        val workout: Workout
+            get() = if (provided is Workout)
+                Workout(name, description, arrayListOf(*exercises), provided.id)
+            else
+                Workout(name, description, arrayListOf(*exercises))
+
+        fun addExercise(ex: ExerciseSet) {
+            exercises += ex
+        }
+
+        fun removeExercise(index: Int) {
+            // Sync with exercise set editor
+            if (index == editorExerciseIndex) editorExerciseIndex = null
+            // Unlock exercise
+            lockExercise(index, false)
+            // Shift indexes
+            lockedExercises = lockedExercises.map {
+                it - ((if (it >= index) 1 else 0) +
+                        (if (it >= editorExerciseIndex ?: Int.MAX_VALUE) 1 else 0))
+            }.toSet()
+            // Remove exercise
+            exercises = exercises.filterIndexed { i, _ ->
+                i != index
+            }.toTypedArray()
+        }
+
+        fun lockExercise(index: Int, lock: Boolean) {
+            lockedExercises = if (lock) {
+                setOf(*lockedExercises.toTypedArray(), index)
+            } else {
+                lockedExercises.filter {
+                    it != index
+                }.toSet()
+            }
+        }
+
+        companion object {
+            fun saver(provided: SelfSerializable?): Saver<WorkoutData, Any> = mapSaver(
+                save = {
+                    mapOf(
+                        "name" to it.name,
+                        "description" to it.description,
+                        "exercises" to it.exercises,
+                        "lockedExercises" to it.lockedExercises.toTypedArray(),
+                        "editorExerciseIndex" to it.editorExerciseIndex,
+                        "infoExercise" to it.infoExercise?.toJson(),
+//                        "params" to it.params.toJson()
+                    )
+                },
+                restore = {
+                    val infoExerciseStr = it["infoExercise"] as String?
+
+                    WorkoutData(
+                        name = it["name"] as String,
+                        description = it["description"] as String,
+                        exercises = it["exercises"] as Array<ExerciseSet>,
+                        lockedExercises = (it["lockedExercises"] as Array<Int>).toSet(),
+                        editorExercise = it["editorExerciseIndex"] as Int?,
+                        infoExercise = if (infoExerciseStr == null) null else Json.decodeFromString<Exercise>(
+                            infoExerciseStr
+                        ),
+                        provided = if (provided is Workout) provided else null,
+//                        params = Json.decodeFromString<WorkoutGeneratorParams>(it["params"] as String)
+                    )
+                }
+            )
+        }
+    }
+
+    private class WorkoutSearchData(
+        searchContent: String = "",
+        exercisesSorted: Boolean = false,
+        searchExercises: Array<Exercise> = emptyArray(),
+        processRunning: Boolean = false
+    ) {
+        var searchContent by mutableStateOf(searchContent)
+        var exercisesSorted by mutableStateOf(exercisesSorted)
+        var searchExercises by mutableStateOf(searchExercises)
+        var processRunning by mutableStateOf(processRunning)
+
+        companion object {
+            fun saver(): Saver<WorkoutSearchData, Any> = mapSaver(
+                save = {
+                    mapOf(
+                        "searchContent" to it.searchContent
+                    )
+                }, restore = {
+                    WorkoutSearchData(
+                        searchContent = it["searchContent"] as String
+                    )
+                }
+            )
+        }
+    }
+
+    private class SelectorViewData(
+        rightPane: String = "Info"
+    ) {
+        var rightPane by mutableStateOf(rightPane)
+
+        companion object {
+            fun saver(): Saver<SelectorViewData, Any> = mapSaver(
+                save = {
+                    mapOf(
+                        "rightPane" to it.rightPane
+                    )
+                }, restore = {
+                    SelectorViewData(
+                        rightPane = it["rightPane"] as String
+                    )
+                }
+            )
+        }
+    }
+
 
 }

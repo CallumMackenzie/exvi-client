@@ -21,7 +21,7 @@ import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 fun selfSerializableFromMap(map: Map<String, Any?>): SelfSerializable =
     selfSerializableFromJson(map["json"] as String, map["uid"] as String)
 
-fun selfSerializableToMap(ss: SelfSerializable): Map<String, Any> =
+fun selfSerializableToMap(ss: SelfSerializable): Map<String, Any?> =
     mapOf("json" to ss.toJson(), "uid" to ss.getUID())
 
 fun selfSerializableFromJson(json: String, uid: String): SelfSerializable =
@@ -33,6 +33,7 @@ fun selfSerializableFromJson(json: String, uid: String): SelfSerializable =
         None.uid -> Json.decodeFromString<None>(json)
         Exercise.uid -> Json.decodeFromString<Exercise>(json)
         WorkoutGeneratorParams.uid -> Json.decodeFromString<WorkoutGeneratorParams>(json)
+        ExviView.uid -> Json.decodeFromString<ExviView>(json)
         else -> throw Exception("Could not restore type \"$uid\"")
     }
 

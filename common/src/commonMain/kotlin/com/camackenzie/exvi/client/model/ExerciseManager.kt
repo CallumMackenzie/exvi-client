@@ -14,7 +14,10 @@ import kotlinx.serialization.json.*
 
 
 @kotlinx.serialization.Serializable
-data class ExerciseManager(var exercises: HashSet<Exercise> = HashSet()) : SelfSerializable {
+data class ExerciseManager(
+    @Transient
+    var exercises: HashSet<Exercise> = HashSet()
+) : SelfSerializable {
 
     constructor(vararg exs: Exercise) : this() {
         addAll(arrayOf(*exs))

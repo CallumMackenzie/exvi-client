@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,7 +13,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
-import com.camackenzie.exvi.client.model.Model
 import kotlinx.coroutines.CoroutineScope
 
 object EntryView {
@@ -21,20 +22,39 @@ object EntryView {
         loginEnabled: Boolean = true,
         password: String = "",
         username: String = "",
+        error: String = ""
     ) {
         var loginEnabled by mutableStateOf(loginEnabled)
         var password by mutableStateOf(password)
         var username by mutableStateOf(username)
         val coroutineScope: CoroutineScope = coroutineScope
+        var error by mutableStateOf(error)
 
         val setUsername: (String) -> Unit = { this.username = it }
         val setPassword: (String) -> Unit = { this.password = it }
+
+        companion object {
+            fun Saver(scope: CoroutineScope): Saver<LoginData, Any> = mapSaver(
+                save = {
+                    mapOf(
+                        "username" to it.username,
+                        "loginEnabled" to it.loginEnabled
+                    )
+                }, restore = {
+                    val loginEnabled = it["loginEnabled"] as Boolean
+                    LoginData(
+                        scope, username = it["username"] as String,
+                        error = if (!loginEnabled) "Login Cancelled Due to App Restart" else ""
+                    )
+                }
+            )
+        }
     }
 
     @Composable
     fun View(appState: AppState) {
         val coroutineScope = rememberCoroutineScope()
-        val loginData = remember { LoginData(coroutineScope) }
+        val loginData = rememberSaveable(saver = LoginData.Saver(coroutineScope)) { LoginData(coroutineScope) }
 
         BoxWithConstraints(Modifier.fillMaxSize()) {
             if (maxWidth < 600.dp) {
@@ -78,7 +98,6 @@ object EntryView {
         appState: AppState,
         loginData: LoginData
     ) {
-        var errorText by remember { mutableStateOf("") }
 
         Column(
             verticalArrangement = Arrangement.Center,
@@ -105,7 +124,7 @@ object EntryView {
                             loginData.password,
                             loginData.coroutineScope,
                             onFail = {
-                                errorText = it.body
+                                loginData.error = it.body
                                 loginData.loginEnabled = true
                             }, onSuccess = {
                                 val account = Account.fromAccessKey(
@@ -127,8 +146,8 @@ object EntryView {
                     LoadingIcon()
                 }
             }
-            if (loginData.loginEnabled && errorText.isNotBlank()) {
-                Text(text = errorText)
+            if (loginData.loginEnabled && loginData.error.isNotBlank()) {
+                Text(text = loginData.error)
             }
         }
     }
