@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="96c82457-9ee9-421e-9bdb-84228443922d" name="Changes" comment="Sync pre-3d development with main dev branch">
+    <list default="true" id="96c82457-9ee9-421e-9bdb-84228443922d" name="Changes" comment="Remove constant updates">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/App.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/App.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

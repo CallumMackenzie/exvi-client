@@ -93,11 +93,7 @@ class AppState(
         provided = args()
     }
 
-    fun setView(view: ExviView, args: SelfSerializable) {
-        setView(view) {
-            args
-        }
-    }
+    fun setView(view: ExviView, args: SelfSerializable) = setView(view) { args }
 
     companion object {
         @Suppress("UNCHECKED_CAST")
