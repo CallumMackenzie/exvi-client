@@ -43,16 +43,6 @@ object Muscle3DView {
         }
         val rd = remember { RenderData(arrayOf(mesh), camera) }
 
-        remember {
-            coroutineScope.launch {
-                delay(5000)
-                animate(0f, 300f) { value, _ ->
-                    mesh.transform = mesh.transform
-                        .setToRotation(value.degrees, Vector3D(0.0, 1.0, 0.0))
-                }
-            }
-        }
-
         Column(
             Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
