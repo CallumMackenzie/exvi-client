@@ -2,6 +2,7 @@ package com.camackenzie.exvi.client.rendering
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -13,26 +14,30 @@ import androidx.compose.ui.unit.dp
 
 typealias RenderFun = DrawScope.(Triangle3D) -> Unit
 
-private val defaultRenderer: RenderFun = {
+@Composable
+fun DefaultRenderFun(
+    pointColor: Color = MaterialTheme.colors.secondary,
+    lineColor: Color = MaterialTheme.colors.primary,
+): RenderFun = {
     val (one, two, three) = it
-    drawCircle(color = Color.Cyan, radius = 3f, center = Offset(one.x, one.y))
-    drawCircle(color = Color.Cyan, radius = 3f, center = Offset(two.x, two.y))
-    drawCircle(color = Color.Cyan, radius = 3f, center = Offset(three.x, three.y))
     drawLine(
-        color = Color.Red,
+        color = lineColor,
         start = Offset(one.x, one.y),
         end = Offset(two.x, two.y)
     )
     drawLine(
-        color = Color.Red,
+        color = lineColor,
         start = Offset(two.x, two.y),
         end = Offset(three.x, three.y)
     )
     drawLine(
-        color = Color.Red,
+        color = lineColor,
         start = Offset(three.x, three.y),
         end = Offset(one.x, one.y)
     )
+    drawCircle(color = pointColor, radius = 2.5f, center = Offset(one.x, one.y))
+    drawCircle(color = pointColor, radius = 2.5f, center = Offset(two.x, two.y))
+    drawCircle(color = pointColor, radius = 2.5f, center = Offset(three.x, three.y))
 }
 
 class ComposableMesh3D(
@@ -76,7 +81,7 @@ fun RenderedSpinner(
     modifier: Modifier = Modifier.size(30.dp, 30.dp),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
-    renderer: RenderFun = defaultRenderer,
+    renderer: RenderFun = DefaultRenderFun(),
     meshData: Array<Triangle3D> = Mesh3D.fromObj(IcoSphereObjData)
 ) {
     val renderData = remember {
@@ -94,7 +99,7 @@ fun RenderedSpinner(
                 renderData.meshes.forEach {
                     it.transform = Matrix3D()
                         .copyFrom(it.transform)
-                        .rotate(EulerRotation(4.degrees, 4.degrees, 4.degrees))
+                        .rotate(EulerRotation(2.degrees, 2.degrees, 2.degrees))
                 }
             }
         }
@@ -111,7 +116,7 @@ fun RenderedSpinner(
 fun Renderer3D(
     renderData: RenderData,
     modifier: Modifier = Modifier,
-    triRenderer: RenderFun = defaultRenderer
+    triRenderer: RenderFun = DefaultRenderFun()
 ) {
     Canvas(modifier) {
         val newAspect = size.height / size.width

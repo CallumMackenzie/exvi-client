@@ -1,19 +1,26 @@
 package com.camackenzie.exvi.client.rendering
 
 import com.soywiz.korma.geom.*
+import kotlinx.coroutines.*
 import kotlin.math.PI
 import kotlin.math.tan
 
-data class Renderer3D(
-    var camera: Camera3D,
-    var vertexShader: (Mesh3D, Vector3D) -> Unit = { mesh, vertex ->
+typealias VertexShader = (Mesh3D, Vector3D) -> Unit
+typealias PostVertexShader = (Triangle3D) -> Unit
+
+private fun DefaultVertexShader(camera: Camera3D): VertexShader =
+    { mesh, vertex ->
         vertex.transform(mesh.transform)
             .transform(Matrix3D().setToTranslation(camera.position.x, camera.position.y, camera.position.z))
             .transform(camera.cameraMatrix)
             .transform(camera.projectionMatrix)
-    },
-    var postVertexShader: (Triangle3D) -> Unit = {}
-) {
+    }
+
+interface Renderer3D {
+    var postVertexShader: PostVertexShader
+    var vertexShader: VertexShader
+    var camera: Camera3D
+
     fun renderRaw(vararg meshes: Mesh3D): Array<Vector3D> {
         camera.calculateProjection = true
         camera.calculateCamera = true
@@ -31,16 +38,28 @@ data class Renderer3D(
         return verts
     }
 
-    /**
-     * Returns an array of triangle coordinates
-     */
+    fun renderToTriangles(vararg meshes: Mesh3D): Array<Triangle3D> =
+        pointsToTriangles(renderFull(*meshes))
+
+    fun normaliseRenderedPointsRaw(transformedVerts: Array<Vector3D>): Array<Vector3D> =
+        transformedVerts.map {
+            it.x = (it.x / it.w) + 0.5f
+            it.y = (it.y / it.w) + 0.5f
+            it
+        }.toTypedArray()
+
+    fun normaliseRenderedPoints(transformedVerts: Array<Vector3D>): Array<Vector2D> =
+        normaliseRenderedPointsRaw(transformedVerts).map {
+            Vector2D(it.x.toDouble(), it.y.toDouble())
+        }.toTypedArray()
+
     fun render(vararg meshes: Mesh3D): Array<Vector2D> =
         normaliseRenderedPoints(renderRaw(*meshes))
 
     fun renderFull(vararg meshes: Mesh3D): Array<Vector3D> =
         normaliseRenderedPointsRaw(renderRaw(*meshes))
 
-    private fun pointsToTriangles(points: Array<Vector3D>): Array<Triangle3D> =
+    fun pointsToTriangles(points: Array<Vector3D>): Array<Triangle3D> =
         Array(points.size / 3) {
             val p0 = points[it * 3]
             val p1 = points[it * 3 + 1]
@@ -50,21 +69,48 @@ data class Renderer3D(
             tri
         }
 
-    fun renderToTriangles(vararg meshes: Mesh3D): Array<Triangle3D> =
-        pointsToTriangles(renderFull(*meshes))
+    companion object {
+        operator fun invoke(
+            camera: Camera3D = Camera3D(),
+            vertexShader: VertexShader = DefaultVertexShader(camera),
+            postVertexShader: (Triangle3D) -> Unit = {}
+        ): Renderer3D = ActualRenderer3D(camera, vertexShader, postVertexShader)
+    }
 
-    private fun normaliseRenderedPointsRaw(transformedVerts: Array<Vector3D>): Array<Vector3D> =
-        transformedVerts.map {
-            it.x = (it.x / it.w) + 0.5f
-            it.y = (it.y / it.w) + 0.5f
-            it
-        }.toTypedArray()
-
-    private fun normaliseRenderedPoints(transformedVerts: Array<Vector3D>): Array<Vector2D> =
-        normaliseRenderedPointsRaw(transformedVerts).map {
-            Vector2D(it.x.toDouble(), it.y.toDouble())
-        }.toTypedArray()
 }
+
+data class AsyncRenderer3D(
+    override var camera: Camera3D = Camera3D(),
+    override var vertexShader: VertexShader = DefaultVertexShader(camera),
+    override var postVertexShader: (Triangle3D) -> Unit = {}
+) : Renderer3D {
+
+    fun renderAsyncToTriangles(
+        coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+        dispatcher: CoroutineDispatcher = Dispatchers.Default,
+        nThreads: Int = 2,
+        threadCompleteListener: (Int) -> Unit = {},
+        meshes: Array<out Mesh3D>,
+        onRenderComplete: (Array<Triangle3D>) -> Unit
+    ): Job = coroutineScope.launch(dispatcher) {
+        val tris = Array(nThreads) { emptyArray<Triangle3D>() }
+        List(nThreads) {
+            coroutineScope.launch(dispatcher) {
+                val renderer = Renderer3D(camera, vertexShader, postVertexShader)
+                tris[it] = renderer.renderToTriangles(*meshes)
+                threadCompleteListener(it)
+            }
+        }.joinAll()
+        onRenderComplete(tris.reduce { l, r -> l + r })
+    }
+
+}
+
+data class ActualRenderer3D(
+    override var camera: Camera3D = Camera3D(),
+    override var vertexShader: VertexShader = DefaultVertexShader(camera),
+    override var postVertexShader: (Triangle3D) -> Unit = {}
+) : Renderer3D
 
 interface Camera3D {
     var position: Vector3D

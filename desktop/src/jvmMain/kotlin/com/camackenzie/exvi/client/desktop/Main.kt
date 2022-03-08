@@ -11,6 +11,7 @@ import androidx.compose.ui.res.loadXmlImageVector
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import com.camackenzie.exvi.client.view.ExviMaterialTheme
 import org.xml.sax.InputSource
 
 fun main() = application {
@@ -19,7 +20,7 @@ fun main() = application {
         title = "Exvi Fitness",
         icon = rememberVectorPainter(loadXmlImage("ic_logo"))
     ) {
-        MaterialTheme {
+        ExviMaterialTheme {
             App()
         }
     }
