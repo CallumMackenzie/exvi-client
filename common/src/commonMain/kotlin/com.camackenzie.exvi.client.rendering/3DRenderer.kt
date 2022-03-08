@@ -172,7 +172,7 @@ data class Triangle3D(
     val points: Array<Vector3D> = arrayOf(p0, p1, p2)
 }
 
-inline fun Array<Triangle3D>.toVectorArray(): Array<Vector3D> = Array(size * 3) {
+fun Array<Triangle3D>.toVectorArray(): Array<Vector3D> = Array(size * 3) {
     get(it / 3).points[it % 3]
 }
 
