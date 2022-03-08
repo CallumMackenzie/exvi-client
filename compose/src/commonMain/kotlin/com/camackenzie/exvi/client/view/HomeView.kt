@@ -22,39 +22,6 @@ import kotlinx.coroutines.Dispatchers
 
 object HomeView {
 
-    private class WorkoutListData(
-        workouts: Array<Workout> = emptyArray(),
-        retrievingWorkouts: Boolean = false,
-        workoutsSynced: Boolean = false,
-        val appState: AppState,
-        val coroutineScope: CoroutineScope
-    ) {
-        var workouts by mutableStateOf(workouts)
-        var retrievingWorkouts by mutableStateOf(retrievingWorkouts)
-        var workoutsSynced by mutableStateOf(workoutsSynced)
-
-        fun ensureWorkoutsSynced() {
-            if (!workoutsSynced) {
-                workoutsSynced = true
-                appState.model.workoutManager?.invalidateLocalCache()
-                refreshWorkouts()
-            }
-        }
-
-        fun refreshWorkouts() {
-            retrievingWorkouts = true
-            appState.model.workoutManager?.getWorkouts(
-                dispatcher = Dispatchers.Default,
-                coroutineScope = coroutineScope,
-                onSuccess = { workouts = it },
-                onFail = {
-                    println("Workout request error: ${it.toJson()}")
-                }, onComplete = {
-                    retrievingWorkouts = false
-                }
-            )
-        }
-    }
 
     @Composable
     fun View(appState: AppState) {
@@ -322,6 +289,41 @@ object HomeView {
             if (deletingWorkout) {
                 LoadingIcon()
             }
+        }
+    }
+
+
+    private class WorkoutListData(
+        workouts: Array<Workout> = emptyArray(),
+        retrievingWorkouts: Boolean = false,
+        workoutsSynced: Boolean = false,
+        val appState: AppState,
+        val coroutineScope: CoroutineScope
+    ) {
+        var workouts by mutableStateOf(workouts)
+        var retrievingWorkouts by mutableStateOf(retrievingWorkouts)
+        var workoutsSynced by mutableStateOf(workoutsSynced)
+
+        fun ensureWorkoutsSynced() {
+            if (!workoutsSynced) {
+                workoutsSynced = true
+                appState.model.workoutManager?.invalidateLocalCache()
+                refreshWorkouts()
+            }
+        }
+
+        fun refreshWorkouts() {
+            retrievingWorkouts = true
+            appState.model.workoutManager?.getWorkouts(
+                dispatcher = Dispatchers.Default,
+                coroutineScope = coroutineScope,
+                onSuccess = { workouts = it },
+                onFail = {
+                    println("Workout request error: ${it.toJson()}")
+                }, onComplete = {
+                    retrievingWorkouts = false
+                }
+            )
         }
     }
 }

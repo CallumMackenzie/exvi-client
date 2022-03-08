@@ -29,8 +29,8 @@ object Muscle3DView {
         val mesh by remember {
             mutableStateOf(
                 ComposableMesh3D(
-                    Mesh3D.fromObj(readTextFile("cube.obj")).toVectorArray(),
-                    Matrix3D()
+                    Mesh3D.fromObj(readTextFile("man.obj")).toVectorArray(),
+                    Matrix3D().scale(0.01, 0.01, 0.01)
                 )
             )
         }
