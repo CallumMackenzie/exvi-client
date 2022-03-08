@@ -587,7 +587,7 @@ object WorkoutCreationView {
                         }
                     } else {
                         item {
-                            CircularProgressIndicator()
+                            LoadingIcon()
                         }
                     }
                 }
@@ -613,7 +613,7 @@ object WorkoutCreationView {
                     }
                 } else {
                     item {
-                        CircularProgressIndicator()
+                        LoadingIcon()
                     }
                 }
                 if (workoutData.exercises.isEmpty()

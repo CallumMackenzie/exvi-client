@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
+import com.camackenzie.exvi.client.rendering.RenderedSpinner
 import com.camackenzie.exvi.core.model.Workout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -216,7 +217,7 @@ object HomeView {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text("Fetching your workouts...")
-                    CircularProgressIndicator(Modifier.padding(10.dp))
+                    LoadingIcon()
                 }
             } else {
                 IconButton(onClick = {
@@ -319,7 +320,7 @@ object HomeView {
                 }
             }
             if (deletingWorkout) {
-                CircularProgressIndicator()
+                LoadingIcon()
             }
         }
     }

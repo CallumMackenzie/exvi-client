@@ -171,9 +171,7 @@ object SignupView {
                     else "Create Account"
                 )
             }
-            if (sendingReq) {
-                CircularProgressIndicator(Modifier.padding(10.dp))
-            }
+            if (sendingReq) LoadingIcon()
             if (!sendingReq && signupData.error.isNotBlank()) {
                 Text(text = signupData.error, textAlign = TextAlign.Center, modifier = Modifier.padding(5.dp))
             }

@@ -124,7 +124,7 @@ object EntryView {
                     Text(if (loginData.loginEnabled) "Login" else "Logging In")
                 }
                 if (!loginData.loginEnabled) {
-                    CircularProgressIndicator(Modifier.padding(10.dp))
+                    LoadingIcon()
                 }
             }
             if (loginData.loginEnabled && errorText.isNotBlank()) {

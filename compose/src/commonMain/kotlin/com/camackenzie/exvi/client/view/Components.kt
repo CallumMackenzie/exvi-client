@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
+import com.camackenzie.exvi.client.rendering.RenderedSpinner
 import com.camackenzie.exvi.core.api.toJson
 
 @Composable
@@ -42,6 +43,11 @@ fun UsernameField(
         enabled = enabled
     )
 }
+
+@Composable
+fun LoadingIcon(
+    modifier: Modifier = Modifier.size(40.dp, 40.dp).padding(6.dp)
+) = RenderedSpinner(modifier)
 
 @Composable
 fun PasswordField(
