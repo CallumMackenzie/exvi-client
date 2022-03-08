@@ -82,7 +82,7 @@ fun RenderedSpinner(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
     renderer: RenderFun = DefaultRenderFun(),
-    meshData: Array<Triangle3D> = Mesh3D.fromObj(IcoSphereObjData)
+    meshData: Array<Triangle3D> = Mesh3D.fromObj(ConstMeshData.IcoSphereObjData)
 ) {
     val renderData = remember {
         RenderData(
@@ -137,36 +137,38 @@ fun Renderer3D(
     }
 }
 
-private const val IcoSphereObjData = "v 0.000000 -1.000000 0.000000\n" +
-        "v 0.723600 -0.447215 0.525720\n" +
-        "v -0.276385 -0.447215 0.850640\n" +
-        "v -0.894425 -0.447215 0.000000\n" +
-        "v -0.276385 -0.447215 -0.850640\n" +
-        "v 0.723600 -0.447215 -0.525720\n" +
-        "v 0.276385 0.447215 0.850640\n" +
-        "v -0.723600 0.447215 0.525720\n" +
-        "v -0.723600 0.447215 -0.525720\n" +
-        "v 0.276385 0.447215 -0.850640\n" +
-        "v 0.894425 0.447215 0.000000\n" +
-        "v 0.000000 1.000000 0.000000\n" +
-        "s off\n" +
-        "f 1 2 3\n" +
-        "f 2 1 6\n" +
-        "f 1 3 4\n" +
-        "f 1 4 5\n" +
-        "f 1 5 6\n" +
-        "f 2 6 11\n" +
-        "f 3 2 7\n" +
-        "f 4 3 8\n" +
-        "f 5 4 9\n" +
-        "f 6 5 10\n" +
-        "f 2 11 7\n" +
-        "f 3 7 8\n" +
-        "f 4 8 9\n" +
-        "f 5 9 10\n" +
-        "f 6 10 11\n" +
-        "f 7 11 12\n" +
-        "f 8 7 12\n" +
-        "f 9 8 12\n" +
-        "f 10 9 12\n" +
-        "f 11 10 12\n"
+object ConstMeshData {
+
+    const val IcoSphereObjData = "v 0.000000 -1.000000 0.000000\n" +
+            "v 0.723600 -0.447215 0.525720\n" +
+            "v -0.276385 -0.447215 0.850640\n" +
+            "v -0.894425 -0.447215 0.000000\n" +
+            "v -0.276385 -0.447215 -0.850640\n" +
+            "v 0.723600 -0.447215 -0.525720\n" +
+            "v 0.276385 0.447215 0.850640\n" +
+            "v -0.723600 0.447215 0.525720\n" +
+            "v -0.723600 0.447215 -0.525720\n" +
+            "v 0.276385 0.447215 -0.850640\n" +
+            "v 0.894425 0.447215 0.000000\n" +
+            "v 0.000000 1.000000 0.000000\n" +
+            "f 1 2 3\n" +
+            "f 2 1 6\n" +
+            "f 1 3 4\n" +
+            "f 1 4 5\n" +
+            "f 1 5 6\n" +
+            "f 2 6 11\n" +
+            "f 3 2 7\n" +
+            "f 4 3 8\n" +
+            "f 5 4 9\n" +
+            "f 6 5 10\n" +
+            "f 2 11 7\n" +
+            "f 3 7 8\n" +
+            "f 4 8 9\n" +
+            "f 5 9 10\n" +
+            "f 6 10 11\n" +
+            "f 7 11 12\n" +
+            "f 8 7 12\n" +
+            "f 9 8 12\n" +
+            "f 10 9 12\n" +
+            "f 11 10 12\n"
+}

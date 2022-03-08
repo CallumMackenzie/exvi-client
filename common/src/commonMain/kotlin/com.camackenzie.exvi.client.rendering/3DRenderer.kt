@@ -8,7 +8,7 @@ import kotlin.math.tan
 typealias VertexShader = (Mesh3D, Vector3D) -> Unit
 typealias PostVertexShader = (Triangle3D) -> Unit
 
-private fun DefaultVertexShader(camera: Camera3D): VertexShader =
+private fun defaultVertexShader(camera: Camera3D): VertexShader =
     { mesh, vertex ->
         vertex.transform(mesh.transform)
             .transform(Matrix3D().setToTranslation(camera.position.x, camera.position.y, camera.position.z))
@@ -72,7 +72,7 @@ interface Renderer3D {
     companion object {
         operator fun invoke(
             camera: Camera3D = Camera3D(),
-            vertexShader: VertexShader = DefaultVertexShader(camera),
+            vertexShader: VertexShader = defaultVertexShader(camera),
             postVertexShader: (Triangle3D) -> Unit = {}
         ): Renderer3D = ActualRenderer3D(camera, vertexShader, postVertexShader)
     }
@@ -81,7 +81,7 @@ interface Renderer3D {
 
 data class AsyncRenderer3D(
     override var camera: Camera3D = Camera3D(),
-    override var vertexShader: VertexShader = DefaultVertexShader(camera),
+    override var vertexShader: VertexShader = defaultVertexShader(camera),
     override var postVertexShader: (Triangle3D) -> Unit = {}
 ) : Renderer3D {
 
@@ -108,7 +108,7 @@ data class AsyncRenderer3D(
 
 data class ActualRenderer3D(
     override var camera: Camera3D = Camera3D(),
-    override var vertexShader: VertexShader = DefaultVertexShader(camera),
+    override var vertexShader: VertexShader = defaultVertexShader(camera),
     override var postVertexShader: (Triangle3D) -> Unit = {}
 ) : Renderer3D
 
@@ -230,6 +230,11 @@ interface Mesh3D {
         private val vertexRegex = Regex("\\s+")
         private val faceRegex = Regex("(\\s|\\/)+")
 
+        operator fun invoke(
+            points: Array<Vector3D> = emptyArray(),
+            transform: Matrix3D = Matrix3D()
+        ): Mesh3D = ActualMesh3D(points, transform)
+
         fun fromObj(data: String): Array<Triangle3D> {
             val verts = ArrayList<Vector3D>()
             val triangles = ArrayList<Triangle3D>()
@@ -249,17 +254,17 @@ interface Mesh3D {
                             't' -> hasTextures = true
                         }
                         'f' -> {
-                            val inds = line.split(faceRegex)
+                            val ins = line.split(faceRegex)
                                 .filterIndexed { index, _ -> index != 0 }
                                 .map { it.toInt() - 1 }
 
                             triangles.add(
                                 if (hasTextures && hasNormals)
-                                    Triangle3D(verts[inds[0]], verts[inds[3]], verts[inds[6]])
+                                    Triangle3D(verts[ins[0]], verts[ins[3]], verts[ins[6]])
                                 else if (hasTextures || hasNormals)
-                                    Triangle3D(verts[inds[0]], verts[inds[2]], verts[inds[4]])
+                                    Triangle3D(verts[ins[0]], verts[ins[2]], verts[ins[4]])
                                 else
-                                    Triangle3D(verts[inds[0]], verts[inds[1]], verts[inds[2]])
+                                    Triangle3D(verts[ins[0]], verts[ins[1]], verts[ins[2]])
                             )
                         }
                     }
@@ -293,13 +298,6 @@ open class ActualMesh3D(
         var result = points.contentHashCode()
         result = 31 * result + transform.hashCode()
         return result
-    }
-
-    companion object {
-        operator fun invoke(
-            points: Array<Vector3D> = emptyArray(),
-            transform: Matrix3D = Matrix3D()
-        ): Mesh3D = ActualMesh3D(points, transform)
     }
 
 }

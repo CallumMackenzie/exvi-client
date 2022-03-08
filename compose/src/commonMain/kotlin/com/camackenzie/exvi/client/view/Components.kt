@@ -20,6 +20,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
+import com.camackenzie.exvi.client.rendering.ConstMeshData
+import com.camackenzie.exvi.client.rendering.Mesh3D
 import com.camackenzie.exvi.client.rendering.RenderedSpinner
 import com.camackenzie.exvi.core.api.toJson
 
@@ -46,8 +48,8 @@ fun UsernameField(
 
 @Composable
 fun LoadingIcon(
-    modifier: Modifier = Modifier.size(40.dp, 40.dp).padding(6.dp)
-) = RenderedSpinner(modifier)
+    modifier: Modifier = Modifier.size(45.dp, 45.dp).padding(6.dp)
+) = RenderedSpinner(modifier = modifier)
 
 @Composable
 fun PasswordField(
@@ -273,9 +275,4 @@ fun ExviBox(
     ) {
         content()
     }
-}
-
-@Composable
-fun LoadingIcon3D() {
-
 }
