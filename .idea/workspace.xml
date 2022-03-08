@@ -4,8 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+    <list default="true" id="96c82457-9ee9-421e-9bdb-84228443922d" name="Changes" comment="Improved composable rendering control">
     <list default="true" id="96c82457-9ee9-421e-9bdb-84228443922d" name="Changes" comment="Remove constant updates">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/Muscle3DView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/Muscle3DView.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/App.kt" beforeDir="false" afterPath="$PROJECT_DIR$/compose/src/commonMain/kotlin/com/camackenzie/exvi/client/view/App.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -49,13 +51,20 @@
       </state>
     </system>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Kotlin Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Merge.Settings">
     <option name="BRANCH" value="origin/kotlin" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="kotlin" />
+        <entry key="$PROJECT_DIR$" value="kotlin-dev" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -93,9 +102,12 @@
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\Coding\Java\exvi-client\common\resources\raw" />
     </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Coding\Java\exvi-client\common\resources\raw" />
+    </key>
   </component>
   <component name="RunManager" selected="Gradle.exvi-client [run]">
-    <configuration name="android" type="AndroidRunConfigurationType" factoryName="Android App">
+    <configuration name="android" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
       <module name="exvi-client.android" />
       <option name="DEPLOY" value="true" />
       <option name="DEPLOY_APK_FROM_BUNDLE" value="false" />
@@ -254,6 +266,35 @@
       <option name="presentableId" value="Default" />
       <updated>1646592255709</updated>
     </task>
+    <task id="LOCAL-00001" summary="Add 3d muscle view prototype">
+      <created>1646618453933</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1646618453933</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Working wireframe software rendering">
+      <created>1646623501595</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1646623501595</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Rendering demo">
+      <created>1646627032910</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1646627032910</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Improved composable rendering control">
+      <created>1646627977658</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1646627977658</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <task id="LOCAL-00001" summary="Sync pre-3d development with main dev branch">
       <created>1646618021625</created>
       <option name="number" value="00001" />
@@ -274,9 +315,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="Sync pre-3d development with main dev branch" />
-    <option name="LAST_COMMIT_MESSAGE" value="Sync pre-3d development with main dev branch" />
   </component>
 </project>

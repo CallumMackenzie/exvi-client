@@ -1,19 +1,18 @@
 package com.camackenzie.exvi.client.rendering
 
 import com.soywiz.korma.geom.*
-import com.soywiz.korma.geom.triangle.Triangle
 import kotlin.math.PI
 import kotlin.math.tan
 
 data class Renderer3D(
     var camera: Camera3D,
     var vertexShader: (Mesh3D, Vector3D) -> Unit = { mesh, vertex ->
-        val new = vertex + camera.position
-        vertex.setTo(new.x, new.y, new.z)
         vertex.transform(mesh.transform)
+            .transform(Matrix3D().setToTranslation(camera.position.x, camera.position.y, camera.position.z))
             .transform(camera.cameraMatrix)
             .transform(camera.projectionMatrix)
-    }
+    },
+    var postVertexShader: (Triangle3D) -> Unit = {}
 ) {
     fun renderRaw(vararg meshes: Mesh3D): Array<Vector3D> {
         camera.calculateProjection = true
@@ -36,75 +35,111 @@ data class Renderer3D(
      * Returns an array of triangle coordinates
      */
     fun render(vararg meshes: Mesh3D): Array<Vector2D> =
-        render(renderRaw(*meshes))
+        normaliseRenderedPoints(renderRaw(*meshes))
 
-    private fun pointsToTriangles(points: Array<Vector2D>): Array<Triangle> =
+    fun renderFull(vararg meshes: Mesh3D): Array<Vector3D> =
+        normaliseRenderedPointsRaw(renderRaw(*meshes))
+
+    private fun pointsToTriangles(points: Array<Vector3D>): Array<Triangle3D> =
         Array(points.size / 3) {
             val p0 = points[it * 3]
             val p1 = points[it * 3 + 1]
             val p2 = points[it * 3 + 2]
-            Triangle(p0, p1, p2, fixOrientation = true, checkOrientation = false)
+            val tri = Triangle3D(p0, p1, p2)
+            postVertexShader(tri)
+            tri
         }
 
-    fun renderToTriangles(vararg meshes: Mesh3D): Array<Triangle> =
-        pointsToTriangles(render(*meshes))
+    fun renderToTriangles(vararg meshes: Mesh3D): Array<Triangle3D> =
+        pointsToTriangles(renderFull(*meshes))
 
-    private fun render(transformedVerts: Array<Vector3D>): Array<Vector2D> =
+    private fun normaliseRenderedPointsRaw(transformedVerts: Array<Vector3D>): Array<Vector3D> =
         transformedVerts.map {
-            val vec = Vector2D()
-            vec.x = (it.x / it.w).toDouble() + 0.5
-            vec.y = (it.y / it.w).toDouble() + 0.5
-            vec
+            it.x = (it.x / it.w) + 0.5f
+            it.y = (it.y / it.w) + 0.5f
+            it
+        }.toTypedArray()
+
+    private fun normaliseRenderedPoints(transformedVerts: Array<Vector3D>): Array<Vector2D> =
+        normaliseRenderedPointsRaw(transformedVerts).map {
+            Vector2D(it.x.toDouble(), it.y.toDouble())
         }.toTypedArray()
 }
 
-class Camera3D(
+interface Camera3D {
+    var position: Vector3D
+    var rotation: Quaternion
+    var aspectRatio: Float
+    var fov: Angle
+    var near: Float
+    var far: Float
+    var calculateProjection: Boolean
+    var calculateCamera: Boolean
+
+    var projectionMatrix: Matrix3D
+    var cameraMatrix: Matrix3D
+
+    companion object {
+        operator fun invoke(
+            position: Position3D = Vector3D(),
+            rotation: Quaternion = Quaternion(),
+            aspectRatio: Float = 1f,
+            fov: Angle = 90.degrees,
+            near: Float = 0.1f,
+            far: Float = 100f
+        ): Camera3D = ActualCamera3D(
+            position, rotation, aspectRatio, fov, near, far
+        )
+    }
+}
+
+open class ActualCamera3D(
     position: Position3D = Vector3D(),
     rotation: Quaternion = Quaternion(),
     aspectRatio: Float = 1f,
     fov: Angle = 90.degrees,
     near: Float = 0.1f,
     far: Float = 100f
-) {
-    var position: Vector3D = position
+) : Camera3D {
+    override var position: Vector3D = position
         set(value) {
             calculateCamera = true
             field = value
         }
-    var rotation: Quaternion = rotation
+    override var rotation: Quaternion = rotation
         set(value) {
             calculateCamera = true
             field = value
         }
-    var aspectRatio: Float = aspectRatio
+    override var aspectRatio: Float = aspectRatio
         set(value) {
             calculateProjection = true
             field = value
         }
-    var fov: Angle = fov
+    override var fov: Angle = fov
         set(value) {
             calculateProjection = true
             field = value
         }
-    var near: Float = near
+    override var near: Float = near
         set(value) {
             calculateProjection = true
             field = value
         }
-    var far: Float = far
+    override var far: Float = far
         set(value) {
             calculateProjection = true
             field = value
         }
 
-    var calculateProjection = true
-    var calculateCamera = true
+    override var calculateProjection = true
+    override var calculateCamera = true
 
-    val projectionMatrix: Matrix3D = Matrix3D()
+    override var projectionMatrix: Matrix3D = Matrix3D()
         get() {
             if (calculateProjection) {
                 val fovRad: Double = 1.0 / tan(fov.degrees * 0.5 * (PI / 180.0)).toFloat()
-                field.identity()
+                field = Matrix3D()
                 field[0, 0] = aspectRatio * fovRad
                 field[1, 1] = fovRad
                 field[2, 2] = far / (far - near)
@@ -116,24 +151,83 @@ class Camera3D(
             return field
         }
 
-    val cameraMatrix: Matrix3D = Matrix3D()
+    override var cameraMatrix: Matrix3D = Matrix3D()
         get() {
             if (calculateCamera) {
-                val vUp = Vector3D(0f, 1f, 0f)
-                var target = Vector3D(0f, 0f, 1f)
-                field.setToRotation(rotation)
-                target = position + target.transform(field)
-                field.setToLookAt(position, target, vUp).invert()
+                val up = Vector3D(0f, 1f, 0f)
+                val target = position + Vector3D(0f, 0f, 1f)
+                    .transform(Matrix3D().setToRotation(rotation))
+                field = Matrix3D().setToLookAt(position, target, up).invert()
                 calculateCamera = false
             }
             return field
         }
 }
 
-data class Mesh3D(
-    val points: Array<Vector3D> = emptyArray(),
-    var transform: Matrix3D = Matrix3D()
+data class Triangle3D(
+    var p0: Vector3D,
+    var p1: Vector3D,
+    var p2: Vector3D
 ) {
+    val points: Array<Vector3D> = arrayOf(p0, p1, p2)
+}
+
+inline fun Array<Triangle3D>.toVectorArray(): Array<Vector3D> = Array(size * 3) {
+    get(it / 3).points[it % 3]
+}
+
+interface Mesh3D {
+    val points: Array<Vector3D>
+    var transform: Matrix3D
+
+    companion object {
+        private val vertexRegex = Regex("\\s+")
+        private val faceRegex = Regex("(\\s|\\/)+")
+
+        fun fromObj(data: String): Array<Triangle3D> {
+            val verts = ArrayList<Vector3D>()
+            val triangles = ArrayList<Triangle3D>()
+            var hasTextures = false
+            var hasNormals = false
+            for (line in data.lines()) {
+                if (line.isNotBlank()) {
+                    when (line[0]) {
+                        'v' -> when (line[1]) {
+                            ' ' -> {
+                                val ns = line.split(vertexRegex)
+                                    .filterIndexed { index, _ -> index != 0 }
+                                    .map { it.toFloat() }
+                                verts.add(Vector3D(ns[0], ns[1], ns[2]))
+                            }
+                            'n' -> hasNormals = true
+                            't' -> hasTextures = true
+                        }
+                        'f' -> {
+                            val inds = line.split(faceRegex)
+                                .filterIndexed { index, _ -> index != 0 }
+                                .map { it.toInt() - 1 }
+
+                            triangles.add(
+                                if (hasTextures && hasNormals)
+                                    Triangle3D(verts[inds[0]], verts[inds[3]], verts[inds[6]])
+                                else if (hasTextures || hasNormals)
+                                    Triangle3D(verts[inds[0]], verts[inds[2]], verts[inds[4]])
+                                else
+                                    Triangle3D(verts[inds[0]], verts[inds[1]], verts[inds[2]])
+                            )
+                        }
+                    }
+                }
+            }
+            return triangles.toTypedArray()
+        }
+    }
+}
+
+open class ActualMesh3D(
+    override val points: Array<Vector3D> = emptyArray(),
+    override var transform: Matrix3D = Matrix3D()
+) : Mesh3D {
 
     constructor(vararg verts: Vector3D) : this(arrayOf(*verts))
 
@@ -156,25 +250,10 @@ data class Mesh3D(
     }
 
     companion object {
-        private val splitRegex = Regex("\\s+")
-
-        fun fromObj(data: String): Mesh3D {
-            val verts = ArrayList<Vector3D>()
-            for (line in data.lines()) {
-                if (line.isNotBlank()) {
-                    when (line[0]) {
-                        'v' -> when (line[1]) {
-                            ' ' -> {
-                                val ns = line.split(splitRegex)
-                                    .filterIndexed { index, _ -> index != 0 }
-                                    .map { it.toFloat() }
-                                verts.add(Vector3D().setTo(ns[0], ns[1], ns[2]))
-                            }
-                        }
-                    }
-                }
-            }
-            return Mesh3D(verts.toTypedArray())
-        }
+        operator fun invoke(
+            points: Array<Vector3D> = emptyArray(),
+            transform: Matrix3D = Matrix3D()
+        ): Mesh3D = ActualMesh3D(points, transform)
     }
+
 }

@@ -268,3 +268,8 @@ fun ExviBox(
         content()
     }
 }
+
+@Composable
+fun LoadingIcon3D() {
+
+}
