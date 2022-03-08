@@ -35,7 +35,8 @@ class ServerWorkoutManager(private val username: String, private val accessKey: 
             accessKey.cached(),
             toDelete.map {
                 it.cached()
-            }.toTypedArray()
+            }.toTypedArray(),
+            DeleteWorkoutsRequest.WorkoutType.Workout
         ),
         coroutineScope = coroutineScope,
         coroutineDispatcher = dispatcher
@@ -55,7 +56,7 @@ class ServerWorkoutManager(private val username: String, private val accessKey: 
         WorkoutListRequest(
             username,
             accessKey,
-            WorkoutListRequest.Type.LIST_ALL
+            WorkoutListRequest.Type.ListAllTemplates
         ),
         coroutineScope = coroutineScope,
         coroutineDispatcher = dispatcher
