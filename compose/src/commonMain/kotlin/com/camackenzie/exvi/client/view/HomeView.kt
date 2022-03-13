@@ -1,6 +1,5 @@
 package com.camackenzie.exvi.client.view
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,16 +14,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
-import com.camackenzie.exvi.client.rendering.RenderedSpinner
 import com.camackenzie.exvi.core.model.Workout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
-object HomeView {
+object HomeView : Viewable {
 
 
     @Composable
-    fun View(appState: AppState) {
+    override fun View(appState: AppState) {
         ensureActiveAccount(appState)
 
         val coroutineScope = rememberCoroutineScope()
@@ -35,7 +33,7 @@ object HomeView {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TopBar(appState.model, appState::setView)
+            TopBar(appState)
             Button(onClick = {
                 appState.setView(ExviView.WorkoutCreation)
             }) {
@@ -138,29 +136,26 @@ object HomeView {
     }
 
     @Composable
-    private fun TopBar(model: Model, onViewChange: ViewChangeFun) {
+    private fun TopBar(appState: AppState) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.Top
         ) {
             Text(
-                "Welcome, ${model.activeAccount!!.formattedUsername}!",
+                "Welcome, ${appState.model.activeAccount!!.formattedUsername}!",
                 fontSize = 30.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(10.dp)
             )
-            SignOutButton(model, onViewChange)
+            SignOutButton(appState)
         }
     }
 
     @Composable
-    private fun SignOutButton(
-        model: Model,
-        onViewChange: ViewChangeFun
-    ) {
+    private fun SignOutButton(appState: AppState) {
         IconButton(onClick = {
-            onViewChange(ExviView.Login, ::noArgs)
-            model.signOutCurrentAccount()
+            appState.setView(ExviView.Login)
+            appState.model.signOutCurrentAccount()
         }) {
             Icon(Icons.Default.ExitToApp, "Sign Out")
         }
@@ -201,8 +196,7 @@ object HomeView {
                     if (wld.workouts.isNotEmpty()) {
                         items(wld.workouts.size) {
                             WorkoutListViewItem(
-                                appState.model,
-                                appState::setView,
+                                appState,
                                 wld.workouts[it],
                                 wld::refreshWorkouts
                             )
@@ -233,8 +227,7 @@ object HomeView {
 
     @Composable
     private fun WorkoutListViewItem(
-        model: Model,
-        onViewChange: ViewChangeFun,
+        appState: AppState,
         workout: Workout,
         refreshWorkouts: () -> Unit
     ) {
@@ -254,14 +247,12 @@ object HomeView {
                 fontSize = 20.sp
             )
             IconButton(onClick = {
-                onViewChange(ExviView.ActiveWorkout, workout::newActiveWorkout)
+                appState.setView(ExviView.ActiveWorkout, workout::newActiveWorkout)
             }, enabled = !deletingWorkout) {
                 Icon(Icons.Default.PlayArrow, "Start Workout")
             }
             IconButton(onClick = {
-                onViewChange(ExviView.WorkoutCreation) {
-                    workout
-                }
+                appState.setView(ExviView.WorkoutCreation) { workout }
             }, enabled = !deletingWorkout) {
                 Icon(Icons.Default.Edit, "Edit Workout")
             }
@@ -275,7 +266,7 @@ object HomeView {
                 IconButton(onClick = {
                     onDeleteConfirmEnabledChanged(false)
                     onDeletingWorkoutChanged(true)
-                    model.workoutManager!!.deleteWorkouts(arrayOf(workout.id.get()),
+                    appState.model.workoutManager!!.deleteWorkouts(arrayOf(workout.id.get()),
                         onFail = {
                             println(it.toJson())
                         }, onComplete = {

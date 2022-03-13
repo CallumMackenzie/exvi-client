@@ -43,9 +43,7 @@ val SelfSerializableSaver = mapSaver<SelfSerializable>(save = {
     selfSerializableFromMap(it)
 })
 
-fun noArgs(): SelfSerializable {
-    return None
-}
+fun noArgs(): SelfSerializable = None
 
 fun ensureActiveAccount(appState: AppState) {
     if (!appState.model.accountManager.hasActiveAccount()) {

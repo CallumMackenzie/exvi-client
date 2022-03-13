@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.core.api.toJson
 
-object SignupView {
+object SignupView : Viewable {
 
     private class SignupData(
         username: String = "",
@@ -70,7 +70,7 @@ object SignupView {
     }
 
     @Composable
-    fun View(appState: AppState) {
+    override fun View(appState: AppState) {
         val coroutineScope = rememberCoroutineScope()
         val signupData = rememberSaveable(saver = SignupData.Saver) { SignupData() }
 

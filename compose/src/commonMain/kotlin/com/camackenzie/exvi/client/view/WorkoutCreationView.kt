@@ -26,10 +26,10 @@ import kotlinx.serialization.*
 import androidx.compose.runtime.saveable.Saver
 import com.camackenzie.exvi.core.util.SelfSerializable
 
-object WorkoutCreationView {
+object WorkoutCreationView : Viewable {
 
     @Composable
-    fun View(
+    override fun View(
         appState: AppState
     ) {
         ensureActiveAccount(appState)
@@ -56,7 +56,7 @@ object WorkoutCreationView {
                         ) {
                             WorkoutNameField(workoutData)
                             FinishWorkoutButton(viewData, workoutData)
-                            CancelWorkoutButton(appState::setView)
+                            CancelWorkoutButton(appState)
                         }
                     }
                     Box(
@@ -88,7 +88,7 @@ object WorkoutCreationView {
                         ) {
                             WorkoutNameField(workoutData)
                             FinishWorkoutButton(viewData, workoutData)
-                            CancelWorkoutButton(appState::setView)
+                            CancelWorkoutButton(appState)
                         }
                     }
                     Row(
@@ -237,9 +237,7 @@ object WorkoutCreationView {
     }
 
     @Composable
-    private fun CancelWorkoutButton(
-        onViewChange: ViewChangeFun
-    ) {
+    private fun CancelWorkoutButton(appState: AppState) {
         var promptCancel by rememberSaveable { mutableStateOf(false) }
         if (!promptCancel) {
             Button(onClick = {
@@ -258,7 +256,7 @@ object WorkoutCreationView {
                     Text("Keep Editing")
                 }
                 Button(onClick = {
-                    onViewChange(ExviView.Home, ::noArgs)
+                    appState.setView(ExviView.Home)
                 }) {
                     Text("Exit")
                 }

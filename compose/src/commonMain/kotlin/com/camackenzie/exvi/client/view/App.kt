@@ -17,10 +17,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-typealias ArgProviderFun = () -> SelfSerializable
-typealias ViewChangeFun = (ExviView, provider: ArgProviderFun) -> Unit
-typealias ViewFun = @Composable (AppState) -> Unit
-
 @Composable
 fun App() {
     val coroutineScope = rememberCoroutineScope()
@@ -31,36 +27,20 @@ fun App() {
     appState.currentView.compose(appState)
 }
 
+@Serializable
 enum class ExviView(
-    private val viewFun: ViewFun
+    private val viewFun: Viewable
 ) : SelfSerializable {
-    Login(@Composable {
-        EntryView.View(it)
-    }),
-    Signup(@Composable {
-        SignupView.View(it)
-    }),
-    Home(@Composable {
-        HomeView.View(it)
-    }),
-    WorkoutCreation(@Composable {
-        WorkoutCreationView.View(it)
-    }),
-    ActiveWorkout(@Composable {
-        ActiveWorkoutView.View(it)
-    }),
-    None(@Composable {
-        Text(
-            "Exvi Fitness", fontSize = 30.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(10.dp)
-        )
-    });
+    Login(EntryView),
+    Signup(SignupView),
+    Home(HomeView),
+    WorkoutCreation(WorkoutCreationView),
+    ActiveWorkout(ActiveWorkoutView),
+    None(ErrorView),
+    Error(ErrorView);
 
     @Composable
-    fun compose(appState: AppState) {
-        viewFun(appState)
-    }
+    fun compose(appState: AppState) = viewFun.View(appState)
 
     override fun getUID(): String = uid
 
@@ -90,13 +70,27 @@ class AppState(
         get() = model.settings
 
     init {
-        if (!processRestartInit && settings.hasKey("activeUser")) {
-            model.accountManager.activeAccount = Account.fromCrendentialsString(settings.getString("activeUser"))
-            setView(ExviView.Home)
+        try {
+            if (!processRestartInit && settings.hasKey("activeUser")) {
+                model.accountManager.activeAccount = Account.fromCrendentialsString(settings.getString("activeUser"))
+                setView(ExviView.Home)
+            }
+        } catch (ex: Exception) {
+            error(ex)
         }
     }
 
-    fun setView(view: ExviView, args: ArgProviderFun = ::noArgs) {
+    fun error(e: Exception) {
+        println("Uncaught Exception: $e")
+        setView(ExviView.Error)
+    }
+
+    fun repair() {
+        model.repair()
+        setView(ExviView.Login)
+    }
+
+    fun setView(view: ExviView, args: () -> SelfSerializable = ::noArgs) {
         previousView = currentView
         currentView = view
         provided = args()

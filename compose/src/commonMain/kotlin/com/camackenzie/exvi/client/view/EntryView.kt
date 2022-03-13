@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
 import kotlinx.coroutines.CoroutineScope
 
-object EntryView {
+object EntryView : Viewable {
 
     private class LoginData(
         coroutineScope: CoroutineScope,
@@ -52,7 +52,7 @@ object EntryView {
     }
 
     @Composable
-    fun View(appState: AppState) {
+    override fun View(appState: AppState) {
         val coroutineScope = rememberCoroutineScope()
         val loginData = rememberSaveable(saver = LoginData.Saver(coroutineScope)) { LoginData(coroutineScope) }
 
@@ -70,7 +70,7 @@ object EntryView {
                     )
                     SignupSplashView(
                         loginData.loginEnabled,
-                        appState::setView
+                        appState
                     )
                 }
             } else {
@@ -86,7 +86,7 @@ object EntryView {
                     )
                     SignupSplashView(
                         loginData.loginEnabled,
-                        appState::setView
+                        appState
                     )
                 }
             }
@@ -155,7 +155,7 @@ object EntryView {
     @Composable
     private fun SignupSplashView(
         signupEnabled: Boolean,
-        onViewChange: ViewChangeFun
+        appState: AppState
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -169,7 +169,7 @@ object EntryView {
                 modifier = Modifier.padding(10.dp)
             )
             Button(onClick = {
-                onViewChange(ExviView.Signup, ::noArgs)
+                appState.setView(ExviView.Signup)
             }, enabled = signupEnabled) {
                 Text("Create an Account")
             }

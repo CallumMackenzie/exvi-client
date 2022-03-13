@@ -3,10 +3,10 @@ package com.camackenzie.exvi.client.view
 import androidx.compose.runtime.Composable
 import com.camackenzie.exvi.client.model.Model
 
-object AccountSettingsView {
+object AccountSettingsView : Viewable {
 
     @Composable
-    fun View(
+    override fun View(
         appState: AppState
     ) {
 

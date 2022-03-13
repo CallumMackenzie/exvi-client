@@ -19,12 +19,12 @@ import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 
 
-object Muscle3DView {
+object Muscle3DView : Viewable {
 
     private fun currentTimeMillis(): Long = Clock.System.now().toEpochMilliseconds()
 
     @Composable
-    fun View(appState: AppState) {
+    override fun View(appState: AppState) {
         val coroutineScope = rememberCoroutineScope()
         val mesh by remember {
             mutableStateOf(

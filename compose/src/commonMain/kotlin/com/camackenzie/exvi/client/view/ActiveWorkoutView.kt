@@ -20,7 +20,7 @@ import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.core.model.*
 import kotlinx.coroutines.*
 
-object ActiveWorkoutView {
+object ActiveWorkoutView : Viewable {
 
     private class WorkoutData(
         workout: ActiveWorkout
@@ -29,7 +29,7 @@ object ActiveWorkoutView {
     }
 
     @Composable
-    fun View(appState: AppState) {
+    override fun View(appState: AppState) {
         ensureActiveAccount(appState)
         if (appState.provided !is ActiveWorkout) {
             println("No active workout provided")

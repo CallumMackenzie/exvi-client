@@ -33,6 +33,10 @@ class Model : SelfSerializable {
         accountManager.activeAccount = null
     }
 
+    fun repair() {
+        signOutCurrentAccount()
+    }
+
     companion object {
         const val uid = "ExviClientModel"
     }
