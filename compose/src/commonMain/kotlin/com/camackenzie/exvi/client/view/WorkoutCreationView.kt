@@ -371,6 +371,17 @@ object WorkoutCreationView : Viewable {
                     modifier = Modifier.padding(10.dp)
                 )
 
+                Column(horizontalAlignment = Alignment.Start) {
+                    Text("Exercise Type(s): ${exercise.exerciseTypes.toFormattedString()}")
+                    Text("Muscles Worked: ${exercise.musclesWorked.map { it.muscle }.toFormattedString()}")
+                    Text("Experience Level: ${exercise.experienceLevel}")
+                    Text("Force Type: ${exercise.forceType}")
+                    Text("Mechanics: ${exercise.mechanics}")
+                    if (exercise.hasEquipment()) {
+                        Text("Equipment Required: ${exercise.equipment.toFormattedString()}")
+                    }
+                }
+
                 if (exercise.hasOverview()) {
                     Text(
                         "Overview", fontSize = 18.sp,

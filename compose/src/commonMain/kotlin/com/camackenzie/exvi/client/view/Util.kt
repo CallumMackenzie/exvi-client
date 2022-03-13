@@ -51,3 +51,7 @@ fun ensureActiveAccount(appState: AppState) {
         appState.setView(ExviView.Login)
     }
 }
+
+fun listToFormattedString(l: List<*>): String = l.toString().replace(Regex("\\]|\\["), "")
+fun List<*>.toFormattedString(): String = listToFormattedString(this)
+fun Set<*>.toFormattedString(): String = this.toList().toFormattedString()
