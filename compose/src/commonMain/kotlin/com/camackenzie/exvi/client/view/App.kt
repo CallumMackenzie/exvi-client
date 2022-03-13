@@ -26,7 +26,9 @@ fun App() {
     val coroutineScope = rememberCoroutineScope()
     // Global application state
     val appState by rememberSaveable(stateSaver = AppState.saver(coroutineScope)) {
-        mutableStateOf(AppState(coroutineScope = coroutineScope))
+        mutableStateOf(
+            AppState(coroutineScope = coroutineScope)
+        )
     }
     // Compose current view
     appState.currentView.compose(appState)

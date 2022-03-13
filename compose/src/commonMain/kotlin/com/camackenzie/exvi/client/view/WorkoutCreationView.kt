@@ -55,7 +55,7 @@ object WorkoutCreationView : Viewable {
                             verticalArrangement = Arrangement.Center
                         ) {
                             WorkoutNameField(workoutData)
-                            FinishWorkoutButton(viewData, workoutData)
+                            FinishWorkoutButton(viewData, appState, workoutData)
                             CancelWorkoutButton(appState)
                         }
                     }
@@ -87,7 +87,7 @@ object WorkoutCreationView : Viewable {
                             horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
                         ) {
                             WorkoutNameField(workoutData)
-                            FinishWorkoutButton(viewData, workoutData)
+                            FinishWorkoutButton(viewData, appState, workoutData)
                             CancelWorkoutButton(appState)
                         }
                     }
@@ -217,11 +217,13 @@ object WorkoutCreationView : Viewable {
     @Composable
     private fun FinishWorkoutButton(
         viewData: ViewData,
+        appState: AppState,
         workoutData: WorkoutData
     ) {
         Button(onClick = {
             viewData.model.workoutManager!!.putWorkouts(
                 arrayOf(workoutData.workout),
+                coroutineScope = appState.coroutineScope,
                 onFail = {
                     println(it.toJson())
                 },
@@ -675,6 +677,7 @@ object WorkoutCreationView : Viewable {
         }
 
         companion object {
+            @Suppress("UNCHECKED_CAST")
             fun saver(provided: SelfSerializable?): Saver<WorkoutData, Any> = mapSaver(
                 save = {
                     mapOf(
