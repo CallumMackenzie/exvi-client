@@ -11,6 +11,12 @@ import androidx.compose.ui.graphics.Color
 import com.soywiz.korma.geom.*
 import kotlinx.coroutines.*
 import androidx.compose.ui.unit.dp
+import kotlinx.datetime.Clock
+import kotlin.math.sin
+import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.abs
+import kotlin.math.pow
 
 typealias RenderFun = DrawScope.(Triangle3D) -> Unit
 
@@ -93,13 +99,19 @@ fun RenderedSpinner(
         )
     }
     remember {
+
+        fun nowMs(): Double = Clock.System.now().epochSeconds.toDouble()
+
         coroutineScope.launch(dispatcher) {
             while (true) {
                 delay(20)
+                val x = sin(nowMs() + cos(nowMs() - 1.5)) * 1.5 + 2 * sin(nowMs() - 3)
+                val y = cos(nowMs() - cos(nowMs() + cos(0.4 * nowMs() - 0.2) + 0.5)) * 1.5
+                val z = cos(nowMs() + 0.4 + sin(nowMs() * 0.2)) + 0.3
                 renderData.meshes.forEach {
                     it.transform = Matrix3D()
                         .copyFrom(it.transform)
-                        .rotate(EulerRotation(2.degrees, 2.degrees, 2.degrees))
+                        .rotate(EulerRotation(x.degrees, y.degrees, z.degrees))
                 }
             }
         }

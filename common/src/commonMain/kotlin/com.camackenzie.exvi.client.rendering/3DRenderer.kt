@@ -20,6 +20,7 @@ interface Renderer3D {
     var postVertexShader: PostVertexShader
     var vertexShader: VertexShader
     var camera: Camera3D
+    var sortTris: Boolean
 
     fun renderRaw(vararg meshes: Mesh3D): Array<Vector3D> {
         camera.calculateProjection = true
@@ -59,8 +60,8 @@ interface Renderer3D {
     fun renderFull(vararg meshes: Mesh3D): Array<Vector3D> =
         normaliseRenderedPointsRaw(renderRaw(*meshes))
 
-    fun pointsToTriangles(points: Array<Vector3D>): Array<Triangle3D> =
-        Array(points.size / 3) {
+    fun pointsToTriangles(points: Array<Vector3D>): Array<Triangle3D> {
+        val tris = Array(points.size / 3) {
             val p0 = points[it * 3]
             val p1 = points[it * 3 + 1]
             val p2 = points[it * 3 + 2]
@@ -68,6 +69,13 @@ interface Renderer3D {
             postVertexShader(tri)
             tri
         }
+        if (sortTris) {
+            tris.sortWith { a, b ->
+                a.center.w.compareTo(b.center.w)
+            }
+        }
+        return tris
+    }
 
     companion object {
         operator fun invoke(
@@ -82,7 +90,8 @@ interface Renderer3D {
 data class AsyncRenderer3D(
     override var camera: Camera3D = Camera3D(),
     override var vertexShader: VertexShader = defaultVertexShader(camera),
-    override var postVertexShader: (Triangle3D) -> Unit = {}
+    override var postVertexShader: (Triangle3D) -> Unit = {},
+    override var sortTris: Boolean = true
 ) : Renderer3D {
 
     fun renderAsyncToTriangles(
@@ -109,7 +118,8 @@ data class AsyncRenderer3D(
 data class ActualRenderer3D(
     override var camera: Camera3D = Camera3D(),
     override var vertexShader: VertexShader = defaultVertexShader(camera),
-    override var postVertexShader: (Triangle3D) -> Unit = {}
+    override var postVertexShader: (Triangle3D) -> Unit = {},
+    override var sortTris: Boolean = true
 ) : Renderer3D
 
 interface Camera3D {
@@ -215,7 +225,10 @@ data class Triangle3D(
     var p1: Vector3D,
     var p2: Vector3D
 ) {
-    val points: Array<Vector3D> = arrayOf(p0, p1, p2)
+    val points: Array<Vector3D>
+        get() = arrayOf(p0, p1, p2)
+    val center: Vector3D
+        get() = points.reduce { a, b -> a + b } * (1f / 3f)
 }
 
 fun Array<Triangle3D>.toVectorArray(): Array<Vector3D> = Array(size * 3) {
