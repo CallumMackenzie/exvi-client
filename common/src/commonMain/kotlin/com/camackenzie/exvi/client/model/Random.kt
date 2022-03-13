@@ -12,11 +12,7 @@ import com.soywiz.krypto.SecureRandom
  */
 object Random {
 
-    fun doubleInRange(min: Double, max: Double): Double {
-        return SecureRandom.nextDouble() * (max - min) + min
-    }
+    fun doubleInRange(min: Double, max: Double): Double = SecureRandom.nextDouble() * (max - min) + min
 
-    fun intInRange(min: Int, max: Int): Int {
-        return doubleInRange(min.toDouble(), max.toDouble()).toInt()
-    }
+    fun intInRange(min: Int, max: Int): Int = doubleInRange(min.toDouble(), max.toDouble()).toInt()
 }

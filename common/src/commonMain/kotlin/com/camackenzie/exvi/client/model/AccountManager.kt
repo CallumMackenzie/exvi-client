@@ -15,20 +15,17 @@ class AccountManager : SelfSerializable {
 
     var activeAccount: Account? = null
 
-    fun hasActiveAccount(): Boolean {
-        return activeAccount != null
-    }
+    fun hasActiveAccount(): Boolean = activeAccount != null
 
     fun signOut() {
         activeAccount = null
     }
 
-    override fun getUID(): String {
-        return "AccountManager"
-    }
+    override fun getUID(): String = uid
 
-    override fun toJson(): String {
-        return Json.encodeToString(this)
-    }
+    override fun toJson(): String = Json.encodeToString(this)
 
+    companion object {
+        const val uid = "AccountManager"
+    }
 }

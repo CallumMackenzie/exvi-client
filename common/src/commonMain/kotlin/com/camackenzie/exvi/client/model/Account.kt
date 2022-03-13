@@ -7,12 +7,7 @@ package com.camackenzie.exvi.client.model
 
 import com.camackenzie.exvi.core.api.*
 import com.camackenzie.exvi.core.model.BodyStats
-import com.camackenzie.exvi.core.model.WorkoutManager
-import com.camackenzie.exvi.core.util.CryptographyUtils
-import com.camackenzie.exvi.core.util.EncodedStringCache
-import com.camackenzie.exvi.core.util.SelfSerializable
-import com.camackenzie.exvi.core.util.cached
-import com.russhwolf.settings.Settings
+import com.camackenzie.exvi.core.util.*
 import com.soywiz.krypto.encoding.fromBase64
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
@@ -27,7 +22,7 @@ class Account private constructor(
     val username: String,
     private var accessKey: EncodedStringCache,
     var bodyStats: BodyStats = BodyStats.average(),
-) : SelfSerializable {
+) : SelfSerializable, Identifiable {
 
     @kotlinx.serialization.Transient
     val workoutManager: SyncedWorkoutManager = SyncedWorkoutManager(username, accessKey.get())
@@ -36,27 +31,30 @@ class Account private constructor(
         get() = (username.substring(0, 1).uppercase() + username.substring(1))
 
     private val fileName: String
-        get() = (CryptographyUtils.hashSHA256(username) + username + ".user")
+        get() = getIdentifier().get() + ".user"
 
-    val crendentialsString: String
+    val credentialsString: String
         get() = CryptographyUtils.encodeString(this.toJson())
 
-    override fun getUID(): String {
-        return "UserAccount"
-    }
+    override fun getUID(): String = uid
 
-    override fun toJson(): String {
-        return Json.encodeToString(this)
-    }
+    override fun toJson(): String = Json.encodeToString(this)
 
-    override fun toString(): String {
-        return StringBuilder().append("User: ").append(username).append(": ").append(
+    // A unique identifier for this user based on their username
+    override fun getIdentifier(): EncodedStringCache = (CryptographyUtils.hashSHA256(username) + username).cached()
+
+    override fun toString(): String = StringBuilder()
+        .append("User: ").append(username).append(": ").append(
             accessKey.get()
                 .substring(0, 4)
         ).append("...").toString()
-    }
 
     companion object {
+        const val uid = "UserAccount"
+
+        /**
+         * Request verification to create an account for the given user
+         */
         fun requestVerification(
             username: String,
             email: String,
@@ -76,6 +74,9 @@ class Account private constructor(
             onComplete()
         }
 
+        /**
+         * Request account creation for the given user
+         */
         fun requestSignup(
             username: String,
             verificationCode: String,
@@ -95,9 +96,9 @@ class Account private constructor(
             coroutineScope = coroutineScope,
             coroutineDispatcher = coroutineDispatcher
         ) { result ->
-            if (result.failed()) {
-                onFail(result)
-            } else {
+            if (result.failed()) onFail(result)
+            else {
+                // Parse access key
                 val accessKeyResult = Json.decodeFromString<AccountAccessKeyResult>(result.body)
                 onSuccess(accessKeyResult)
             }
@@ -160,12 +161,10 @@ class Account private constructor(
             onComplete()
         }
 
-        fun fromCrendentialsString(s: String): Account {
-            return Json.decodeFromString<Account>(CryptographyUtils.decodeString(s))
-        }
+        fun fromCrendentialsString(s: String): Account =
+            Json.decodeFromString(CryptographyUtils.decodeString(s))
 
-        fun fromAccessKey(username: String, accessKey: String): Account {
-            return Account(username, accessKey.cached())
-        }
+        fun fromAccessKey(username: String, accessKey: String): Account =
+            Account(username, accessKey.cached())
     }
 }

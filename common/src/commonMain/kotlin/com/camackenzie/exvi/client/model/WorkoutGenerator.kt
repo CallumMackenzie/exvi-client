@@ -28,9 +28,7 @@ class WorkoutGenerator(
     fun generateWorkout(
         wkr: Workout,
         lockedExercises: Set<ExerciseSet>
-    ): Workout {
-        return this.generateWorkout(wkr, List(lockedExercises.size) { index -> index }.toTypedArray())
-    }
+    ): Workout = this.generateWorkout(wkr, List(lockedExercises.size) { index -> index }.toTypedArray())
 
     fun generateWorkout(
         workout: Workout = Workout("New Workout", "", arrayListOf()),
@@ -304,11 +302,7 @@ class WorkoutGenerator(
         }
     }
 
-    override fun getUID(): String {
-        return uid
-    }
+    override fun getUID(): String = uid
 
-    override fun toJson(): String {
-        return Json.encodeToString(this)
-    }
+    override fun toJson(): String = Json.encodeToString(this)
 }

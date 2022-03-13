@@ -23,7 +23,7 @@ data class ExerciseManager(
         addAll(arrayOf(*exs))
     }
 
-    constructor() : this(HashSet()) {}
+    constructor() : this(HashSet())
 
     fun addAll(exs: Array<Exercise>) {
         for (ex in exs) {
@@ -31,9 +31,7 @@ data class ExerciseManager(
         }
     }
 
-    fun loadStandardExercises() {
-        addAll(Json.decodeFromString<Array<Exercise>>(readTextFile("exercises.json")))
-    }
+    fun loadStandardExercises() = addAll(Json.decodeFromString(readTextFile("exercises.json")))
 
     fun loadStandardExercisesIfEmpty() {
         if (!this.hasExercises()) {
@@ -41,17 +39,11 @@ data class ExerciseManager(
         }
     }
 
-    fun hasExercises(): Boolean {
-        return exercises.size != 0
-    }
+    fun hasExercises(): Boolean = exercises.size != 0
 
-    override fun getUID(): String {
-        return "ExerciseManager"
-    }
+    override fun getUID(): String = uid
 
-    override fun toJson(): String {
-        return Json.encodeToString(this)
-    }
+    override fun toJson(): String = Json.encodeToString(this)
 
     fun getExercisesByFunction(add: (Exercise) -> Boolean): ArrayList<Exercise> {
         val ret: ArrayList<Exercise> = ArrayList()
@@ -70,5 +62,9 @@ data class ExerciseManager(
             }
         }
         return null
+    }
+
+    companion object {
+        const val uid = "ExerciseManager"
     }
 }

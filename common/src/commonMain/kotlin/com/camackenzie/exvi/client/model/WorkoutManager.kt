@@ -164,9 +164,7 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         pullOverride = false
     }
 
-    fun validateLocalCache() {
-        resetPull()
-    }
+    fun validateLocalCache() = resetPull()
 
     fun invalidateLocalCache() {
         pullOverride = true

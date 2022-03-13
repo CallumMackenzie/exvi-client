@@ -60,13 +60,9 @@ class WorkoutGeneratorParams(
         return this
     }
 
-    override fun getUID(): String {
-        return uid
-    }
+    override fun getUID(): String = uid
 
-    override fun toJson(): String {
-        return Json.encodeToString(this)
-    }
+    override fun toJson(): String = Json.encodeToString(this)
 
     companion object {
         const val uid = "WorkoutGeneratorParams"

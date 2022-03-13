@@ -35,6 +35,7 @@ class Model : SelfSerializable {
 
     fun repair() {
         signOutCurrentAccount()
+        exerciseManager.exercises.clear()
     }
 
     companion object {

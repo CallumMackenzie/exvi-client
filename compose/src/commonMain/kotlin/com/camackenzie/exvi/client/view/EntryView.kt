@@ -134,7 +134,7 @@ object EntryView : Viewable {
                                 appState.model.accountManager.activeAccount = account
                                 appState.settings.putString(
                                     "activeUser",
-                                    account.crendentialsString
+                                    account.credentialsString
                                 )
                                 appState.setView(ExviView.Home)
                             })
