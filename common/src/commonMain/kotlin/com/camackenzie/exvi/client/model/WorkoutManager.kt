@@ -19,7 +19,7 @@ import kotlinx.datetime.Clock
  *
  * @author callum
  */
-class ServerWorkoutManager(private val username: String, private val accessKey: String) : WorkoutManager {
+data class ServerWorkoutManager(private val username: String, private val accessKey: String) : WorkoutManager {
 
     override fun deleteWorkouts(
         toDelete: Array<String>,
@@ -87,7 +87,7 @@ class ServerWorkoutManager(private val username: String, private val accessKey: 
 
 }
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class LocalWorkoutManager constructor(
     val workouts: ArrayList<Workout> = ArrayList(),
     val activeWorkouts: ArrayList<ActiveWorkout> = ArrayList()

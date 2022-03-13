@@ -1,7 +1,9 @@
 package com.camackenzie.exvi.client.view
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -242,10 +244,10 @@ fun <T> SelectionView(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement
     ) {
-        // TODO: Make a flow row
+        // TODO: Make this a flow row
         // TODO: Improve selected page styling
         Row(
-            Modifier.fillMaxWidth(),
+            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.Start),
             verticalAlignment = Alignment.Top
         ) {
