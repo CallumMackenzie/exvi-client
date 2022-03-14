@@ -53,7 +53,7 @@ object WorkoutCreationView : Viewable {
                             verticalArrangement = Arrangement.Center
                         ) {
                             WorkoutNameField(workoutData)
-                            FinishWorkoutButton(viewData, appState, workoutData)
+                            FinishWorkoutButton(viewData, workoutData)
                             CancelWorkoutButton(appState)
                         }
                     }
@@ -85,7 +85,7 @@ object WorkoutCreationView : Viewable {
                             horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
                         ) {
                             WorkoutNameField(workoutData)
-                            FinishWorkoutButton(viewData, appState, workoutData)
+                            FinishWorkoutButton(viewData, workoutData)
                             CancelWorkoutButton(appState)
                         }
                     }
@@ -213,16 +213,14 @@ object WorkoutCreationView : Viewable {
     }
 
     @Composable
-    // TODO: Remove unnecessary appState param
     private fun FinishWorkoutButton(
         viewData: ViewData,
-        appState: AppState,
         workoutData: WorkoutData
     ) {
         Button(onClick = {
             viewData.model.workoutManager!!.putWorkouts(
                 arrayOf(workoutData.workout),
-                coroutineScope = appState.coroutineScope,
+                coroutineScope = viewData.appState.coroutineScope,
                 onFail = {
                     println("Updating workout failed: ${it.toJson()}")
                 },
