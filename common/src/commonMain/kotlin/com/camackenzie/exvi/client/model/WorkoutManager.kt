@@ -149,11 +149,10 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
     private val localManager = LocalWorkoutManager()
     private val serverManager = ServerWorkoutManager(username, accessKey)
     private val pullTimeUTC = 120
-    private val noRefreshPullUTC = 4
 
     private fun shouldPull(): Boolean {
         val pullDiff = Clock.System.now().epochSeconds - lastPullUTC
-        return pullDiff > noRefreshPullUTC && (pullDiff > pullTimeUTC || pullOverride)
+        return pullDiff > pullTimeUTC || pullOverride
     }
 
     private fun resetPull() {
@@ -202,7 +201,7 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
                     onSuccess(it)
                 },
                 onComplete = onComplete
-            ).join()
+            )
         } else {
             localManager.getWorkouts(
                 coroutineScope,
@@ -210,9 +209,8 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
                 onFail = onFail,
                 onSuccess = onSuccess,
                 onComplete = onComplete
-            ).join()
-            delay(200)
-        }
+            )
+        }.join()
     }
 
     override fun putWorkouts(
@@ -227,15 +225,24 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
             workoutsToAdd,
             coroutineScope,
             dispatcher,
-            onFail = onFail,
-            onSuccess = onSuccess,
+            onFail = {
+                invalidateLocalCache()
+                onFail(it)
+            },
+            onSuccess = {
+                invalidateLocalCache()
+                onSuccess()
+            },
             onComplete = onComplete
         ), localManager.putWorkouts(workoutsToAdd,
             coroutineScope,
             dispatcher,
-            {}, {}, {})
+            onFail = {
+                invalidateLocalCache()
+            }, onSuccess = {
+                validateLocalCache()
+            })
         )
-        invalidateLocalCache()
         jobs.joinAll()
     }
 }

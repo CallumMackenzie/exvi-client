@@ -228,13 +228,9 @@ object WorkoutCreationView : Viewable {
                     println("Updating workout failed: ${it.toJson()}")
                 },
                 onSuccess = {
-                    println("Workout ${workoutData.name} updated successfully")
-                },
-                onComplete = {
-                    viewData.model.workoutManager!!.invalidateLocalCache()
+                    println("Workout \"${workoutData.name}\" updated successfully")
                 }
             )
-            viewData.model.workoutManager!!.validateLocalCache()
             viewData.appState.setView(ExviView.Home)
         }) {
             Text("Finish")
