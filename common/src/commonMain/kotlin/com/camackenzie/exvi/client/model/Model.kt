@@ -22,9 +22,6 @@ class Model : SelfSerializable {
     val activeAccount: Account?
         get() = accountManager.activeAccount
 
-    val bodyStats: BodyStats?
-        get() = activeAccount?.bodyStats
-
     val workoutManager: SyncedWorkoutManager?
         get() = accountManager.activeAccount?.workoutManager
 

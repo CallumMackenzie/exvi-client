@@ -28,7 +28,6 @@ kotlin {
                 api("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
                 api("com.google.accompanist:accompanist-placeholder:$accompanistVersion")
                 api("com.google.accompanist:accompanist-insets:$accompanistVersion")
-
             }
         }
         val androidMain by getting

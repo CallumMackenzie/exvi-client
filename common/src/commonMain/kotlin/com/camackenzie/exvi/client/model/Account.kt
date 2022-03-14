@@ -17,11 +17,12 @@ import kotlinx.serialization.*
  *
  * @author callum
  */
-@kotlinx.serialization.Serializable
+@Serializable
+@Suppress("unused")
 class Account private constructor(
     val username: String,
     private var accessKey: EncodedStringCache,
-    var bodyStats: BodyStats = BodyStats.average(),
+    private var bodyStats: BodyStats = BodyStats.average(),
 ) : SelfSerializable, Identifiable {
 
     @Transient
@@ -40,7 +41,29 @@ class Account private constructor(
         coroutineDispatcher = dispatcher,
         callback = {
             if (it.failed()) onFail(it)
-            else onSuccess(Json.decodeFromString(it.body))
+            else {
+                val response = Json.decodeFromString<GetBodyStatsResponse>(it.body)
+                onSuccess(response.bodyStats)
+            }
+            onComplete()
+        }
+    )
+
+    fun setBodyStats(
+        bodyStats: BodyStats,
+        coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+        dispatcher: CoroutineDispatcher = Dispatchers.Default,
+        onFail: (APIResult<String>) -> Unit = {},
+        onSuccess: () -> Unit = {},
+        onComplete: () -> Unit = {}
+    ): Job = APIRequest.requestAsync(
+        endpoint = APIEndpoints.DATA,
+        body = SetBodyStatsRequest(username, accessKey, bodyStats),
+        coroutineScope = coroutineScope,
+        coroutineDispatcher = dispatcher,
+        callback = {
+            if (it.failed()) onFail(it)
+            else onSuccess()
             onComplete()
         }
     )

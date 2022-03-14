@@ -125,15 +125,7 @@ object HomeView : Viewable {
 
     @Composable
     private fun AccountView(model: Model) {
-        Column {
-            val bodyStats = model.bodyStats!!
-            Text(
-                "Body Weight: ${bodyStats.totalMass.value} ${
-                    bodyStats.totalMass.unit.toString().lowercase()
-                }s"
-            )
-            Text("Sex: ${bodyStats.sex.toString().lowercase()}")
-        }
+        // TODO: Display account info
     }
 
     @Composable
