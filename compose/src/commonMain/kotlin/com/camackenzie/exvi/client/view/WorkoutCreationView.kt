@@ -29,9 +29,7 @@ import com.camackenzie.exvi.core.util.SelfSerializable
 object WorkoutCreationView : Viewable {
 
     @Composable
-    override fun View(
-        appState: AppState
-    ) {
+    override fun View(appState: AppState) {
         ensureActiveAccount(appState)
 
         val viewData = ViewData(appState, rememberCoroutineScope())
@@ -63,7 +61,7 @@ object WorkoutCreationView : Viewable {
                         Modifier.fillMaxWidth()
                             .fillMaxHeight(0.4f)
                     ) {
-                        WorkoutExerciseListView(workoutData)
+                        WorkoutExerciseListView(workoutData, selectorViewData)
                     }
                     ExviBox(Modifier.fillMaxSize()) {
                         ViewSetOne(
@@ -100,7 +98,7 @@ object WorkoutCreationView : Viewable {
                             Modifier.fillMaxWidth(0.5f)
                                 .fillMaxHeight()
                         ) {
-                            WorkoutExerciseListView(workoutData)
+                            WorkoutExerciseListView(workoutData, selectorViewData)
                         }
                         ExviBox(Modifier.fillMaxWidth()) {
                             ViewSetOne(
@@ -125,19 +123,19 @@ object WorkoutCreationView : Viewable {
     ) {
         StringSelectionView(
             views = hashMapOf(
-                "Search" to {
-                    ExerciseSearchView(viewData, workoutData, searchData)
+                RightPaneView.Search.str to {
+                    ExerciseSearchView(viewData, workoutData, searchData, selectorViewData)
                 },
-                "Info" to {
+                RightPaneView.Info.str to {
                     ExerciseInfoView(workoutData.infoExercise)
                 },
-                "Generator" to {
+                RightPaneView.Generator.str to {
                     WorkoutGeneratorView(viewData, workoutData)
                 },
-                "Editor" to {
+                RightPaneView.Editor.str to {
                     ExerciseSetEditorView(viewData, workoutData)
                 },
-                "Workout" to {
+                RightPaneView.Workout.str to {
                     WorkoutDescriptionEditor(workoutData)
                 }
             ),
@@ -215,6 +213,7 @@ object WorkoutCreationView : Viewable {
     }
 
     @Composable
+    // TODO: Remove unnecessary appState param
     private fun FinishWorkoutButton(
         viewData: ViewData,
         appState: AppState,
@@ -418,6 +417,7 @@ object WorkoutCreationView : Viewable {
         viewData: ViewData,
         workoutData: WorkoutData,
         searchData: WorkoutSearchData,
+        selectorViewData: SelectorViewData,
         listViewModifier: Modifier = Modifier.fillMaxSize(),
     ) {
         val exerciseManager = viewData.model.exerciseManager
@@ -483,7 +483,7 @@ object WorkoutCreationView : Viewable {
                 ) {
                     if (!searchData.processRunning) {
                         items(searchData.searchExercises.size) {
-                            AllExercisesListViewItem(workoutData, searchData.searchExercises[it])
+                            AllExercisesListViewItem(workoutData, selectorViewData, searchData.searchExercises[it])
                         }
                     } else {
                         item {
@@ -499,6 +499,7 @@ object WorkoutCreationView : Viewable {
     @Composable
     private fun WorkoutExerciseListView(
         workoutData: WorkoutData,
+        selectorViewData: SelectorViewData,
         listViewModifier: Modifier = Modifier.fillMaxSize(),
     ) {
         ExviBox {
@@ -509,7 +510,7 @@ object WorkoutCreationView : Viewable {
             ) {
                 if (!workoutData.exerciseProcessRunning) {
                     items(workoutData.exercises.size) {
-                        WorkoutExerciseListViewItem(workoutData, it)
+                        WorkoutExerciseListViewItem(workoutData, selectorViewData, it)
                     }
                 } else {
                     item {
@@ -530,6 +531,7 @@ object WorkoutCreationView : Viewable {
     @Composable
     private fun AllExercisesListViewItem(
         workoutData: WorkoutData,
+        selectorViewData: SelectorViewData,
         exercise: Exercise
     ) {
         Row(
@@ -539,6 +541,7 @@ object WorkoutCreationView : Viewable {
             Text(exercise.name)
             IconButton(onClick = {
                 workoutData.infoExercise = exercise
+                selectorViewData.rightPane = "Info"
             }) {
                 Icon(Icons.Default.Info, "Exercise Info")
             }
@@ -555,6 +558,7 @@ object WorkoutCreationView : Viewable {
     @Composable
     private fun WorkoutExerciseListViewItem(
         wd: WorkoutData,
+        selectorViewData: SelectorViewData,
         index: Int
     ) {
         val exerciseSet = wd.exercises[index]
@@ -567,11 +571,13 @@ object WorkoutCreationView : Viewable {
 
             IconButton(onClick = {
                 wd.editorExerciseIndex = index
+                selectorViewData.rightPane = RightPaneView.Editor.str
             }) {
                 Icon(Icons.Default.Edit, "Edit Exercise")
             }
             IconButton(onClick = {
                 wd.infoExercise = exerciseSet.exercise
+                selectorViewData.rightPane = RightPaneView.Info.str
             }) {
                 Icon(Icons.Default.Info, "Exercise Info")
             }
@@ -747,7 +753,7 @@ object WorkoutCreationView : Viewable {
     }
 
     private class SelectorViewData(
-        rightPane: String = "Info"
+        rightPane: String = RightPaneView.Info.str
     ) {
         var rightPane by mutableStateOf(rightPane)
 
@@ -766,5 +772,14 @@ object WorkoutCreationView : Viewable {
         }
     }
 
+    private enum class RightPaneView(val str: String) {
+        Info("Info"),
+        Search("Search"),
+        Generator("Generator"),
+        Editor("Editor"),
+        Workout("Workout");
+
+        override fun toString(): String = str
+    }
 
 }
