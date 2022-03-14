@@ -9,6 +9,7 @@ import com.camackenzie.exvi.core.api.*
 import com.camackenzie.exvi.core.model.ActiveWorkout
 import com.camackenzie.exvi.core.model.Workout
 import com.camackenzie.exvi.core.model.WorkoutManager
+import com.camackenzie.exvi.core.util.Identifiable
 import com.camackenzie.exvi.core.util.cached
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
@@ -20,6 +21,27 @@ import kotlinx.datetime.Clock
  * @author callum
  */
 data class ServerWorkoutManager(private val username: String, private val accessKey: String) : WorkoutManager {
+    override fun deleteActiveWorkouts(
+        toDelete: Array<String>,
+        coroutineScope: CoroutineScope,
+        dispatcher: CoroutineDispatcher,
+        onFail: (APIResult<String>) -> Unit,
+        onSuccess: () -> Unit,
+        onComplete: () -> Unit
+    ): Job = APIRequest.requestAsync(
+        APIEndpoints.DATA,
+        DeleteWorkoutsRequest(
+            username.cached(),
+            accessKey.cached(),
+            toDelete.map(String::cached).toTypedArray(),
+            DeleteWorkoutsRequest.WorkoutType.ActiveWorkout
+        ),
+        coroutineScope = coroutineScope,
+        coroutineDispatcher = dispatcher
+    ) {
+        if (it.failed()) onFail(it) else onSuccess()
+        onComplete()
+    }
 
     override fun deleteWorkouts(
         toDelete: Array<String>,
@@ -33,15 +55,36 @@ data class ServerWorkoutManager(private val username: String, private val access
         DeleteWorkoutsRequest(
             username.cached(),
             accessKey.cached(),
-            toDelete.map {
-                it.cached()
-            }.toTypedArray(),
+            toDelete.map(String::cached).toTypedArray(),
             DeleteWorkoutsRequest.WorkoutType.Workout
         ),
         coroutineScope = coroutineScope,
         coroutineDispatcher = dispatcher
     ) {
         if (it.failed()) onFail(it) else onSuccess()
+        onComplete()
+    }
+
+    override fun getActiveWorkouts(
+        coroutineScope: CoroutineScope,
+        dispatcher: CoroutineDispatcher,
+        onFail: (APIResult<String>) -> Unit,
+        onSuccess: (Array<ActiveWorkout>) -> Unit,
+        onComplete: () -> Unit
+    ): Job = APIRequest.requestAsync(
+        APIEndpoints.DATA,
+        WorkoutListRequest(
+            username,
+            accessKey,
+            WorkoutListRequest.Type.ListAllActive
+        ),
+        coroutineScope = coroutineScope,
+        coroutineDispatcher = dispatcher
+    ) {
+        if (it.failed()) onFail(it) else {
+            val response = Json.decodeFromString<ActiveWorkoutListResult>(it.body)
+            onSuccess(response.workouts)
+        }
         onComplete()
     }
 
@@ -62,9 +105,26 @@ data class ServerWorkoutManager(private val username: String, private val access
         coroutineDispatcher = dispatcher
     ) {
         if (it.failed()) onFail(it) else {
-            val workouts = Json.decodeFromString<WorkoutListResult>(it.body)
-            onSuccess(workouts.workouts)
+            val response = Json.decodeFromString<WorkoutListResult>(it.body)
+            onSuccess(response.workouts)
         }
+        onComplete()
+    }
+
+    override fun putActiveWorkouts(
+        workoutsToAdd: Array<ActiveWorkout>,
+        coroutineScope: CoroutineScope,
+        dispatcher: CoroutineDispatcher,
+        onFail: (APIResult<String>) -> Unit,
+        onSuccess: () -> Unit,
+        onComplete: () -> Unit
+    ): Job = APIRequest.requestAsync(
+        APIEndpoints.DATA,
+        ActiveWorkoutPutRequest(username, accessKey, workoutsToAdd),
+        coroutineScope = coroutineScope,
+        coroutineDispatcher = dispatcher
+    ) {
+        if (it.failed()) onFail(it) else onSuccess()
         onComplete()
     }
 
@@ -104,6 +164,23 @@ data class LocalWorkoutManager constructor(
         onComplete()
     }
 
+    override fun putActiveWorkouts(
+        workoutsToAdd: Array<ActiveWorkout>,
+        coroutineScope: CoroutineScope,
+        dispatcher: CoroutineDispatcher,
+        onFail: (APIResult<String>) -> Unit,
+        onSuccess: () -> Unit,
+        onComplete: () -> Unit
+    ): Job = coroutineScope.launch(dispatcher) {
+        Identifiable.intersectIndexed(
+            workoutsToAdd.toList(), activeWorkouts,
+            onIntersect = { a, _, _, bi -> activeWorkouts[bi] = a },
+            onAOnly = { a, _ -> activeWorkouts.add(a) }
+        )
+        onSuccess()
+        onComplete()
+    }
+
     override fun putWorkouts(
         workoutsToAdd: Array<Workout>,
         coroutineScope: CoroutineScope,
@@ -112,15 +189,24 @@ data class LocalWorkoutManager constructor(
         onSuccess: () -> Unit,
         onComplete: () -> Unit
     ): Job = coroutineScope.launch(dispatcher) {
-        val workoutIds = workouts.map { it.id.get() }
-        for (workout in workoutsToAdd) {
-            val i = workoutIds.indexOf(workout.id.get())
-            if (i != -1) {
-                workouts[i] = workout
-            } else {
-                workouts.add(workout)
-            }
-        }
+        Identifiable.intersectIndexed(
+            workoutsToAdd.toList(), workouts,
+            onIntersect = { a, _, _, bi -> workouts[bi] = a },
+            onAOnly = { a, _ -> workouts.add(a) }
+        )
+        onSuccess()
+        onComplete()
+    }
+
+    override fun deleteActiveWorkouts(
+        toDelete: Array<String>,
+        coroutineScope: CoroutineScope,
+        dispatcher: CoroutineDispatcher,
+        onFail: (APIResult<String>) -> Unit,
+        onSuccess: () -> Unit,
+        onComplete: () -> Unit
+    ): Job = coroutineScope.launch(dispatcher) {
+        activeWorkouts.removeAll { toDelete.contains(it.getIdentifier().get()) }
         onSuccess()
         onComplete()
     }
@@ -133,10 +219,19 @@ data class LocalWorkoutManager constructor(
         onSuccess: () -> Unit,
         onComplete: () -> Unit
     ): Job = coroutineScope.launch(dispatcher) {
-        workouts.removeAll {
-            toDelete.contains(it.id.get())
-        }
+        workouts.removeAll { toDelete.contains(it.getIdentifier().get()) }
         onSuccess()
+        onComplete()
+    }
+
+    override fun getActiveWorkouts(
+        coroutineScope: CoroutineScope,
+        dispatcher: CoroutineDispatcher,
+        onFail: (APIResult<String>) -> Unit,
+        onSuccess: (Array<ActiveWorkout>) -> Unit,
+        onComplete: () -> Unit
+    ): Job = coroutineScope.launch(dispatcher) {
+        onSuccess(activeWorkouts.toTypedArray())
         onComplete()
     }
 }
@@ -213,6 +308,7 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         }.join()
     }
 
+
     override fun putWorkouts(
         workoutsToAdd: Array<Workout>,
         coroutineScope: CoroutineScope,
@@ -245,4 +341,33 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         )
         jobs.joinAll()
     }
+
+    // TODO: Make this work with the local cache
+    override fun deleteActiveWorkouts(
+        toDelete: Array<String>,
+        coroutineScope: CoroutineScope,
+        dispatcher: CoroutineDispatcher,
+        onFail: (APIResult<String>) -> Unit,
+        onSuccess: () -> Unit,
+        onComplete: () -> Unit
+    ): Job = serverManager.deleteActiveWorkouts(toDelete, coroutineScope, dispatcher, onFail, onSuccess, onComplete)
+
+    // TODO: Make this work with the local cache
+    override fun getActiveWorkouts(
+        coroutineScope: CoroutineScope,
+        dispatcher: CoroutineDispatcher,
+        onFail: (APIResult<String>) -> Unit,
+        onSuccess: (Array<ActiveWorkout>) -> Unit,
+        onComplete: () -> Unit
+    ): Job = serverManager.getActiveWorkouts(coroutineScope, dispatcher, onFail, onSuccess, onComplete)
+
+    // TODO: Make this work with the local cache
+    override fun putActiveWorkouts(
+        workoutsToAdd: Array<ActiveWorkout>,
+        coroutineScope: CoroutineScope,
+        dispatcher: CoroutineDispatcher,
+        onFail: (APIResult<String>) -> Unit,
+        onSuccess: () -> Unit,
+        onComplete: () -> Unit
+    ): Job = serverManager.putActiveWorkouts(workoutsToAdd, coroutineScope, dispatcher, onFail, onSuccess, onComplete)
 }

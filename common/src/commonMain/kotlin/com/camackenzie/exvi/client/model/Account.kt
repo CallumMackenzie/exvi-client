@@ -24,8 +24,26 @@ class Account private constructor(
     var bodyStats: BodyStats = BodyStats.average(),
 ) : SelfSerializable, Identifiable {
 
-    @kotlinx.serialization.Transient
+    @Transient
     val workoutManager: SyncedWorkoutManager = SyncedWorkoutManager(username, accessKey.get())
+
+    fun getBodyStats(
+        coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+        dispatcher: CoroutineDispatcher = Dispatchers.Default,
+        onFail: (APIResult<String>) -> Unit = {},
+        onSuccess: (BodyStats) -> Unit = {},
+        onComplete: () -> Unit = {}
+    ): Job = APIRequest.requestAsync(
+        endpoint = APIEndpoints.DATA,
+        body = GetBodyStatsRequest(username, accessKey),
+        coroutineScope = coroutineScope,
+        coroutineDispatcher = dispatcher,
+        callback = {
+            if (it.failed()) onFail(it)
+            else onSuccess(Json.decodeFromString(it.body))
+            onComplete()
+        }
+    )
 
     val formattedUsername: String
         get() = (username.substring(0, 1).uppercase() + username.substring(1))
@@ -104,7 +122,6 @@ class Account private constructor(
             }
             onComplete()
         }
-
 
         private fun requestLoginRaw(
             username: String,
