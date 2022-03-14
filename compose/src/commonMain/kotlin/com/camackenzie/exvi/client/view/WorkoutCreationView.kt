@@ -124,7 +124,7 @@ object WorkoutCreationView : Viewable {
         StringSelectionView(
             views = hashMapOf(
                 RightPaneView.Search.str to {
-                    ExerciseSearchView(viewData, workoutData, searchData, selectorViewData)
+                    ExerciseSearchView(viewData, workoutData, searchData, selectorData)
                 },
                 RightPaneView.Info.str to {
                     ExerciseInfoView(workoutData.infoExercise)
