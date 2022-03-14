@@ -13,6 +13,7 @@ import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.util.None
 import com.camackenzie.exvi.core.util.SelfSerializable
+import com.camackenzie.exvi.core.util.cached
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
@@ -106,7 +107,11 @@ class AppState(
      */
     fun error(e: Exception) {
         println("Uncaught Exception: $e")
-        setView(ExviView.Error)
+        error(e.toString())
+    }
+
+    fun error(e: String) {
+        setView(ExviView.Error, e.cached())
     }
 
     /**

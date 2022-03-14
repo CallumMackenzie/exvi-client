@@ -149,14 +149,11 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
     private val localManager = LocalWorkoutManager()
     private val serverManager = ServerWorkoutManager(username, accessKey)
     private val pullTimeUTC = 120
-    private val noRefreshPullUTC = 5
+    private val noRefreshPullUTC = 4
 
     private fun shouldPull(): Boolean {
         val pullDiff = Clock.System.now().epochSeconds - lastPullUTC
-        if (pullDiff <= noRefreshPullUTC) {
-            return false
-        }
-        return pullDiff > pullTimeUTC || pullOverride
+        return pullDiff > noRefreshPullUTC && (pullDiff > pullTimeUTC || pullOverride)
     }
 
     private fun resetPull() {
@@ -205,7 +202,7 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
                     onSuccess(it)
                 },
                 onComplete = onComplete
-            )
+            ).join()
         } else {
             localManager.getWorkouts(
                 coroutineScope,
@@ -213,8 +210,9 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
                 onFail = onFail,
                 onSuccess = onSuccess,
                 onComplete = onComplete
-            )
-        }.join()
+            ).join()
+            delay(200)
+        }
     }
 
     override fun putWorkouts(

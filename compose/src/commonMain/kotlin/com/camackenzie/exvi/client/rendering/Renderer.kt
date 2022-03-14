@@ -12,13 +12,12 @@ import com.soywiz.korma.geom.*
 import kotlinx.coroutines.*
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Clock
-import kotlin.math.sin
-import kotlin.math.cos
-import kotlin.math.max
-import kotlin.math.abs
-import kotlin.math.pow
+import kotlin.math.*
 
 typealias RenderFun = DrawScope.(Triangle3D) -> Unit
+
+fun Vector3D.toColor(): Color = Color(x, y, z, w)
+fun Color.toVector3D(): Vector3D = Vector3D(red, green, blue, alpha)
 
 @Composable
 fun DefaultRenderFun(

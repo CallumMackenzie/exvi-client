@@ -225,7 +225,10 @@ object WorkoutCreationView : Viewable {
                 arrayOf(workoutData.workout),
                 coroutineScope = appState.coroutineScope,
                 onFail = {
-                    println(it.toJson())
+                    println("Updating workout failed: ${it.toJson()}")
+                },
+                onSuccess = {
+                    println("Workout ${workoutData.name} updated successfully")
                 },
                 onComplete = {
                     viewData.model.workoutManager!!.invalidateLocalCache()

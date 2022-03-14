@@ -17,6 +17,7 @@ import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.Workout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import java.lang.Exception
 
 object HomeView : Viewable {
 
@@ -310,7 +311,7 @@ object HomeView : Viewable {
                 coroutineScope = coroutineScope,
                 onSuccess = { workouts = it },
                 onFail = {
-                    println("Workout request error: ${it.toJson()}")
+                    appState.error(Exception("getWorkouts: code ${it.statusCode}: ${it.body}"))
                 }, onComplete = {
                     retrievingWorkouts = false
                 }

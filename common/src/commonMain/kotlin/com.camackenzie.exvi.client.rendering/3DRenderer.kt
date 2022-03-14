@@ -135,6 +135,9 @@ interface Camera3D {
     var projectionMatrix: Matrix3D
     var cameraMatrix: Matrix3D
 
+    val lookVector: Vector3D
+        get() = Matrix3D().rotate(rotation).transform(Vector3D(0f, 0f, 1f))
+
     companion object {
         operator fun invoke(
             position: Position3D = Vector3D(),
@@ -220,6 +223,8 @@ open class ActualCamera3D(
         }
 }
 
+fun Array<Vector3D>.average(): Vector3D = this.reduce { a, b -> a + b } * (1f / size.toFloat())
+
 data class Triangle3D(
     var p0: Vector3D,
     var p1: Vector3D,
@@ -228,7 +233,17 @@ data class Triangle3D(
     val points: Array<Vector3D>
         get() = arrayOf(p0, p1, p2)
     val center: Vector3D
-        get() = points.reduce { a, b -> a + b } * (1f / 3f)
+        get() = points.average()
+
+    val p0p1: Vector3D
+        get() = arrayOf(p0, p1).average()
+    val p1p2: Vector3D
+        get() = arrayOf(p1, p2).average()
+    val p0p2: Vector3D
+        get() = arrayOf(p0, p2).average()
+
+    val normal: Vector3D
+        get() = p0.cross(p1, p2)
 }
 
 fun Array<Triangle3D>.toVectorArray(): Array<Vector3D> = Array(size * 3) {
