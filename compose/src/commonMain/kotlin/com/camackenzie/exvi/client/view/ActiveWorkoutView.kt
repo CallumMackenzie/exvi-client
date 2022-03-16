@@ -62,6 +62,15 @@ object ActiveWorkoutView : Viewable {
                     Text("Back to Home")
                 }
             } else {
+                LazyColumn(
+                    Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    items(workoutData.workout.exercises.size) {
+
+                    }
+                }
             }
         }
     }
