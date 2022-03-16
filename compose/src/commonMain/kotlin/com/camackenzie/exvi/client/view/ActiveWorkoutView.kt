@@ -38,10 +38,10 @@ object ActiveWorkoutView : Viewable {
 
         val workoutData = remember { WorkoutData((appState.provided as ActiveWorkout).copy()) }
 
-        Row(
+        Column(
             Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Top
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 workoutData.workout.name, fontSize = 30.sp,
