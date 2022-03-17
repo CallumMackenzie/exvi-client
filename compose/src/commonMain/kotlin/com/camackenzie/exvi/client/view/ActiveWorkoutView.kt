@@ -23,9 +23,11 @@ import kotlinx.coroutines.*
 object ActiveWorkoutView : Viewable {
 
     private class WorkoutData(
-        workout: ActiveWorkout
+        workout: ActiveWorkout,
+        playing: Boolean = false
     ) {
         var workout by mutableStateOf(workout)
+        var playing by mutableStateOf(playing)
     }
 
     @Composable
@@ -62,13 +64,40 @@ object ActiveWorkoutView : Viewable {
                     Text("Back to Home")
                 }
             } else {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = {
+                        workoutData.playing = !workoutData.playing
+                    }) {
+                        if (!workoutData.playing) Icon(Icons.Default.PlayArrow, "Play Workout")
+                        else Icon(Icons.Default.Stop, "Pause Workout")
+                    }
+                }
+                Text(
+                    workoutData.workout.name, fontSize = 30.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(10.dp)
+                )
+                if (workoutData.workout.hasStarted()) {
+                    Text("Started ${workoutData.workout.startTime}")
+                }
                 LazyColumn(
                     Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                     items(workoutData.workout.exercises.size) {
-
+                        val exerciseSet = workoutData.workout.exercises[it]
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(exerciseSet.exercise.name)
+                        }
                     }
                 }
             }

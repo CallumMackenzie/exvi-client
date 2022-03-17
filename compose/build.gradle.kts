@@ -25,6 +25,8 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
+                api(compose.ui)
+                api(compose.materialIconsExtended)
                 api("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
                 api("com.google.accompanist:accompanist-placeholder:$accompanistVersion")
                 api("com.google.accompanist:accompanist-insets:$accompanistVersion")
@@ -62,5 +64,6 @@ dependencies {
     api(compose.animationGraphics)
     api(compose.material)
     api(compose.foundation)
+    api(compose.materialIconsExtended)
     api("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
 }
