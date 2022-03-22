@@ -3,6 +3,7 @@ package com.camackenzie.exvi.client.view
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -26,6 +27,8 @@ import com.camackenzie.exvi.client.rendering.ConstMeshData
 import com.camackenzie.exvi.client.rendering.Mesh3D
 import com.camackenzie.exvi.client.rendering.RenderedSpinner
 import com.camackenzie.exvi.core.api.toJson
+import com.camackenzie.exvi.core.model.ExerciseSet
+import com.camackenzie.exvi.core.model.SingleExerciseSet
 
 @Composable
 fun UsernameField(
@@ -36,7 +39,7 @@ fun UsernameField(
     val usernameRegex = Regex("([0-9a-z]|[._-])*")
     TextField(
         value = username,
-        onValueChange = { it ->
+        onValueChange = {
             val lower = it.lowercase()
             if (lower.length <= 30
                 && lower.matches(usernameRegex)
@@ -49,8 +52,74 @@ fun UsernameField(
 }
 
 @Composable
+fun RepField(
+    set: SingleExerciseSet?,
+    target: SingleExerciseSet?,
+    onValueChange: (Int) -> Unit,
+    unit: String,
+    modifier: Modifier = Modifier.width(70.dp),
+    enabled: Boolean = true
+) {
+    val regex = Regex("[0-9]*")
+    val reps = if (set?.reps ?: -1 <= 0) null else set?.reps
+    TextField(
+        modifier = modifier,
+        value = reps?.toString() ?: "",
+        onValueChange = { setStr ->
+            if (setStr.matches(regex) && setStr.length <= 5) {
+                onValueChange(if (setStr.isBlank()) 0 else setStr.toInt())
+            }
+        },
+        label = {
+            Text(
+                if (unit.length <= 1) unit
+                else "${unit.substring(0, 1).uppercase()}${unit.substring(1)}s"
+            )
+        },
+        placeholder = {
+            if (target != null) {
+                Text(target.reps.toString())
+            }
+        },
+        enabled = enabled
+    )
+}
+
+@Composable
+fun RepList(
+    exercise: ExerciseSet,
+    onValueChange: (Int, Int) -> Unit,
+    target: ExerciseSet? = null,
+    modifier: Modifier = Modifier.fillMaxWidth(),
+) {
+    LazyRow(
+        modifier,
+        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val nSets = exercise.sets.size
+        items(nSets) { setIdx ->
+            Row(
+//                Modifier.fillParentMaxWidth(1f / nSets),
+                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.Top
+            ) {
+                RepField(
+                    set = exercise.sets[setIdx],
+                    target = target?.sets?.get(setIdx),
+                    unit = exercise.unit,
+                    onValueChange = { newReps ->
+                        onValueChange(setIdx, newReps)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun LoadingIcon(
-    modifier: Modifier = Modifier.size(45.dp, 45.dp).padding(6.dp)
+    modifier: Modifier = Modifier.size(45.dp).padding(6.dp)
 ) = RenderedSpinner(modifier = modifier)
 
 @Composable

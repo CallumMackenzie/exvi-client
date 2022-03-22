@@ -1,5 +1,5 @@
 val kormaVersion = "2.6.1"
-val exviCoreVersion = "238f830ee04f605fa24a8be3a2b883519a47a26d"
+val exviCoreVersion = "9ce692fbc6454e1f795084bade7d48c2ae7511c6"
 val mpSettingsVersion = "0.8.1"
 
 plugins {

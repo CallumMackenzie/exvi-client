@@ -12,8 +12,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.core.model.*
-import kotlinx.datetime.toLocalDateTime
-import kotlinx.datetime.TimeZone
 
 object ActiveWorkoutView : Viewable {
 
@@ -23,6 +21,11 @@ object ActiveWorkoutView : Viewable {
     ) {
         var workout by mutableStateOf(workout)
         var playing by mutableStateOf(playing)
+        var viewType by mutableStateOf(ViewType.Small)
+    }
+
+    private enum class ViewType {
+        Small
     }
 
     @Composable
@@ -77,28 +80,38 @@ object ActiveWorkoutView : Viewable {
                     modifier = Modifier.padding(10.dp)
                 )
                 if (workoutData.workout.hasStarted()) {
-                    Text(
-                        "Started ${
-                            workoutData.workout.startTime!!.toInstant()
-                                .toLocalDateTime(TimeZone.currentSystemDefault()).date
-                        }"
-                    )
+                    Text("Started ${workoutData.workout.startTime!!.toLocalDate()}")
                 }
-                LazyColumn(
+                ActiveExerciseSetRow(appState, workoutData)
+            }
+        }
+    }
+
+    @Composable
+    private fun ActiveExerciseSetRow(
+        appState: AppState,
+        workoutData: WorkoutData
+    ) {
+        LazyColumn(
+            Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            items(workoutData.workout.exercises.size) { exercise ->
+                val exerciseSet = workoutData.workout.exercises[exercise]
+                Row(
                     Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    items(workoutData.workout.exercises.size) {
-                        val exerciseSet = workoutData.workout.exercises[it]
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(exerciseSet.exercise.name)
+                    Text(exerciseSet.exercise.name)
+                    RepList(
+                        exercise = exerciseSet.active,
+                        target = exerciseSet.target,
+                        onValueChange = { it, reps ->
+                            println("setting reps of $exercise: $it to $reps")
                         }
-                    }
+                    )
                 }
             }
         }

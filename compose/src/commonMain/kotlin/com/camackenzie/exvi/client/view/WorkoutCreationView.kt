@@ -275,7 +275,6 @@ object WorkoutCreationView : Viewable {
             verticalArrangement = Arrangement.Top
         ) {
             // Null assertions not used because jetpack throws null ptr exception when exercise is removed
-            // Probably because of the order jetpack updates the composition tree...
             if (workoutData.editorExercise != null) {
                 Text(
                     workoutData.editorExercise?.exercise?.name ?: "",
@@ -292,55 +291,18 @@ object WorkoutCreationView : Viewable {
                         Text("Exercise Set Unit")
                     }
                 )
-
-                // TODO: Refactor this mess
+                
                 Text("Sets")
-                LazyRow(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    val nSets = workoutData.editorExercise?.sets?.size ?: 0
-                    items(nSets) {
-                        val regex = Regex("[0-9]*")
-                        Row(
-                            Modifier.fillParentMaxWidth(1f / nSets),
-                            horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
-                            verticalAlignment = Alignment.Top
-                        ) {
-                            TextField(
-                                modifier = Modifier.fillMaxWidth(),
-                                value = workoutData.editorExercise!!.sets[it].reps.toString(),
-                                onValueChange = { setStr ->
-                                    if (setStr.matches(regex) && setStr.length <= 5) {
-                                        val newReps = if (setStr.isBlank()) 0 else setStr.toInt()
-                                        // This is horrendous but my model is not specific to compose, so it's the
-                                        // least bad way
-                                        workoutData.editorExercise = workoutData.editorExercise!!.copy(
-                                            sets = workoutData.editorExercise!!.sets.mapIndexed { i, singleSet ->
-                                                if (i == it) singleSet.copy(reps = newReps)
-                                                else singleSet
-                                            }.toTypedArray()
-                                        )
-                                    }
-                                },
-                                label = {
-                                    Text(
-                                        if (workoutData.editorExercise!!.unit.length <= 1)
-                                            workoutData.editorExercise!!.unit else
-                                            "${
-                                                workoutData.editorExercise!!.unit
-                                                    .substring(0, 1).uppercase()
-                                            }${
-                                                workoutData.editorExercise!!.unit
-                                                    .substring(1)
-                                            }s"
-                                    )
-                                }
-                            )
-                        }
+                RepList(
+                    exercise = workoutData.editorExercise!!,
+                    onValueChange = { it, newReps ->
+                        workoutData.editorExercise = workoutData.editorExercise!!.copy(
+                            sets = workoutData.editorExercise!!.sets.mapIndexed { i, singleSet ->
+                                if (i == it) singleSet.copy(reps = newReps) else singleSet
+                            }.toTypedArray()
+                        )
                     }
-                }
+                )
             } else {
                 Text(
                     "There is no exercise currently selected for editing",
