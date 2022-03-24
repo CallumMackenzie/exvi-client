@@ -214,6 +214,9 @@ object WorkoutCreationView : Viewable {
                         DropdownMenuItem(onClick = { SetGenerator(WorkoutGenerator.corePriorities()) }) {
                             Text("Core")
                         }
+                        DropdownMenuItem(onClick = { SetGenerator(WorkoutGenerator.backPriorities()) }) {
+                            Text("Back")
+                        }
                     }
                 }
             }
@@ -222,26 +225,34 @@ object WorkoutCreationView : Viewable {
                 horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
             ) {
                 OptIntField(
-                    modifier = Modifier.fillMaxWidth(0.5f),
+                    modifier = Modifier.fillMaxWidth(0.333f),
                     value = generatorData.minExercises,
                     onValueChange = {
                         generatorData.minExercises = it
                     },
                     maxDigits = 3,
-                    label = {
-                        Text("Min. Exercises")
-                    }
+                    label = { Text("Min. Exercises") }
                 )
                 OptIntField(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(0.5f),
                     value = generatorData.maxExercises,
                     onValueChange = {
                         generatorData.maxExercises = it
                     },
                     maxDigits = 3,
-                    label = {
-                        Text("Max. Exercises")
-                    }
+                    label = { Text("Max. Exercises") }
+                )
+                OptIntField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = if (generatorData.maxExercises == generatorData.minExercises) generatorData.minExercises
+                    else null,
+                    onValueChange = {
+                        generatorData.maxExercises = it
+                        generatorData.minExercises = it
+                    },
+                    placeholder = { Text("N/A") },
+                    maxDigits = 3,
+                    label = { Text("N. Exercises") }
                 )
             }
         }
@@ -319,7 +330,6 @@ object WorkoutCreationView : Viewable {
         workoutData: WorkoutData,
         modifier: Modifier = Modifier.fillMaxSize()
     ) {
-
         Column(
             modifier = modifier,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -633,8 +643,8 @@ object WorkoutCreationView : Viewable {
     private class WorkoutGeneratorData(
         params: WorkoutGeneratorParams,
         generatorDropdownExpanded: Boolean = false,
-        minExercises: Int? = 5,
-        maxExercises: Int? = 8,
+        minExercises: Int? = params.minExercises,
+        maxExercises: Int? = params.maxExercises,
     ) {
         var generatorDropdownExpanded by mutableStateOf(generatorDropdownExpanded)
         var params by mutableStateOf(params)
@@ -644,11 +654,6 @@ object WorkoutCreationView : Viewable {
         var minExercises by delegatedMutableStateOf(minExercises, onSet = {
             params.maxExercises = it ?: 8
         })
-
-        init {
-            if (minExercises != null) params.minExercises = minExercises
-            if (maxExercises != null) params.maxExercises = maxExercises
-        }
     }
 
     private class WorkoutData(
@@ -741,7 +746,6 @@ object WorkoutCreationView : Viewable {
                 },
                 restore = {
                     val infoExerciseStr = it["infoExercise"] as String?
-
                     WorkoutData(
                         name = it["name"] as String,
                         description = it["description"] as String,
@@ -752,7 +756,9 @@ object WorkoutCreationView : Viewable {
                             infoExerciseStr
                         ),
                         provided = if (provided is Workout) provided else null,
-                        params = Json.decodeFromString<WorkoutGeneratorParams>(it["params"] as String)
+                        generatorData = WorkoutGeneratorData(
+                            params = Json.decodeFromString(it["params"] as String)
+                        )
                     )
                 }
             )

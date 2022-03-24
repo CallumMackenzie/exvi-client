@@ -260,22 +260,11 @@ class WorkoutGenerator(
         fun armPriorities(): Array<ExercisePriorityProvider> = arrayOf(
             ExerciseMusclePriority(Muscle.Arms.workData(1.0), 1.75),
             ExerciseExperiencePriority(ExerciseExperienceLevel.Beginner),
-            ExerciseTypePriority(
-                ExerciseType.Strength,
-                start = 2
-            ),
-            ExerciseTypePriority(
-                ExerciseType.Warmup, 0.5,
-                end = 2
-            ),
-            ExerciseForceTypePriority(
-                ExerciseForceType.DynamicStretching, 1.25,
-                end = 2
-            ),
             ExerciseExperiencePriority(ExerciseExperienceLevel.Intermediate, 0.3),
             ExerciseEquipmentPriority(ExerciseEquipment("bodyweight"), 0.7),
             ExerciseEquipmentPriority(ExerciseEquipment("dumbbell"), 0.5, start = 2),
-            ExerciseEquipmentPriority(ExerciseEquipment("kettle bells"), 0.2, start = 2)
+            ExerciseEquipmentPriority(ExerciseEquipment("kettle bells"), 0.2, start = 2),
+            *warmupPriorities()
         )
 
         fun legs(
@@ -283,18 +272,26 @@ class WorkoutGenerator(
             bodyStats: BodyStats = BodyStats.average()
         ): WorkoutGenerator = fromPriorities(exerciseManager, bodyStats, legPriorities())
 
-        fun legPriorities(): Array<ExercisePriorityProvider> = arrayOf(
-            ExerciseMusclePriority(Muscle.Legs.workData(1.0)),
+        fun warmupPriorities(end: Int = 2): Array<ExercisePriorityProvider> = arrayOf(
             ExerciseTypePriority(
                 ExerciseType.Strength,
-                start = 2
+                start = end
             ),
             ExerciseTypePriority(
                 ExerciseType.Warmup,
-                end = 2
+                end = end
             ),
+            ExerciseForceTypePriority(
+                ExerciseForceType.DynamicStretching, 1.25,
+                end = end
+            ),
+        )
+
+        fun legPriorities(): Array<ExercisePriorityProvider> = arrayOf(
+            ExerciseMusclePriority(Muscle.Legs.workData(1.0)),
             ExerciseExperiencePriority(ExerciseExperienceLevel.Beginner),
-            ExerciseExperiencePriority(ExerciseExperienceLevel.Intermediate)
+            ExerciseExperiencePriority(ExerciseExperienceLevel.Intermediate),
+            *warmupPriorities()
         )
 
         fun corePriorities(): Array<ExercisePriorityProvider> = arrayOf(
@@ -303,6 +300,12 @@ class WorkoutGenerator(
             ExerciseExperiencePriority(ExerciseExperienceLevel.Beginner),
             ExerciseMusclePriority(Muscle.Back.workData(2.0), 0.1),
             ExerciseMusclePriority(Muscle.Back.workData(1.0), 0.2)
+        )
+
+        fun backPriorities(): Array<ExercisePriorityProvider> = arrayOf(
+            ExerciseMusclePriority(Muscle.Back.workData(1.0), 1.5),
+            ExerciseExperiencePriority(ExerciseExperienceLevel.Beginner),
+            *warmupPriorities()
         )
     }
 
