@@ -55,3 +55,21 @@ fun ensureActiveAccount(appState: AppState) {
 fun listToFormattedString(l: List<*>): String = l.toString().replace(Regex("\\]|\\["), "")
 fun List<*>.toFormattedString(): String = listToFormattedString(this)
 fun Set<*>.toFormattedString(): String = this.toList().toFormattedString()
+
+fun <T> delegatedMutableStateOf(value: T, onGet: () -> Unit = {}, onSet: (T) -> Unit = {}): MutableState<T> =
+    object : MutableState<T> {
+        var mutableState = mutableStateOf(value)
+
+        override var value: T
+            get() {
+                onGet()
+                return mutableState.value
+            }
+            set(it) {
+                onSet(it)
+                mutableState.value = it
+            }
+
+        override fun component1(): T = mutableState.component1()
+        override fun component2(): (T) -> Unit = mutableState.component2()
+    }

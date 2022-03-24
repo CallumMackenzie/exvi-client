@@ -6,6 +6,7 @@
 package com.camackenzie.exvi.client.model
 
 import com.soywiz.krypto.SecureRandom
+import kotlin.math.roundToInt
 
 /**
  * @author callum
@@ -14,5 +15,5 @@ object Random {
 
     fun doubleInRange(min: Double, max: Double): Double = SecureRandom.nextDouble() * (max - min) + min
 
-    fun intInRange(min: Int, max: Int): Int = doubleInRange(min.toDouble(), max.toDouble()).toInt()
+    fun intInRange(min: Int, max: Int): Int = doubleInRange(min.toDouble(), max.toDouble()).roundToInt()
 }

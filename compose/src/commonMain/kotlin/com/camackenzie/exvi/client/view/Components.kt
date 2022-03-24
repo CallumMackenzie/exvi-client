@@ -52,6 +52,31 @@ fun UsernameField(
 }
 
 @Composable
+fun OptIntField(
+    modifier: Modifier = Modifier,
+    value: Int?,
+    onValueChange: (Int?) -> Unit,
+    maxDigits: Int = Int.MAX_VALUE,
+    label: @Composable () -> Unit = {},
+    placeholder: @Composable () -> Unit = {},
+    enabled: Boolean = true
+) {
+    val regex = Regex("[0-9]*")
+    TextField(
+        modifier = modifier,
+        value = value?.toString() ?: "",
+        onValueChange = { setStr ->
+            if (setStr.matches(regex) && setStr.length <= maxDigits) {
+                onValueChange(if (setStr.isBlank()) null else setStr.toInt())
+            }
+        },
+        label = label,
+        placeholder = placeholder,
+        enabled = enabled
+    )
+}
+
+@Composable
 fun RepField(
     set: SingleExerciseSet?,
     target: SingleExerciseSet?,
@@ -60,15 +85,14 @@ fun RepField(
     modifier: Modifier = Modifier.width(70.dp),
     enabled: Boolean = true
 ) {
-    val regex = Regex("[0-9]*")
     val reps = if (set?.reps ?: -1 <= 0) null else set?.reps
-    TextField(
+
+    OptIntField(
         modifier = modifier,
-        value = reps?.toString() ?: "",
-        onValueChange = { setStr ->
-            if (setStr.matches(regex) && setStr.length <= 5) {
-                onValueChange(if (setStr.isBlank()) 0 else setStr.toInt())
-            }
+        value = reps,
+        maxDigits = 5,
+        onValueChange = {
+            onValueChange(it ?: 0)
         },
         label = {
             Text(
