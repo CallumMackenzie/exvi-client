@@ -59,10 +59,12 @@ android {
     }
 }
 
+@OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
 dependencies {
     api(compose.ui)
     api(compose.animationGraphics)
     api(compose.material)
+    api(compose.material3)
     api(compose.foundation)
     api(compose.materialIconsExtended)
     api("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")

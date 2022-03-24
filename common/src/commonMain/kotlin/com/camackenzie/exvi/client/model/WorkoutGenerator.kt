@@ -281,25 +281,29 @@ class WorkoutGenerator(
         fun legs(
             exerciseManager: ExerciseManager,
             bodyStats: BodyStats = BodyStats.average()
-        ): WorkoutGenerator {
-            return fromPriorities(exerciseManager, bodyStats, legPriorities())
-        }
+        ): WorkoutGenerator = fromPriorities(exerciseManager, bodyStats, legPriorities())
 
-        fun legPriorities(): Array<ExercisePriorityProvider> {
-            return arrayOf(
-                ExerciseMusclePriority(Muscle.Legs.workData(1.0)),
-                ExerciseTypePriority(
-                    ExerciseType.Strength,
-                    start = 2
-                ),
-                ExerciseTypePriority(
-                    ExerciseType.Warmup,
-                    end = 2
-                ),
-                ExerciseExperiencePriority(ExerciseExperienceLevel.Beginner),
-                ExerciseExperiencePriority(ExerciseExperienceLevel.Intermediate)
-            )
-        }
+        fun legPriorities(): Array<ExercisePriorityProvider> = arrayOf(
+            ExerciseMusclePriority(Muscle.Legs.workData(1.0)),
+            ExerciseTypePriority(
+                ExerciseType.Strength,
+                start = 2
+            ),
+            ExerciseTypePriority(
+                ExerciseType.Warmup,
+                end = 2
+            ),
+            ExerciseExperiencePriority(ExerciseExperienceLevel.Beginner),
+            ExerciseExperiencePriority(ExerciseExperienceLevel.Intermediate)
+        )
+
+        fun corePriorities(): Array<ExercisePriorityProvider> = arrayOf(
+            ExerciseMusclePriority(Muscle.Abs.workData(1.0), 1.5),
+            ExerciseTypePriority(ExerciseType.Strength),
+            ExerciseExperiencePriority(ExerciseExperienceLevel.Beginner),
+            ExerciseMusclePriority(Muscle.Back.workData(2.0), 0.1),
+            ExerciseMusclePriority(Muscle.Back.workData(1.0), 0.2)
+        )
     }
 
     override fun getUID(): String = uid

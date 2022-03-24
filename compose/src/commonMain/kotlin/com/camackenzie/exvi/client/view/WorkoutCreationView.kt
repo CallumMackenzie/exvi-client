@@ -2,7 +2,6 @@ package com.camackenzie.exvi.client.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -165,34 +164,57 @@ object WorkoutCreationView : Viewable {
         viewData: ViewData,
         workoutData: WorkoutData
     ) {
-        Row(
-            Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
-        ) {
-            Button(onClick = {
-                viewData.coroutineScope.launch(Dispatchers.Default) {
-                    workoutData.exerciseProcessRunning = true
-                    viewData.model.exerciseManager.loadStandardExercisesIfEmpty()
-                    val generator = WorkoutGenerator(
-                        viewData.model.exerciseManager,
-                        workoutData.params
-                    )
-                    val newWorkout = generator.generateWorkout(
-                        workoutData.workout,
-                        workoutData.lockedExercises.toTypedArray()
-                    )
-                    workoutData.exercises = newWorkout.exercises.toTypedArray()
-                    workoutData.exerciseProcessRunning = false
+        Column(Modifier.fillMaxWidth()) {
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
+            ) {
+                Button(onClick = {
+                    viewData.coroutineScope.launch(Dispatchers.Default) {
+                        workoutData.exerciseProcessRunning = true
+                        viewData.model.exerciseManager.loadStandardExercisesIfEmpty()
+                        val generator = WorkoutGenerator(
+                            viewData.model.exerciseManager,
+                            workoutData.params
+                        )
+                        val newWorkout = generator.generateWorkout(
+                            workoutData.workout,
+                            workoutData.lockedExercises.toTypedArray()
+                        )
+                        workoutData.exercises = newWorkout.exercises.toTypedArray()
+                        workoutData.exerciseProcessRunning = false
+                    }
+                }, enabled = !workoutData.exerciseProcessRunning) {
+                    Text("Generate")
                 }
-            }, enabled = !workoutData.exerciseProcessRunning) {
-                Text("Generate")
+                Box() {
+                    Button(onClick = { workoutData.generatorDropdownExpanded = true }) {
+                        Text("Select Generator")
+                    }
+                    DropdownMenu(expanded = workoutData.generatorDropdownExpanded, onDismissRequest = {
+                        workoutData.generatorDropdownExpanded = false
+                    }) {
+                        fun SetGenerator(generator: Array<ExercisePriorityProvider>) {
+                            workoutData.params.providers = generator
+                        }
+
+                        DropdownMenuItem(onClick = { SetGenerator(WorkoutGenerator.armPriorities()) }) {
+                            Text("Arms")
+                        }
+                        DropdownMenuItem(onClick = { SetGenerator(WorkoutGenerator.legPriorities()) }) {
+                            Text("Legs")
+                        }
+                        DropdownMenuItem(onClick = { SetGenerator(emptyArray()) }) {
+                            Text("Random")
+                        }
+                        DropdownMenuItem(onClick = { SetGenerator(WorkoutGenerator.corePriorities()) }) {
+                            Text("Core")
+                        }
+                    }
+                }
             }
-            Button(onClick = {
-                println(workoutData.params.toJson())
-            }) {
-                Text("Check JSON")
-            }
+            // TODO: Add exercise amount controls
         }
     }
 
@@ -291,7 +313,7 @@ object WorkoutCreationView : Viewable {
                         Text("Exercise Set Unit")
                     }
                 )
-                
+
                 Text("Sets")
                 RepList(
                     exercise = workoutData.editorExercise!!,
@@ -598,6 +620,7 @@ object WorkoutCreationView : Viewable {
         var params by mutableStateOf(params)
         var lockedExercises by mutableStateOf(lockedExercises)
         var exerciseProcessRunning by mutableStateOf(exerciseProcessRunning)
+        var generatorDropdownExpanded by mutableStateOf(false)
         val provided = provided
 
         var editorExercise: ExerciseSet?
