@@ -200,6 +200,7 @@ object WorkoutCreationView : Viewable {
                     }) {
                         fun SetGenerator(generator: Array<ExercisePriorityProvider>) {
                             generatorData.params.providers = generator
+                            generatorData.generatorDropdownExpanded = false
                         }
 
                         DropdownMenuItem(onClick = { SetGenerator(WorkoutGenerator.armPriorities()) }) {

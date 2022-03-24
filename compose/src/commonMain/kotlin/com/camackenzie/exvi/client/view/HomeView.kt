@@ -303,7 +303,8 @@ object HomeView : Viewable {
                 coroutineScope = coroutineScope,
                 onSuccess = { workouts = it },
                 onFail = {
-                    appState.error(Exception("getWorkouts: code ${it.statusCode}: ${it.body}"))
+                    if (it.statusCode != 418)
+                        appState.error(Exception("getWorkouts: code ${it.statusCode}: ${it.body}"))
                 }, onComplete = {
                     retrievingWorkouts = false
                 }
