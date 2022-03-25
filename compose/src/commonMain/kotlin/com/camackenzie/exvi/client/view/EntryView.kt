@@ -29,9 +29,7 @@ object EntryView : Viewable {
         var username by mutableStateOf(username)
         val coroutineScope: CoroutineScope = coroutineScope
         var error by mutableStateOf(error)
-
-        val setUsername: (String) -> Unit = { this.username = it }
-        val setPassword: (String) -> Unit = { this.password = it }
+        var passwordVisible by mutableStateOf(false)
 
         companion object {
             fun Saver(scope: CoroutineScope): Saver<LoginData, Any> = mapSaver(
@@ -110,8 +108,14 @@ object EntryView : Viewable {
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(10.dp)
             )
-            UsernameField(loginData.username, loginData.setUsername, loginData.loginEnabled)
-            PasswordField(loginData.password, loginData.setPassword, loginData.loginEnabled)
+            UsernameField(loginData.username, { loginData.username = it }, loginData.loginEnabled)
+            PasswordField(
+                loginData.password,
+                { loginData.password = it },
+                loginData.passwordVisible,
+                { loginData.passwordVisible = it },
+                loginData.loginEnabled,
+            )
             Row(
                 modifier = Modifier.padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically,

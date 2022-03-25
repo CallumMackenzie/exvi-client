@@ -8,9 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -83,7 +81,9 @@ fun RepField(
     onValueChange: (Int) -> Unit,
     unit: String,
     modifier: Modifier = Modifier.width(70.dp),
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null
 ) {
     val reps = if (set?.reps ?: -1 <= 0) null else set?.reps
 
@@ -94,13 +94,13 @@ fun RepField(
         onValueChange = {
             onValueChange(it ?: 0)
         },
-        label = {
+        label = label ?: {
             Text(
                 if (unit.length <= 1) unit
                 else "${unit.substring(0, 1).uppercase()}${unit.substring(1)}s"
             )
         },
-        placeholder = {
+        placeholder = placeholder ?: {
             if (target != null) {
                 Text(target.reps.toString())
             }
@@ -115,7 +115,11 @@ fun RepList(
     onValueChange: (Int, Int) -> Unit,
     target: ExerciseSet? = null,
     modifier: Modifier = Modifier.fillMaxWidth(),
+    label: @Composable ((Int) -> Unit)? = null,
+    placeholder: @Composable ((Int) -> Unit)? = null,
+    contents: @Composable (Int, @Composable () -> Unit) -> Unit = { _, repField -> repField() }
 ) {
+    // TODO: Make this a flow row
     LazyRow(
         modifier,
         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
@@ -123,18 +127,20 @@ fun RepList(
     ) {
         val nSets = exercise.sets.size
         items(nSets) { setIdx ->
-            Row(
-//                Modifier.fillParentMaxWidth(1f / nSets),
-                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.Top
-            ) {
+            contents(setIdx) {
                 RepField(
                     set = exercise.sets[setIdx],
                     target = target?.sets?.get(setIdx),
                     unit = exercise.unit,
                     onValueChange = { newReps ->
                         onValueChange(setIdx, newReps)
-                    }
+                    },
+                    label = if (label != null) {
+                        { label(setIdx) }
+                    } else null,
+                    placeholder = if (placeholder != null) {
+                        { placeholder(setIdx) }
+                    } else null,
                 )
             }
         }
@@ -150,32 +156,33 @@ fun LoadingIcon(
 fun PasswordField(
     password: String,
     onPasswordChange: (String) -> Unit,
+    passwordVisible: Boolean,
+    onPasswordVisibleChange: (Boolean) -> Unit,
     enabled: Boolean = true
 ) {
     val passwordRegex = Regex("([0-9a-zA-Z]|[*.!@#$%^&(){}\\[\\]:;<>,.?/~_+-=|])*")
     TextField(
         value = password,
-        enabled = enabled,
-        onValueChange = { it ->
+        onValueChange = {
             if (it.length <= 30
                 && it.matches(passwordRegex)
             ) onPasswordChange(it)
         },
+        enabled = enabled,
         label = { Text("Password") },
         placeholder = { Text("Password") },
-//        visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
-        visualTransformation = PasswordVisualTransformation(),
+        visualTransformation = if (passwordVisible && enabled) VisualTransformation.None else PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         trailingIcon = {
-//            val image = if (passwordVisibility)
-//                Icons.Sharp.Visibility
-//            else Icons.Sharp.VisibilityOff
-//
-//            IconButton(onClick = {
-//                passwordVisibility = !passwordVisibility
-//            }) {
-//                Icon(imageVector = image, "")
-//            }
+            val image = if (passwordVisible && enabled)
+                Icons.Default.Visibility
+            else Icons.Default.VisibilityOff
+
+            IconButton(onClick = {
+                onPasswordVisibleChange(!passwordVisible)
+            }, enabled = enabled) {
+                Icon(imageVector = image, "")
+            }
         }
     )
 }

@@ -349,22 +349,38 @@ object WorkoutCreationView : Viewable {
                     onValueChange = {
                         workoutData.editorExercise = workoutData.editorExercise?.copy(unit = it)
                     },
-                    label = {
-                        Text("Exercise Set Unit")
-                    }
+                    label = { Text("Exercise Set Unit") }
                 )
 
                 Text("Sets")
                 RepList(
                     exercise = workoutData.editorExercise!!,
                     onValueChange = { it, newReps ->
-                        workoutData.editorExercise = workoutData.editorExercise!!.copy(
-                            sets = workoutData.editorExercise!!.sets.mapIndexed { i, singleSet ->
-                                if (i == it) singleSet.copy(reps = newReps) else singleSet
-                            }.toTypedArray()
-                        )
+                        workoutData.editorExercise!!.sets[it].reps = newReps
+                        workoutData.editorExercise = workoutData.editorExercise!!.copy()
                     }
-                )
+                ) { setIdx, repField ->
+                    Column {
+                        repField()
+                        IconButton(onClick = {
+                            workoutData.editorExercise = workoutData.editorExercise?.copy(
+                                // Remove element at index setIndex
+                                sets = workoutData.editorExercise!!.sets.filterIndexed { idx, _ ->
+                                    idx != setIdx
+                                }.toTypedArray()
+                            )
+                        }) {
+                            Icon(Icons.Default.Delete, "Remove Set")
+                        }
+                    }
+                }
+                IconButton(onClick = {
+                    workoutData.editorExercise = workoutData.editorExercise?.copy(
+                        sets = workoutData.editorExercise!!.sets + SingleExerciseSet(8)
+                    )
+                }) {
+                    Icon(Icons.Default.Add, "Add Set")
+                }
             } else {
                 Text(
                     "There is no exercise currently selected for editing",

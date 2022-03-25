@@ -21,11 +21,6 @@ object ActiveWorkoutView : Viewable {
     ) {
         var workout by mutableStateOf(workout)
         var playing by mutableStateOf(playing)
-        var viewType by mutableStateOf(ViewType.Small)
-    }
-
-    private enum class ViewType {
-        Small
     }
 
     @Composable
@@ -109,7 +104,10 @@ object ActiveWorkoutView : Viewable {
                         exercise = exerciseSet.active,
                         target = exerciseSet.target,
                         onValueChange = { it, reps ->
-                            println("setting reps of $exercise: $it to $reps")
+                            println("setting reps of exercise no. $exercise, set $it to $reps")
+                            
+                            workoutData.workout.exercises[exercise].active.sets[it].reps = reps
+                            workoutData.workout = workoutData.workout.copy()
                         }
                     )
                 }

@@ -36,12 +36,7 @@ object SignupView : Viewable {
         var verificationCodeSent by mutableStateOf(verificationCodeSent)
         var creatingAccount by mutableStateOf(creatingAccount)
         var sendingCode by mutableStateOf(sendingCode)
-
-        val setUsername: (String) -> Unit = { this.username = it }
-        val setPassword: (String) -> Unit = { this.password = it }
-        val setCode: (String) -> Unit = { this.code = it }
-        val setEmail: (String) -> Unit = { this.email = it }
-        val setPhone: (String) -> Unit = { this.phone = it }
+        var passwordVisible by mutableStateOf(false)
 
         companion object {
             val Saver = mapSaver(
@@ -98,17 +93,23 @@ object SignupView : Viewable {
             val sendingReq = signupData.sendingCode || signupData.creatingAccount
             UsernameField(
                 signupData.username,
-                signupData.setUsername,
+                { signupData.username = it },
                 !sendingReq
             )
             EmailField(
                 signupData.email,
-                signupData.setEmail,
+                { signupData.email = it },
                 !sendingReq
             )
-            PhoneField(signupData.phone, signupData.setPhone, !sendingReq)
-            PasswordField(signupData.password, signupData.setPassword, !signupData.creatingAccount)
-            VerificationCodeField(signupData.code, signupData.setCode, !signupData.creatingAccount)
+            PhoneField(signupData.phone, { signupData.phone = it }, !sendingReq)
+            PasswordField(
+                signupData.password,
+                { signupData.password = it },
+                signupData.passwordVisible,
+                { signupData.passwordVisible = it },
+                !signupData.creatingAccount
+            )
+            VerificationCodeField(signupData.code, { signupData.code = it }, !signupData.creatingAccount)
             Button(
                 onClick = {
                     signupData.sendingCode = true

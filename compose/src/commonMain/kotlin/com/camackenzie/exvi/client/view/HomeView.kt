@@ -290,9 +290,9 @@ object HomeView : Viewable {
 
         fun ensureWorkoutsSynced() {
             if (!workoutsSynced) {
-                workoutsSynced = true
                 appState.model.workoutManager?.invalidateLocalCache()
                 refreshWorkouts()
+                workoutsSynced = true
             }
         }
 
