@@ -332,7 +332,7 @@ object WorkoutCreationView : Viewable {
         modifier: Modifier = Modifier.fillMaxSize()
     ) {
         Column(
-            modifier = modifier,
+            modifier = modifier.then(Modifier.verticalScroll(rememberScrollState())),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -383,7 +383,7 @@ object WorkoutCreationView : Viewable {
                 }
             } else {
                 Text(
-                    "There is no exercise currently selected for editing",
+                    "No Exercise Selected for Editing",
                     textAlign = TextAlign.Center
                 )
             }
@@ -532,7 +532,6 @@ object WorkoutCreationView : Viewable {
             }
         }
     }
-
 
     @Composable
     private fun WorkoutExerciseListView(
