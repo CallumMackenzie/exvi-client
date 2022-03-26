@@ -1,3 +1,7 @@
 # Exvi Client
 
-The client portion of a highschool capstone project which serves as a hub for creating/progressing through workouts.
+The client portion of my high school capstone project.
+
+## Technologies
+- Jetpack Compose
+  - Full app functionality on OSX, Windows, Linux, and Android
