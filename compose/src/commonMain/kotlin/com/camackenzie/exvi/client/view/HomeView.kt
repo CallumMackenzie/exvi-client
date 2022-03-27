@@ -40,86 +40,75 @@ object HomeView : Viewable {
             }) {
                 Text("Create Workout")
             }
-            Body(
-                appState,
-                workoutListData
-            )
-        }
-    }
-
-    @Composable
-    private fun Body(
-        appState: AppState,
-        workoutListData: WorkoutListData
-    ) {
-        BoxWithConstraints(
-            Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
-            if (maxWidth < 600.dp) {
-                Column(
-                    Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Expandable(
-                        Modifier.fillMaxWidth(),
-                        header = {
-                            Text("Your Workouts")
-                        }) {
-                        WorkoutsView(
-                            appState,
-                            workoutListData
-                        )
-                    }
-                    Expandable(Modifier.fillMaxWidth(),
-                        header = {
-                            Text("Your Progress")
-                        }) {
-                        AccountView(appState.model)
-                    }
-                }
-            } else {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Expandable(
-                        Modifier.fillMaxWidth(0.5f),
-                        header = {
-                            Text("Your Workouts")
-                        }) {
-                        WorkoutsView(
-                            appState,
-                            workoutListData
-                        )
-                    }
-                    Expandable(Modifier.fillMaxWidth(),
-                        header = {
-                            Text("Your Progress")
-                        }) {
-                        AccountView(appState.model)
-                    }
-                }
+            BoxWithConstraints(
+                Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                if (maxWidth < 600.dp) MobileView(appState, workoutListData)
+                else DesktopView(appState, workoutListData)
             }
         }
     }
 
     @Composable
-    private fun WorkoutsView(
+    private fun MobileView(
+        appState: AppState,
+        workoutListData: WorkoutListData
+    ) {
+        Column(
+            Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Column(
+                Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text("Your Workouts", fontSize = 25.sp)
+                WorkoutListView(
+                    appState,
+                    workoutListData
+                )
+            }
+            Column(
+                Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text("Your Progress", fontSize = 25.sp)
+                AccountView(appState.model)
+            }
+        }
+    }
+
+    @Composable
+    private fun DesktopView(
         appState: AppState,
         workoutListData: WorkoutListData
     ) {
         Row(
             Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.Top
         ) {
-            WorkoutListView(
-                appState,
-                workoutListData
-            )
+            Column(
+                Modifier.fillMaxWidth(0.5f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text("Your Workouts", fontSize = 25.sp)
+                WorkoutListView(
+                    appState,
+                    workoutListData
+                )
+            }
+            Column(
+                Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text("Your Progress", fontSize = 25.sp)
+                AccountView(appState.model)
+            }
         }
     }
 
@@ -239,39 +228,46 @@ object HomeView : Viewable {
                 textAlign = TextAlign.Center,
                 fontSize = 20.sp
             )
-            IconButton(onClick = {
-                appState.setView(ExviView.ActiveWorkout, workout::newActiveWorkout)
-            }, enabled = !deletingWorkout) {
-                Icon(Icons.Default.PlayArrow, "Start Workout")
-            }
-            IconButton(onClick = {
-                appState.setView(ExviView.WorkoutCreation) { workout }
-            }, enabled = !deletingWorkout) {
-                Icon(Icons.Default.Edit, "Edit Workout")
-            }
-            if (!deleteConfirmEnabled) {
+
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
+            ) {
                 IconButton(onClick = {
-                    onDeleteConfirmEnabledChanged(true)
+                    appState.setView(ExviView.ActiveWorkout, workout::newActiveWorkout)
                 }, enabled = !deletingWorkout) {
-                    Icon(Icons.Default.Delete, "Delete Workout")
+                    Icon(Icons.Default.PlayArrow, "Start Workout")
                 }
-            } else {
                 IconButton(onClick = {
-                    onDeleteConfirmEnabledChanged(false)
-                    onDeletingWorkoutChanged(true)
-                    appState.model.workoutManager!!.deleteWorkouts(arrayOf(workout.id.get()),
-                        onFail = {
-                            println(it.toJson())
-                        }, onComplete = {
-                            onDeletingWorkoutChanged(false)
-                            refreshWorkouts()
-                        })
+                    appState.setView(ExviView.WorkoutCreation) { workout }
                 }, enabled = !deletingWorkout) {
-                    Icon(Icons.Default.Close, "Delete Workout")
+                    Icon(Icons.Default.Edit, "Edit Workout")
                 }
-            }
-            if (deletingWorkout) {
-                LoadingIcon()
+                if (!deleteConfirmEnabled) {
+                    IconButton(onClick = {
+                        onDeleteConfirmEnabledChanged(true)
+                    }, enabled = !deletingWorkout) {
+                        Icon(Icons.Default.Delete, "Delete Workout")
+                    }
+                } else {
+                    IconButton(onClick = {
+                        onDeleteConfirmEnabledChanged(false)
+                        onDeletingWorkoutChanged(true)
+                        appState.model.workoutManager!!.deleteWorkouts(arrayOf(workout.id.get()),
+                            onFail = {
+                                println(it.toJson())
+                            }, onComplete = {
+                                onDeletingWorkoutChanged(false)
+                                refreshWorkouts()
+                            })
+                    }, enabled = !deletingWorkout) {
+                        Icon(Icons.Default.Close, "Delete Workout")
+                    }
+                }
+                if (deletingWorkout) {
+                    LoadingIcon()
+                }
             }
         }
     }
