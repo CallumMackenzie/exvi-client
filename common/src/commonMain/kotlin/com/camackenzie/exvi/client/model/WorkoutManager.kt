@@ -20,7 +20,40 @@ import kotlinx.datetime.Clock
  *
  * @author callum
  */
-data class ServerWorkoutManager(private val username: String, private val accessKey: String) : WorkoutManager {
+class ServerWorkoutManager(
+    private val username: String,
+    private val accessKey: String,
+    val outgoingPutRequests: MutableMap<String, WorkoutPutRequest> = HashMap(),
+    val outgoingDeleteRequests: MutableMap<String, DeleteWorkoutsRequest> = HashMap(),
+    val outgoingActivePutRequests: MutableMap<String, ActiveWorkoutPutRequest> = HashMap()
+) : WorkoutManager {
+
+    private fun registerDeleting(request: DeleteWorkoutsRequest) = request.workoutIds.forEach {
+        outgoingDeleteRequests[it.get()] = request
+    }
+
+    private fun registerDeleted(request: DeleteWorkoutsRequest) = request.workoutIds.forEach {
+        outgoingDeleteRequests.remove(it.get())
+    }
+
+    private fun registerAdding(request: WorkoutPutRequest) =
+        request.workouts.forEach { outgoingPutRequests[it.id.get()] = request }
+
+    private fun registerAdding(request: ActiveWorkoutPutRequest) =
+        request.workouts.forEach { outgoingActivePutRequests[it.activeWorkoutId.get()] = request }
+
+    private fun registerAdded(request: WorkoutPutRequest) =
+        request.workouts.forEach { outgoingPutRequests.remove(it.id.get()) }
+
+    private fun registerAdded(request: ActiveWorkoutPutRequest) =
+        request.workouts.forEach { outgoingPutRequests.remove(it.activeWorkoutId.get()) }
+
+    fun isPuttingActive(): Boolean = outgoingActivePutRequests.isNotEmpty()
+    fun isPutting(): Boolean = outgoingPutRequests.isNotEmpty()
+    fun isDeletingAny(): Boolean = outgoingDeleteRequests.isNotEmpty()
+    fun isUpdatingWorkouts(): Boolean = isPutting() || isDeletingAny()
+    fun isUpdatingActiveWorkouts(): Boolean = isPuttingActive() || isDeletingAny()
+
     override fun deleteActiveWorkouts(
         toDelete: Array<String>,
         coroutineScope: CoroutineScope,
@@ -28,19 +61,24 @@ data class ServerWorkoutManager(private val username: String, private val access
         onFail: (APIResult<String>) -> Unit,
         onSuccess: () -> Unit,
         onComplete: () -> Unit
-    ): Job = APIRequest.requestAsync(
-        APIEndpoints.DATA,
-        DeleteWorkoutsRequest(
+    ): Job {
+        val request = DeleteWorkoutsRequest(
             username.cached(),
             accessKey.cached(),
             toDelete.map(String::cached).toTypedArray(),
             DeleteWorkoutsRequest.WorkoutType.ActiveWorkout
-        ),
-        coroutineScope = coroutineScope,
-        coroutineDispatcher = dispatcher
-    ) {
-        if (it.failed()) onFail(it) else onSuccess()
-        onComplete()
+        )
+        registerDeleting(request)
+        return APIRequest.requestAsync(
+            APIEndpoints.DATA,
+            request,
+            coroutineScope = coroutineScope,
+            coroutineDispatcher = dispatcher
+        ) {
+            registerDeleted(request)
+            if (it.failed()) onFail(it) else onSuccess()
+            onComplete()
+        }
     }
 
     override fun deleteWorkouts(
@@ -50,19 +88,24 @@ data class ServerWorkoutManager(private val username: String, private val access
         onFail: (APIResult<String>) -> Unit,
         onSuccess: () -> Unit,
         onComplete: () -> Unit
-    ): Job = APIRequest.requestAsync(
-        APIEndpoints.DATA,
-        DeleteWorkoutsRequest(
+    ): Job {
+        val request = DeleteWorkoutsRequest(
             username.cached(),
             accessKey.cached(),
             toDelete.map(String::cached).toTypedArray(),
             DeleteWorkoutsRequest.WorkoutType.Workout
-        ),
-        coroutineScope = coroutineScope,
-        coroutineDispatcher = dispatcher
-    ) {
-        if (it.failed()) onFail(it) else onSuccess()
-        onComplete()
+        )
+        registerDeleting(request)
+        return APIRequest.requestAsync(
+            APIEndpoints.DATA,
+            request,
+            coroutineScope = coroutineScope,
+            coroutineDispatcher = dispatcher
+        ) {
+            registerDeleted(request)
+            if (it.failed()) onFail(it) else onSuccess()
+            onComplete()
+        }
     }
 
     override fun getActiveWorkouts(
@@ -118,14 +161,19 @@ data class ServerWorkoutManager(private val username: String, private val access
         onFail: (APIResult<String>) -> Unit,
         onSuccess: () -> Unit,
         onComplete: () -> Unit
-    ): Job = APIRequest.requestAsync(
-        APIEndpoints.DATA,
-        ActiveWorkoutPutRequest(username, accessKey, workoutsToAdd),
-        coroutineScope = coroutineScope,
-        coroutineDispatcher = dispatcher
-    ) {
-        if (it.failed()) onFail(it) else onSuccess()
-        onComplete()
+    ): Job {
+        val request = ActiveWorkoutPutRequest(username, accessKey, workoutsToAdd)
+        registerAdding(request)
+        return APIRequest.requestAsync(
+            APIEndpoints.DATA,
+            request,
+            coroutineScope = coroutineScope,
+            coroutineDispatcher = dispatcher
+        ) {
+            registerAdded(request)
+            if (it.failed()) onFail(it) else onSuccess()
+            onComplete()
+        }
     }
 
     override fun putWorkouts(
@@ -135,14 +183,19 @@ data class ServerWorkoutManager(private val username: String, private val access
         onFail: (APIResult<String>) -> Unit,
         onSuccess: () -> Unit,
         onComplete: () -> Unit
-    ): Job = APIRequest.requestAsync(
-        APIEndpoints.DATA,
-        WorkoutPutRequest(username, accessKey, workoutsToAdd),
-        coroutineScope = coroutineScope,
-        coroutineDispatcher = dispatcher
-    ) {
-        if (it.failed()) onFail(it) else onSuccess()
-        onComplete()
+    ): Job {
+        val request = WorkoutPutRequest(username, accessKey, workoutsToAdd)
+        registerAdding(request)
+        return APIRequest.requestAsync(
+            APIEndpoints.DATA,
+            request,
+            coroutineScope = coroutineScope,
+            coroutineDispatcher = dispatcher
+        ) {
+            registerAdded(request)
+            if (it.failed()) onFail(it) else onSuccess()
+            onComplete()
+        }
     }
 
 }
@@ -153,6 +206,17 @@ data class LocalWorkoutManager constructor(
     val activeWorkouts: ArrayList<ActiveWorkout> = ArrayList()
 ) : WorkoutManager {
 
+    companion object {
+        // Used to delay local manager calls to give compose time to react
+        private const val STATIC_DELAY = 50L
+    }
+
+    fun ensureNoDuplicates() {
+        val newWorkouts = arrayListOf(*workouts.toSet().toTypedArray())
+        workouts.clear()
+        workouts.addAll(newWorkouts)
+    }
+
     override fun getWorkouts(
         coroutineScope: CoroutineScope,
         dispatcher: CoroutineDispatcher,
@@ -160,6 +224,7 @@ data class LocalWorkoutManager constructor(
         onSuccess: (Array<Workout>) -> Unit,
         onComplete: () -> Unit
     ): Job = coroutineScope.launch(dispatcher) {
+        delay(STATIC_DELAY)
         onSuccess(workouts.toTypedArray())
         onComplete()
     }
@@ -177,6 +242,7 @@ data class LocalWorkoutManager constructor(
             onIntersect = { a, _, _, bi -> activeWorkouts[bi] = a },
             onAOnly = { a, _ -> activeWorkouts.add(a) }
         )
+        delay(STATIC_DELAY)
         onSuccess()
         onComplete()
     }
@@ -194,6 +260,7 @@ data class LocalWorkoutManager constructor(
             onIntersect = { a, _, _, bi -> workouts[bi] = a },
             onAOnly = { a, _ -> workouts.add(a) }
         )
+        delay(STATIC_DELAY)
         onSuccess()
         onComplete()
     }
@@ -207,6 +274,7 @@ data class LocalWorkoutManager constructor(
         onComplete: () -> Unit
     ): Job = coroutineScope.launch(dispatcher) {
         activeWorkouts.removeAll { toDelete.contains(it.getIdentifier().get()) }
+        delay(STATIC_DELAY)
         onSuccess()
         onComplete()
     }
@@ -220,6 +288,7 @@ data class LocalWorkoutManager constructor(
         onComplete: () -> Unit
     ): Job = coroutineScope.launch(dispatcher) {
         workouts.removeAll { toDelete.contains(it.getIdentifier().get()) }
+        delay(STATIC_DELAY)
         onSuccess()
         onComplete()
     }
@@ -231,6 +300,7 @@ data class LocalWorkoutManager constructor(
         onSuccess: (Array<ActiveWorkout>) -> Unit,
         onComplete: () -> Unit
     ): Job = coroutineScope.launch(dispatcher) {
+        delay(STATIC_DELAY)
         onSuccess(activeWorkouts.toTypedArray())
         onComplete()
     }
@@ -238,28 +308,10 @@ data class LocalWorkoutManager constructor(
 
 
 class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager {
-    private var lastPullUTC: Long = 0
-    private var pullOverride: Boolean = false
-
     private val localManager = LocalWorkoutManager()
     private val serverManager = ServerWorkoutManager(username, accessKey)
-    private val pullTimeUTC = 120
 
-    private fun shouldPull(): Boolean {
-        val pullDiff = Clock.System.now().epochSeconds - lastPullUTC
-        return pullDiff > pullTimeUTC || pullOverride
-    }
-
-    private fun resetPull() {
-        lastPullUTC = Clock.System.now().epochSeconds
-        pullOverride = false
-    }
-
-    fun validateLocalCache() = resetPull()
-
-    fun invalidateLocalCache() {
-        pullOverride = true
-    }
+    // TODO: Add coroutine to sync with server periodically
 
     override fun deleteWorkouts(
         toDelete: Array<String>,
@@ -273,7 +325,6 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
             localManager.deleteWorkouts(toDelete, coroutineScope, dispatcher, {}, {}, {}),
             serverManager.deleteWorkouts(toDelete, coroutineScope, dispatcher, onFail, onSuccess, onComplete)
         )
-        invalidateLocalCache()
         jobs.joinAll()
     }
 
@@ -284,8 +335,7 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         onSuccess: (Array<Workout>) -> Unit,
         onComplete: () -> Unit
     ): Job = coroutineScope.launch(dispatcher) {
-        if (shouldPull()) {
-            resetPull()
+        if (!serverManager.isUpdatingWorkouts()) {
             serverManager.getWorkouts(
                 coroutineScope,
                 dispatcher,
@@ -293,6 +343,7 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
                 onSuccess = {
                     localManager.workouts.clear()
                     localManager.workouts.addAll(it)
+                    localManager.ensureNoDuplicates()
                     onSuccess(it)
                 },
                 onComplete = onComplete
@@ -317,27 +368,19 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         onSuccess: () -> Unit,
         onComplete: () -> Unit
     ): Job = coroutineScope.launch(dispatcher) {
-        val jobs = listOf(serverManager.putWorkouts(
-            workoutsToAdd,
-            coroutineScope,
-            dispatcher,
-            onFail = {
-                invalidateLocalCache()
-                onFail(it)
-            },
-            onSuccess = {
-                invalidateLocalCache()
-                onSuccess()
-            },
-            onComplete = onComplete
-        ), localManager.putWorkouts(workoutsToAdd,
-            coroutineScope,
-            dispatcher,
-            onFail = {
-                invalidateLocalCache()
-            }, onSuccess = {
-                validateLocalCache()
-            })
+        val jobs = listOf(
+            serverManager.putWorkouts(
+                workoutsToAdd,
+                coroutineScope,
+                dispatcher,
+                onFail = onFail,
+                onSuccess = onSuccess,
+                onComplete = onComplete
+            ), localManager.putWorkouts(
+                workoutsToAdd,
+                coroutineScope,
+                dispatcher
+            )
         )
         jobs.joinAll()
     }

@@ -165,8 +165,6 @@ object HomeView : Viewable {
                 }
             } else {
                 IconButton(onClick = {
-                    wld.retrievingWorkouts = true
-                    appState.model.workoutManager!!.invalidateLocalCache()
                     wld.refreshWorkouts()
                 }) {
                     Icon(Icons.Default.Refresh, "Refresh Workout List")
@@ -265,9 +263,7 @@ object HomeView : Viewable {
                         Icon(Icons.Default.Close, "Delete Workout")
                     }
                 }
-                if (deletingWorkout) {
-                    LoadingIcon()
-                }
+                if (deletingWorkout) LoadingIcon()
             }
         }
     }
@@ -285,8 +281,8 @@ object HomeView : Viewable {
         var workoutsSynced by mutableStateOf(workoutsSynced)
 
         fun ensureWorkoutsSynced() {
+            // Called during the first composition only
             if (!workoutsSynced) {
-                appState.model.workoutManager?.invalidateLocalCache()
                 refreshWorkouts()
                 workoutsSynced = true
             }
@@ -297,12 +293,14 @@ object HomeView : Viewable {
             appState.model.workoutManager?.getWorkouts(
                 dispatcher = Dispatchers.Default,
                 coroutineScope = coroutineScope,
-                onSuccess = { workouts = it },
+                onSuccess = {
+                    retrievingWorkouts = false
+                    workouts = it
+                    println("COMPLETED")
+                },
                 onFail = {
                     if (it.statusCode != 418)
                         appState.error(Exception("getWorkouts: code ${it.statusCode}: ${it.body}"))
-                }, onComplete = {
-                    retrievingWorkouts = false
                 }
             )
         }
