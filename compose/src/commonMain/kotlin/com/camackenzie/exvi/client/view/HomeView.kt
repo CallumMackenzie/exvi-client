@@ -296,7 +296,6 @@ object HomeView : Viewable {
                 onSuccess = {
                     retrievingWorkouts = false
                     workouts = it
-                    println("COMPLETED")
                 },
                 onFail = {
                     if (it.statusCode != 418)

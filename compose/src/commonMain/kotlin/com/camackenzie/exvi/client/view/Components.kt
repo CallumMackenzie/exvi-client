@@ -17,16 +17,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.camackenzie.exvi.client.model.Account
-import com.camackenzie.exvi.client.rendering.ConstMeshData
-import com.camackenzie.exvi.client.rendering.Mesh3D
 import com.camackenzie.exvi.client.rendering.RenderedSpinner
-import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.core.model.ExerciseSet
 import com.camackenzie.exvi.core.model.SingleExerciseSet
+import com.google.accompanist.flowlayout.FlowRow
 
 @Composable
 fun UsernameField(
@@ -346,7 +341,7 @@ fun <T> SelectionView(
     ) {
         // TODO: Make this a flow row
         // TODO: Improve selected page styling
-        Row(
+        FlowRow(
             Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.Start),
             verticalAlignment = Alignment.Top

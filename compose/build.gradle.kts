@@ -29,7 +29,6 @@ kotlin {
                 api(compose.materialIconsExtended)
                 api("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
                 api("com.google.accompanist:accompanist-placeholder:$accompanistVersion")
-                api("com.google.accompanist:accompanist-insets:$accompanistVersion")
             }
         }
         val androidMain by getting
@@ -61,11 +60,12 @@ android {
 
 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
 dependencies {
+    api("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
+    api("com.google.accompanist:accompanist-placeholder:$accompanistVersion")
     api(compose.ui)
     api(compose.animationGraphics)
     api(compose.material)
     api(compose.material3)
     api(compose.foundation)
     api(compose.materialIconsExtended)
-    api("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
 }
