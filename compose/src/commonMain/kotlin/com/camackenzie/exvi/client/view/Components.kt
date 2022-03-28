@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import com.camackenzie.exvi.client.rendering.RenderedSpinner
 import com.camackenzie.exvi.core.model.ExerciseSet
 import com.camackenzie.exvi.core.model.SingleExerciseSet
-import com.google.accompanist.flowlayout.FlowRow
 
 @Composable
 fun UsernameField(
@@ -341,7 +340,7 @@ fun <T> SelectionView(
     ) {
         // TODO: Make this a flow row
         // TODO: Improve selected page styling
-        FlowRow(
+        Row(
             Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.Start),
             verticalAlignment = Alignment.Top
