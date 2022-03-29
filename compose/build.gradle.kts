@@ -30,12 +30,20 @@ kotlin {
                 api(compose.foundation)
                 api(compose.material)
                 api(compose.ui)
+            }
+        }
+        val jvmMain by creating {
+            dependsOn(commonMain)
+            dependencies {
                 api(compose.materialIconsExtended)
             }
         }
-        val androidMain by getting
+        val androidMain by getting {
+            dependsOn(jvmMain)
+        }
         val jsMain by getting
         val desktopMain by getting {
+            dependsOn(jvmMain)
             dependencies {
                 api(compose.preview)
             }
