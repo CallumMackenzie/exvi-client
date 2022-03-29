@@ -21,6 +21,9 @@ import androidx.compose.ui.unit.dp
 import com.camackenzie.exvi.client.rendering.RenderedSpinner
 import com.camackenzie.exvi.core.model.ExerciseSet
 import com.camackenzie.exvi.core.model.SingleExerciseSet
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun UsernameField(
