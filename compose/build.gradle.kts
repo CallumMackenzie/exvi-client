@@ -3,7 +3,7 @@ val accompanistVersion = "0.23.1"
 plugins {
     id("com.android.library")
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "1.1.1"
+    id("org.jetbrains.compose") version "1.2.0-alpha01-dev620"
     kotlin("plugin.serialization") version "1.4.31"
 }
 
