@@ -17,6 +17,10 @@ kotlin {
             kotlinOptions.jvmTarget = "11"
         }
     }
+    js(IR) {
+        browser()
+        binaries.executable()
+    }
     sourceSets {
         val commonMain by getting {
             resources.srcDirs("resources")
@@ -27,11 +31,10 @@ kotlin {
                 api(compose.material)
                 api(compose.ui)
                 api(compose.materialIconsExtended)
-                api("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
-                api("com.google.accompanist:accompanist-placeholder:$accompanistVersion")
             }
         }
         val androidMain by getting
+        val jsMain by getting
         val desktopMain by getting {
             dependencies {
                 api(compose.preview)
@@ -60,8 +63,6 @@ android {
 
 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
 dependencies {
-    api("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
-    api("com.google.accompanist:accompanist-placeholder:$accompanistVersion")
     api(compose.ui)
     api(compose.animationGraphics)
     api(compose.material)

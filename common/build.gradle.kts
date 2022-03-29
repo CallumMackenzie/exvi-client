@@ -23,6 +23,10 @@ kotlin {
             framework()
         }
     }
+    js(IR) {
+        browser()
+        binaries.executable()
+    }
     sourceSets {
         val commonMain by getting {
             resources.srcDirs("resources")
@@ -41,6 +45,7 @@ kotlin {
             }
         }
         val desktopMain by getting
+        val jsMain by getting
     }
 }
 
