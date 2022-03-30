@@ -1,22 +1,14 @@
 package com.camackenzie.exvi.client.view
 
-import androidx.compose.foundation.background
 import androidx.compose.runtime.saveable.mapSaver
-import androidx.compose.foundation.layout.*
-import androidx.compose.ui.*
 import androidx.compose.runtime.*
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.util.None
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import com.camackenzie.exvi.client.model.WorkoutGenerator
 import com.camackenzie.exvi.client.model.WorkoutGeneratorParams
 import com.camackenzie.exvi.core.model.*
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 fun selfSerializableFromMap(map: Map<String, Any?>): SelfSerializable =
     selfSerializableFromJson(map["json"] as String, map["uid"] as String)
@@ -56,7 +48,7 @@ fun listToFormattedString(l: List<*>): String = l.toString().replace(Regex("\\]|
 fun List<*>.toFormattedString(): String = listToFormattedString(this)
 fun Set<*>.toFormattedString(): String = this.toList().toFormattedString()
 
-fun <T> delegatedMutableStateOf(value: T, onGet: () -> Unit = {}, onSet: (T) -> Unit = {}): MutableState<T> =
+fun <T> delegatedMutableStateOf(value: T, onGet: () -> kotlin.Unit = {}, onSet: (T) -> kotlin.Unit = {}): MutableState<T> =
     object : MutableState<T> {
         var mutableState = mutableStateOf(value)
 
@@ -71,5 +63,5 @@ fun <T> delegatedMutableStateOf(value: T, onGet: () -> Unit = {}, onSet: (T) -> 
             }
 
         override fun component1(): T = mutableState.component1()
-        override fun component2(): (T) -> Unit = mutableState.component2()
+        override fun component2(): (T) -> kotlin.Unit = mutableState.component2()
     }

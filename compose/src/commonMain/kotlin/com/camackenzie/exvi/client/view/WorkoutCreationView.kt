@@ -194,17 +194,42 @@ object WorkoutCreationView : Viewable {
                     Text("Generate")
                 }
                 Box {
+                    fun SetGenerator(generator: Array<ExercisePriorityProvider>) {
+                        generatorData.params.providers = generator
+                        generatorData.generatorDropdownExpanded = false
+                    }
+
+//                    Expandable(
+//                        generatorData.generatorDropdownExpanded,
+//                        { generatorData.generatorDropdownExpanded = it },
+//                        header = {
+//                            Text("Generators")
+//                        }
+//                    ) {
+//                        Button(onClick = { SetGenerator(WorkoutGenerator.armPriorities()) }) {
+//                            Text("Arms")
+//                        }
+//                        Button(onClick = { SetGenerator(WorkoutGenerator.legPriorities()) }) {
+//                            Text("Legs")
+//                        }
+//                        Button(onClick = { SetGenerator(emptyArray()) }) {
+//                            Text("Random")
+//                        }
+//                        Button(onClick = { SetGenerator(WorkoutGenerator.corePriorities()) }) {
+//                            Text("Core")
+//                        }
+//                        Button(onClick = { SetGenerator(WorkoutGenerator.backPriorities()) }) {
+//                            Text("Back")
+//                        }
+//                    }
+
+                    // FIXME: This won't compile for JS
                     Button(onClick = { generatorData.generatorDropdownExpanded = true }) {
                         Text("Select Generator")
                     }
                     DropdownMenu(expanded = generatorData.generatorDropdownExpanded, onDismissRequest = {
                         generatorData.generatorDropdownExpanded = false
                     }) {
-                        fun SetGenerator(generator: Array<ExercisePriorityProvider>) {
-                            generatorData.params.providers = generator
-                            generatorData.generatorDropdownExpanded = false
-                        }
-
                         DropdownMenuItem(onClick = { SetGenerator(WorkoutGenerator.armPriorities()) }) {
                             Text("Arms")
                         }
@@ -381,7 +406,7 @@ object WorkoutCreationView : Viewable {
                         sets = workoutData.editorExercise!!.sets + SingleExerciseSet(8)
                     )
                 }) {
-                    Icon(imageVector = ExviIcons.Add, "Add Set")
+                    Icon(ExviIcons.Add, "Add Set")
                 }
             } else {
                 Text(
@@ -463,7 +488,7 @@ object WorkoutCreationView : Viewable {
         val exerciseManager = viewData.model.exerciseManager
 
         if (!searchData.processRunning && searchData.searchExercises.isEmpty()) {
-            viewData.coroutineScope.launch(Dispatchers.IO) {
+            viewData.coroutineScope.launch(Dispatchers.Default) {
                 searchData.processRunning = true
                 exerciseManager.loadStandardExercisesIfEmpty()
                 searchData.searchExercises = exerciseManager.exercises.toTypedArray()
@@ -589,7 +614,7 @@ object WorkoutCreationView : Viewable {
                     ExerciseSet(exercise, "rep", arrayOf(8, 8, 8))
                 )
             }) {
-                Icon(imageVector = ExviIcons.Add, "Add Exercise")
+                Icon(ExviIcons.Add, "Add Exercise")
             }
         }
     }

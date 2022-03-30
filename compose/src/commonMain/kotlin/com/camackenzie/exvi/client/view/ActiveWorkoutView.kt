@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.camackenzie.exvi.client.icons.ExviIcons
 import com.camackenzie.exvi.core.model.*
 
 object ActiveWorkoutView : Viewable {
@@ -66,7 +67,7 @@ object ActiveWorkoutView : Viewable {
                         workoutData.playing = !workoutData.playing
                     }) {
                         if (!workoutData.playing) Icon(Icons.Default.PlayArrow, "Play Workout")
-                        else Icon(Icons.Default.Stop, "Pause Workout")
+                        else Icon(ExviIcons.Stop, "Pause Workout")
                     }
                 }
                 Text(
