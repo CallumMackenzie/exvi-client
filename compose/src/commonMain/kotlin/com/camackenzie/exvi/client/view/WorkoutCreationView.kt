@@ -23,7 +23,9 @@ import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.*
 import androidx.compose.runtime.saveable.Saver
+import com.camackenzie.exvi.client.icons.ExviIcons
 import com.camackenzie.exvi.core.util.SelfSerializable
+import kotlinx.coroutines.*
 
 object WorkoutCreationView : Viewable {
 
@@ -379,7 +381,7 @@ object WorkoutCreationView : Viewable {
                         sets = workoutData.editorExercise!!.sets + SingleExerciseSet(8)
                     )
                 }) {
-                    Icon(Icons.Default.Add, "Add Set")
+                    Icon(imageVector = ExviIcons.Add, "Add Set")
                 }
             } else {
                 Text(
@@ -587,7 +589,7 @@ object WorkoutCreationView : Viewable {
                     ExerciseSet(exercise, "rep", arrayOf(8, 8, 8))
                 )
             }) {
-                Icon(Icons.Default.Add, "Add Exercise")
+                Icon(imageVector = ExviIcons.Add, "Add Exercise")
             }
         }
     }
