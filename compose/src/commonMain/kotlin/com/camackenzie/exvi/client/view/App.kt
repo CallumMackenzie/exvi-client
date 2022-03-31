@@ -140,6 +140,7 @@ class AppState(
     fun setView(view: ExviView, args: SelfSerializable) = setView(view) { args }
 
     companion object {
+
         @Suppress("UNCHECKED_CAST")
         fun saver(coroutineScope: CoroutineScope) = mapSaver(
             save = {

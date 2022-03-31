@@ -16,6 +16,9 @@ import com.camackenzie.exvi.core.api.toJson
 
 object SignupView : Viewable {
 
+    @Composable
+    operator fun invoke(appState: AppState) = View(appState)
+
     private class SignupData(
         username: String = "",
         password: String = "",

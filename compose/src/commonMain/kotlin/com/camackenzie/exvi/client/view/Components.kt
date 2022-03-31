@@ -18,6 +18,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.camackenzie.exvi.client.icons.ExviIcons
 import com.camackenzie.exvi.client.rendering.RenderedSpinner
 import com.camackenzie.exvi.core.model.ExerciseSet
 import com.camackenzie.exvi.core.model.SingleExerciseSet
@@ -169,13 +170,13 @@ fun PasswordField(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         trailingIcon = {
             val image = if (passwordVisible && enabled)
-                Icons.Default.Visibility
-            else Icons.Default.VisibilityOff
+                ExviIcons.Visibility
+            else ExviIcons.VisibilityOff
 
             IconButton(onClick = {
                 onPasswordVisibleChange(!passwordVisible)
             }, enabled = enabled) {
-                Icon(imageVector = image, "")
+                Icon(image, "")
             }
         }
     )

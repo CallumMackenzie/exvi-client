@@ -13,6 +13,10 @@ version = "1.0"
 
 kotlin {
     android()
+    js(IR) {
+        browser()
+        binaries.executable()
+    }
     jvm("desktop") {
         compilations.all {
             kotlinOptions.jvmTarget = "11"
@@ -22,10 +26,6 @@ kotlin {
         binaries {
             framework()
         }
-    }
-    js(IR) {
-        browser()
-        binaries.executable()
     }
     sourceSets {
         val commonMain by getting {

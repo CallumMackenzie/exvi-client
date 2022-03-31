@@ -17,10 +17,8 @@ import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.Workout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import java.lang.Exception
 
 object HomeView : Viewable {
-
 
     @Composable
     override fun View(appState: AppState) {

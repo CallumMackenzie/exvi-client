@@ -8,9 +8,14 @@ The client portion of my high school capstone project.
 - Gradle
 - GitHub Actions for CD
   - Used to build the latest commits for various platforms
-  
+
 ## Download & Run
 
+## Supported Platforms
+- Desktop Linux/MacOS/Windows (JVM)
+- Android
+
+### Desktop JVM
 1. Install Java 11 if it is not already installed
 2. Download the latest build for your platform in the GitHub actions tab
 3. Extract the zipped folder
