@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.ExviSerializer
+import com.camackenzie.exvi.core.util.ExviLogger
 import com.camackenzie.exvi.core.util.None
 import com.camackenzie.exvi.core.util.SelfSerializable
 import com.camackenzie.exvi.core.util.cached
@@ -107,7 +108,7 @@ class AppState(
      * Tell the application a fatal error has occurred
      */
     fun error(e: Exception) {
-        println("Uncaught Exception: $e")
+        ExviLogger.e(e, tag = "GUI") { "Uncaught Exception: $e" }
         error(e.toString())
     }
 

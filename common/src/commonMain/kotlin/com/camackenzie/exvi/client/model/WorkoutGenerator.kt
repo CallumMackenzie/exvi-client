@@ -6,6 +6,7 @@
 package com.camackenzie.exvi.client.model
 
 import com.camackenzie.exvi.core.model.*
+import com.camackenzie.exvi.core.util.ExviLogger
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlin.collections.ArrayList
 import kotlin.collections.List
@@ -110,7 +111,7 @@ class WorkoutGenerator(
 
             // Ensure sufficient exercises exist
             if (exercisePriorities.size == 0) {
-                println("Insufficient exercises.")
+                ExviLogger.w("Insufficient exercises.", tag = "CLIENT")
                 continue
             }
 

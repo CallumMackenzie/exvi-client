@@ -8,6 +8,7 @@ import com.camackenzie.exvi.core.util.None
 import com.camackenzie.exvi.core.util.SelfSerializable
 import com.camackenzie.exvi.client.model.WorkoutGeneratorParams
 import com.camackenzie.exvi.core.model.*
+import com.camackenzie.exvi.core.util.ExviLogger
 import kotlin.Unit
 
 fun selfSerializableFromMap(map: Map<String, Any?>): SelfSerializable =
@@ -43,7 +44,7 @@ fun noArgs(): SelfSerializable = None
  */
 fun ensureActiveAccount(appState: AppState) {
     if (!appState.model.accountManager.hasActiveAccount()) {
-        println("No active account, switching to login view")
+        ExviLogger.w("No active account, switching to login view", tag = "GUI")
         appState.setView(ExviView.Login)
     }
 }

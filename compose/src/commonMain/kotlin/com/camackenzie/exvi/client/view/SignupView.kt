@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.core.api.toJson
+import com.camackenzie.exvi.core.util.ExviLogger
 
 object SignupView : Viewable {
 
@@ -148,7 +149,7 @@ object SignupView : Viewable {
                         signupData.password,
                         coroutineScope,
                         onFail = {
-                            println(it.toJson())
+                            ExviLogger.e("Error code ${it.statusCode}: ${it.body}", tag = "CLIENT")
                             signupData.error = it.body
                         },
                         onSuccess = {

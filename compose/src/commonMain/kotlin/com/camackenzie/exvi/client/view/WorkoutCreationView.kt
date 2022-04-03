@@ -25,6 +25,7 @@ import kotlinx.serialization.*
 import androidx.compose.runtime.saveable.Saver
 import com.camackenzie.exvi.client.icons.ExviIcons
 import com.camackenzie.exvi.core.util.EncodedStringCache
+import com.camackenzie.exvi.core.util.ExviLogger
 import com.camackenzie.exvi.core.util.Identifiable
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlinx.coroutines.*
@@ -297,10 +298,10 @@ object WorkoutCreationView : Viewable {
                 arrayOf(workoutData),
                 coroutineScope = viewData.appState.coroutineScope,
                 onFail = {
-                    println("Updating workout failed: ${it.toJson()}")
+                    ExviLogger.e("Updating workout failed with code ${it.statusCode}: ${it.body}")
                 },
                 onSuccess = {
-                    println("Workout \"${workoutData.name}\" updated successfully")
+                    ExviLogger.i("Workout \"${workoutData.name}\" updated successfully")
                 }
             )
             viewData.appState.setView(ExviView.Home)

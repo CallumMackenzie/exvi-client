@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.icons.ExviIcons
 import com.camackenzie.exvi.client.model.ComposeActiveWorkout
 import com.camackenzie.exvi.core.model.*
+import com.camackenzie.exvi.core.util.ExviLogger
 
 object ActiveWorkoutView : Viewable {
 
@@ -28,7 +29,7 @@ object ActiveWorkoutView : Viewable {
     override fun View(appState: AppState) {
         ensureActiveAccount(appState)
         if (appState.provided !is ActiveWorkout) {
-            println("No active workout provided")
+            ExviLogger.w("No active workout provided", tag = "GUI")
             appState.setView(ExviView.Home)
         }
 
