@@ -56,7 +56,6 @@ enum class ExviView(
     fun compose(appState: AppState) = viewFun.View(appState)
 
     override fun getUID(): String = uid
-
     override fun toJson(): String = ExviSerializer.toJson(this)
 
     companion object {

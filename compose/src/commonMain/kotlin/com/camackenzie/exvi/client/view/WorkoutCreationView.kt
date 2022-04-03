@@ -30,6 +30,7 @@ import com.camackenzie.exvi.core.util.Identifiable
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlinx.coroutines.*
 
+// TODO: Clean up this code
 object WorkoutCreationView : Viewable {
 
     @Composable

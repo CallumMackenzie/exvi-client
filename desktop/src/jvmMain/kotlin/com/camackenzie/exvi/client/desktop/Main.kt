@@ -11,7 +11,6 @@ import androidx.compose.ui.res.useResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.camackenzie.exvi.client.view.ExviMaterialTheme
-import com.camackenzie.exvi.client.view.LoadingIcon
 import com.camackenzie.exvi.core.util.ExviLogger
 import io.github.aakira.napier.DebugAntilog
 import org.xml.sax.InputSource
@@ -33,10 +32,4 @@ fun main() = application {
 @Composable
 fun loadXmlImage(name: String): ImageVector = useResource("drawable/$name.xml") { stream ->
     loadXmlImageVector(InputSource(stream), LocalDensity.current)
-}
-
-@Preview
-@Composable
-fun Spinner() {
-    LoadingIcon()
 }
