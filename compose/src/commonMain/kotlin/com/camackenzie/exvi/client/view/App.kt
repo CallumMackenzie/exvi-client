@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.client.model.Model
+import com.camackenzie.exvi.core.model.ExviSerializer
 import com.camackenzie.exvi.core.util.None
 import com.camackenzie.exvi.core.util.SelfSerializable
 import com.camackenzie.exvi.core.util.cached
@@ -55,7 +56,7 @@ enum class ExviView(
 
     override fun getUID(): String = uid
 
-    override fun toJson(): String = Json.encodeToString(this)
+    override fun toJson(): String = ExviSerializer.toJson(this)
 
     companion object {
         const val uid = "ExviView"
@@ -153,9 +154,9 @@ class AppState(
             },
             restore = {
                 AppState(
-                    model = Json.decodeFromString<Model>(it["model"] as String),
-                    currentView = Json.decodeFromString(it["currView"] as String),
-                    previousView = Json.decodeFromString(it["prevView"] as String),
+                    model = ExviSerializer.fromJson<Model>(it["model"] as String),
+                    currentView = ExviSerializer.fromJson(it["currView"] as String),
+                    previousView = ExviSerializer.fromJson(it["prevView"] as String),
                     provided = selfSerializableFromMap(it["provided"] as Map<String, Any?>),
                     coroutineScope = coroutineScope,
                     processRestartInit = true

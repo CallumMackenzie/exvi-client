@@ -5,6 +5,7 @@
  */
 package com.camackenzie.exvi.client.model
 
+import com.camackenzie.exvi.core.model.ExviSerializer
 import com.camackenzie.exvi.core.util.SelfSerializable
 import com.russhwolf.settings.Settings
 import kotlinx.serialization.*
@@ -22,8 +23,7 @@ class AccountManager : SelfSerializable {
     }
 
     override fun getUID(): String = uid
-
-    override fun toJson(): String = Json.encodeToString(this)
+    override fun toJson(): String = ExviSerializer.toJson(this)
 
     companion object {
         const val uid = "AccountManager"

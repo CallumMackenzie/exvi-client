@@ -15,7 +15,7 @@ data class WeightedExerciseSet(
     val weight: Double = 1.0
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 sealed class ExercisePriorityProvider : SelfSerializable {
     abstract fun getPriority(g: WorkoutGenerator, exercise: Exercise, index: Int): Double
 
@@ -29,12 +29,12 @@ sealed class ExercisePriorityProvider : SelfSerializable {
     )
 }
 
-@kotlinx.serialization.Serializable
+@Serializable
 sealed class ExerciseSetGenerator {
     abstract fun generateExerciseSet(g: WorkoutGenerator, ex: Exercise): WeightedExerciseSet
 }
 
-@kotlinx.serialization.Serializable
+@Serializable
 sealed class BoundedPriorityProvider : ExercisePriorityProvider() {
     abstract val start: Int
     abstract val end: Int
@@ -51,7 +51,7 @@ sealed class BoundedPriorityProvider : ExercisePriorityProvider() {
     override fun registerMatch(g: WorkoutGenerator, w: Workout, contributed: Double, total: Double) {}
 }
 
-@kotlinx.serialization.Serializable
+@Serializable
 object DefaultExerciseSetGenerator : ExerciseSetGenerator() {
     override fun generateExerciseSet(g: WorkoutGenerator, ex: Exercise): WeightedExerciseSet =
         WeightedExerciseSet(ExerciseSet(ex, "rep", arrayOf(8, 8, 8)))
@@ -60,7 +60,7 @@ object DefaultExerciseSetGenerator : ExerciseSetGenerator() {
 /**
  * Prioritizes exercises which work the given muscle
  */
-@kotlinx.serialization.Serializable
+@Serializable
 class ExerciseMusclePriority(
     val muscle: MuscleWorkData,
     val priority: Double = 1.0,
@@ -76,7 +76,7 @@ class ExerciseMusclePriority(
 
     override fun getUID(): String = uid
 
-    override fun toJson(): String = Json.encodeToString(this)
+    override fun toJson(): String = ExviSerializer.toJson(this)
 
     companion object {
         const val uid = "ExerciseMusclePriority"
@@ -86,7 +86,7 @@ class ExerciseMusclePriority(
 /**
  * Prioritizes exercises with the given exercise type
  */
-@kotlinx.serialization.Serializable
+@Serializable
 class ExerciseTypePriority(
     val exerciseType: ExerciseType,
     val priority: Double = 1.0,
@@ -102,7 +102,7 @@ class ExerciseTypePriority(
 
     override fun getUID(): String = uid
 
-    override fun toJson(): String = Json.encodeToString(this)
+    override fun toJson(): String = ExviSerializer.toJson(this)
 
     companion object {
         const val uid = "ExerciseTypePriority"
@@ -112,7 +112,7 @@ class ExerciseTypePriority(
 /**
  * Prioritizes exercises with the given equipment
  */
-@kotlinx.serialization.Serializable
+@Serializable
 class ExerciseEquipmentPriority(
     val equipment: ExerciseEquipment,
     val priority: Double = 1.0,
@@ -128,7 +128,7 @@ class ExerciseEquipmentPriority(
 
     override fun getUID(): String = uid
 
-    override fun toJson(): String = Json.encodeToString(this)
+    override fun toJson(): String = ExviSerializer.toJson(this)
 
     companion object {
         const val uid = "ExerciseEquipmentPriority"
@@ -138,7 +138,7 @@ class ExerciseEquipmentPriority(
 /**
  * Prioritizes exercises with the given experience level
  */
-@kotlinx.serialization.Serializable
+@Serializable
 class ExerciseExperiencePriority(
     val experience: ExerciseExperienceLevel,
     val priority: Double = 1.0,
@@ -154,7 +154,7 @@ class ExerciseExperiencePriority(
 
     override fun getUID(): String = uid
 
-    override fun toJson(): String = Json.encodeToString(this)
+    override fun toJson(): String = ExviSerializer.toJson(this)
 
     companion object {
         const val uid = "ExerciseExperiencePriority"
@@ -164,7 +164,7 @@ class ExerciseExperiencePriority(
 /**
  * Prioritizes exercises with the given force type
  */
-@kotlinx.serialization.Serializable
+@Serializable
 class ExerciseForceTypePriority(
     val forceType: ExerciseForceType,
     val priority: Double = 1.0,
@@ -180,7 +180,7 @@ class ExerciseForceTypePriority(
 
     override fun getUID(): String = uid
 
-    override fun toJson(): String = Json.encodeToString(this)
+    override fun toJson(): String = ExviSerializer.toJson(this)
 
     companion object {
         const val uid = "ExerciseForceTypePriority"
@@ -190,7 +190,7 @@ class ExerciseForceTypePriority(
 /**
  * Prioritizes exercises with the given mechanics
  */
-@kotlinx.serialization.Serializable
+@Serializable
 class ExerciseMechanicsPriority(
     val mechanics: ExerciseMechanics,
     val priority: Double = 1.0,
@@ -207,7 +207,7 @@ class ExerciseMechanicsPriority(
 
     override fun getUID(): String = uid
 
-    override fun toJson(): String = Json.encodeToString(this)
+    override fun toJson(): String = ExviSerializer.toJson(this)
 
     companion object {
         const val uid = "ExerciseMechanicsPriority"
@@ -217,7 +217,7 @@ class ExerciseMechanicsPriority(
 /**
  * Prioritizes exercises with more complete information
  */
-@kotlinx.serialization.Serializable
+@Serializable
 class ExerciseCompletionPriority(
     val priority: Double,
     override val start: Int = 0,
@@ -236,7 +236,7 @@ class ExerciseCompletionPriority(
 
     override fun getUID(): String = uid
 
-    override fun toJson(): String = Json.encodeToString(this)
+    override fun toJson(): String = ExviSerializer.toJson(this)
 
     companion object {
         const val uid = "ExerciseCompletionPriority"

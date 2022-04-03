@@ -24,6 +24,8 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.*
 import androidx.compose.runtime.saveable.Saver
 import com.camackenzie.exvi.client.icons.ExviIcons
+import com.camackenzie.exvi.core.util.EncodedStringCache
+import com.camackenzie.exvi.core.util.Identifiable
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlinx.coroutines.*
 
@@ -33,13 +35,15 @@ object WorkoutCreationView : Viewable {
     override fun View(appState: AppState) {
         ensureActiveAccount(appState)
 
+        // Local data model for view
         val viewData = ViewData(appState, rememberCoroutineScope())
         val workoutData = rememberSaveable(
             saver = WorkoutData.saver(appState.provided)
-        ) { WorkoutData(appState.provided) }
+        ) { WorkoutData(if (appState.provided is Workout) (appState.provided as Workout) else null) }
         val workoutSearchData = rememberSaveable(saver = WorkoutSearchData.saver()) { WorkoutSearchData() }
         val selectorViewData = rememberSaveable(saver = SelectorViewData.saver()) { SelectorViewData() }
 
+        // View
         BoxWithConstraints(Modifier.fillMaxSize().padding(10.dp)) {
             if (maxWidth < 600.dp) {
                 Column(
@@ -178,50 +182,31 @@ object WorkoutCreationView : Viewable {
                 Button(onClick = {
                     viewData.coroutineScope.launch(Dispatchers.Default) {
                         workoutData.exerciseProcessRunning = true
+                        // Load standard exercises
                         viewData.model.exerciseManager.loadStandardExercisesIfEmpty()
+                        // Create workout generator
                         val generator = WorkoutGenerator(
                             viewData.model.exerciseManager,
                             generatorData.params
                         )
+                        // Generate new workout based on this one
                         val newWorkout = generator.generateWorkout(
-                            workoutData.workout,
+                            workoutData,
                             workoutData.lockedExercises.toTypedArray()
                         )
-                        workoutData.exercises = newWorkout.exercises.toTypedArray()
+                        // Set the exercises in this workout to the generated ones
+                        workoutData.exercises.clear()
+                        workoutData.exercises.addAll(newWorkout.exercises)
                         workoutData.exerciseProcessRunning = false
                     }
                 }, enabled = !workoutData.exerciseProcessRunning) {
                     Text("Generate")
                 }
                 Box {
-                    fun SetGenerator(generator: Array<ExercisePriorityProvider>) {
+                    fun setGenerator(generator: Array<ExercisePriorityProvider>) {
                         generatorData.params.providers = generator
                         generatorData.generatorDropdownExpanded = false
                     }
-
-//                    Expandable(
-//                        generatorData.generatorDropdownExpanded,
-//                        { generatorData.generatorDropdownExpanded = it },
-//                        header = {
-//                            Text("Generators")
-//                        }
-//                    ) {
-//                        Button(onClick = { SetGenerator(WorkoutGenerator.armPriorities()) }) {
-//                            Text("Arms")
-//                        }
-//                        Button(onClick = { SetGenerator(WorkoutGenerator.legPriorities()) }) {
-//                            Text("Legs")
-//                        }
-//                        Button(onClick = { SetGenerator(emptyArray()) }) {
-//                            Text("Random")
-//                        }
-//                        Button(onClick = { SetGenerator(WorkoutGenerator.corePriorities()) }) {
-//                            Text("Core")
-//                        }
-//                        Button(onClick = { SetGenerator(WorkoutGenerator.backPriorities()) }) {
-//                            Text("Back")
-//                        }
-//                    }
 
                     // FIXME: This won't compile for JS
                     Button(onClick = { generatorData.generatorDropdownExpanded = true }) {
@@ -230,19 +215,19 @@ object WorkoutCreationView : Viewable {
                     DropdownMenu(expanded = generatorData.generatorDropdownExpanded, onDismissRequest = {
                         generatorData.generatorDropdownExpanded = false
                     }) {
-                        DropdownMenuItem(onClick = { SetGenerator(WorkoutGenerator.armPriorities()) }) {
+                        DropdownMenuItem(onClick = { setGenerator(WorkoutGenerator.armPriorities()) }) {
                             Text("Arms")
                         }
-                        DropdownMenuItem(onClick = { SetGenerator(WorkoutGenerator.legPriorities()) }) {
+                        DropdownMenuItem(onClick = { setGenerator(WorkoutGenerator.legPriorities()) }) {
                             Text("Legs")
                         }
-                        DropdownMenuItem(onClick = { SetGenerator(emptyArray()) }) {
+                        DropdownMenuItem(onClick = { setGenerator(emptyArray()) }) {
                             Text("Random")
                         }
-                        DropdownMenuItem(onClick = { SetGenerator(WorkoutGenerator.corePriorities()) }) {
+                        DropdownMenuItem(onClick = { setGenerator(WorkoutGenerator.corePriorities()) }) {
                             Text("Core")
                         }
-                        DropdownMenuItem(onClick = { SetGenerator(WorkoutGenerator.backPriorities()) }) {
+                        DropdownMenuItem(onClick = { setGenerator(WorkoutGenerator.backPriorities()) }) {
                             Text("Back")
                         }
                     }
@@ -309,7 +294,7 @@ object WorkoutCreationView : Viewable {
     ) {
         Button(onClick = {
             viewData.model.workoutManager!!.putWorkouts(
-                arrayOf(workoutData.workout),
+                arrayOf(workoutData),
                 coroutineScope = viewData.appState.coroutineScope,
                 onFail = {
                     println("Updating workout failed: ${it.toJson()}")
@@ -374,7 +359,9 @@ object WorkoutCreationView : Viewable {
                 TextField(
                     value = workoutData.editorExercise?.unit ?: "",
                     onValueChange = {
-                        workoutData.editorExercise = workoutData.editorExercise?.copy(unit = it)
+                        // Set unit of editor exercise to "it"
+                        workoutData.editorExercise!!.unit = it
+                        workoutData.refreshEditorExercise()
                     },
                     label = { Text("Exercise Set Unit") }
                 )
@@ -383,28 +370,25 @@ object WorkoutCreationView : Viewable {
                 RepList(
                     exercise = workoutData.editorExercise!!,
                     onValueChange = { it, newReps ->
+                        // Set reps for set "it" to "newReps"
                         workoutData.editorExercise!!.sets[it].reps = newReps
-                        workoutData.editorExercise = workoutData.editorExercise!!.copy()
+                        workoutData.refreshEditorExercise()
                     }
                 ) { setIdx, repField ->
                     Column {
                         repField()
                         IconButton(onClick = {
-                            workoutData.editorExercise = workoutData.editorExercise?.copy(
-                                // Remove element at index setIndex
-                                sets = workoutData.editorExercise!!.sets.filterIndexed { idx, _ ->
-                                    idx != setIdx
-                                }.toTypedArray()
-                            )
+                            // Remove element at index index "setIdx"
+                            workoutData.editorExercise!!.sets.removeAt(setIdx)
+                            workoutData.refreshEditorExercise()
                         }) {
                             Icon(Icons.Default.Delete, "Remove Set")
                         }
                     }
                 }
                 IconButton(onClick = {
-                    workoutData.editorExercise = workoutData.editorExercise?.copy(
-                        sets = workoutData.editorExercise!!.sets + SingleExerciseSet(8)
-                    )
+                    // Add new exercise set to editor exercise
+                    workoutData.editorExercise!!.sets.add(SingleExerciseSet(8))
                 }) {
                     Icon(ExviIcons.Add, "Add Set")
                 }
@@ -701,76 +685,69 @@ object WorkoutCreationView : Viewable {
 
     private class WorkoutData(
         name: String,
-        description: String = "",
-        exercises: Array<ExerciseSet> = emptyArray(),
-        provided: Workout? = null,
+        description: String,
+        exercises: List<ExerciseSet>,
+        id: EncodedStringCache,
         params: WorkoutGeneratorParams = WorkoutGeneratorParams(providers = generators["Arms"]!!.invoke()),
         lockedExercises: Set<Int> = setOf(),
         exerciseProcessRunning: Boolean = false,
         editorExercise: Int? = null,
         infoExercise: Exercise? = null,
         generatorData: WorkoutGeneratorData = WorkoutGeneratorData(params = params)
-    ) {
-        var name by mutableStateOf(name)
-        var description by mutableStateOf(description)
-        var exercises by mutableStateOf(exercises)
+    ) : ComposeWorkout(name, description, exercises, id) {
+        constructor(base: Workout?) : this(
+            base?.name ?: "New Workout",
+            base?.description ?: "",
+            base?.exercises ?: emptyList(),
+            base?.id ?: Identifiable.generateId()
+        )
+
         var infoExercise by mutableStateOf(infoExercise)
         var editorExerciseIndex by mutableStateOf(editorExercise)
         var lockedExercises by mutableStateOf(lockedExercises)
         var exerciseProcessRunning by mutableStateOf(exerciseProcessRunning)
         var generatorData by mutableStateOf(generatorData)
-        val provided = provided
 
         var editorExercise: ExerciseSet?
             get() = if (editorExerciseIndex == null) null else exercises[editorExerciseIndex!!]
-            set(ex) = if (editorExerciseIndex != null) {
-                exercises = exercises.mapIndexed { index, set ->
-                    if (index == editorExerciseIndex) ex!! else set
-                }.toTypedArray()
-            } else throw Exception()
+            set(ex) = if (ex == null) throw Exception("Exercise was null")
+            else if (editorExerciseIndex == null) {
+                editorExerciseIndex = exercises.indexOf(ex)
+            } else {
+                exercises[editorExerciseIndex!!] = ex
+            }
 
-        constructor(provided: Any)
-                : this(
-            if (provided is Workout) provided.name else "New Workout",
-            if (provided is Workout) provided.description else "",
-            if (provided is Workout) provided.exercises.toTypedArray() else emptyArray<ExerciseSet>(),
-            if (provided is Workout) provided else null
-        )
-
-        val workout: Workout
-            get() = if (provided is Workout)
-                Workout(name, description, arrayListOf(*exercises), provided.id)
-            else
-                Workout(name, description, arrayListOf(*exercises))
+        fun refreshEditorExercise() {
+            editorExercise = editorExercise!!.toComposable()
+        }
 
         fun addExercise(ex: ExerciseSet) {
-            exercises += ex
+            exercises.add(ex)
         }
 
         fun removeExercise(index: Int) {
             // Sync with exercise set editor
             if (index == editorExerciseIndex) editorExerciseIndex = null
+            else if (editorExerciseIndex != null && index < editorExerciseIndex!!) editorExerciseIndex =
+                editorExerciseIndex!!.dec()
             // Unlock exercise
             lockExercise(index, false)
-            // Shift indexes
+            // Shift locked exercise indexes
             lockedExercises = lockedExercises.map {
                 it - ((if (it >= index) 1 else 0) +
                         (if (it >= editorExerciseIndex ?: Int.MAX_VALUE) 1 else 0))
             }.toSet()
             // Remove exercise
-            exercises = exercises.filterIndexed { i, _ ->
-                i != index
-            }.toTypedArray()
+            exercises.removeAt(index)
         }
 
         fun lockExercise(index: Int, lock: Boolean) {
-            lockedExercises = if (lock) {
+            lockedExercises = if (lock) // Lock exercise
                 setOf(*lockedExercises.toTypedArray(), index)
-            } else {
+            else // Unlock exercise
                 lockedExercises.filter {
                     it != index
                 }.toSet()
-            }
         }
 
         companion object {
@@ -780,7 +757,8 @@ object WorkoutCreationView : Viewable {
                     mapOf(
                         "name" to it.name,
                         "description" to it.description,
-                        "exercises" to it.exercises,
+                        "exercises" to it.exercises.toTypedArray(),
+                        "id" to it.id.getEncoded(),
                         "lockedExercises" to it.lockedExercises.toTypedArray(),
                         "editorExerciseIndex" to it.editorExerciseIndex,
                         "infoExercise" to it.infoExercise?.toJson(),
@@ -792,15 +770,15 @@ object WorkoutCreationView : Viewable {
                     WorkoutData(
                         name = it["name"] as String,
                         description = it["description"] as String,
-                        exercises = it["exercises"] as Array<ExerciseSet>,
+                        exercises = listOf(*(it["exercises"] as Array<ExerciseSet>)),
+                        id = EncodedStringCache.fromEncoded(it["id"] as String),
                         lockedExercises = (it["lockedExercises"] as Array<Int>).toSet(),
                         editorExercise = it["editorExerciseIndex"] as Int?,
-                        infoExercise = if (infoExerciseStr == null) null else Json.decodeFromString<Exercise>(
+                        infoExercise = if (infoExerciseStr == null) null else ExviSerializer.fromJson<Exercise>(
                             infoExerciseStr
                         ),
-                        provided = if (provided is Workout) provided else null,
                         generatorData = WorkoutGeneratorData(
-                            params = Json.decodeFromString(it["params"] as String)
+                            params = ExviSerializer.fromJson(it["params"] as String)
                         )
                     )
                 }

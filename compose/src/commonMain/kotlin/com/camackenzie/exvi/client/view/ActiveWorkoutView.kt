@@ -12,15 +12,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.icons.ExviIcons
+import com.camackenzie.exvi.client.model.ComposeActiveWorkout
 import com.camackenzie.exvi.core.model.*
 
 object ActiveWorkoutView : Viewable {
 
     private class WorkoutData(
-        workout: ActiveWorkout,
+        other: ActiveWorkout,
         playing: Boolean = false
-    ) {
-        var workout by mutableStateOf(workout)
+    ) : ComposeActiveWorkout(other) {
         var playing by mutableStateOf(playing)
     }
 
@@ -32,7 +32,7 @@ object ActiveWorkoutView : Viewable {
             appState.setView(ExviView.Home)
         }
 
-        val workoutData = remember { WorkoutData((appState.provided as ActiveWorkout).copy()) }
+        val workout = remember { WorkoutData(appState.provided as ActiveWorkout) }
 
         Column(
             Modifier.fillMaxSize(),
@@ -40,16 +40,12 @@ object ActiveWorkoutView : Viewable {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                workoutData.workout.name, fontSize = 30.sp,
+                workout.name, fontSize = 30.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(10.dp)
             )
-            if (!workoutData.workout.hasStarted()) {
-                Button(onClick = {
-                    val started = workoutData.workout.copy()
-                    started.start()
-                    workoutData.workout = started
-                }) {
+            if (!workout.hasStarted()) {
+                Button(onClick = workout::start) {
                     Text("Start Workout")
                 }
                 Button(onClick = {
@@ -64,21 +60,21 @@ object ActiveWorkoutView : Viewable {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = {
-                        workoutData.playing = !workoutData.playing
+                        workout.playing = !workout.playing
                     }) {
-                        if (!workoutData.playing) Icon(Icons.Default.PlayArrow, "Play Workout")
+                        if (!workout.playing) Icon(Icons.Default.PlayArrow, "Play Workout")
                         else Icon(ExviIcons.Stop, "Pause Workout")
                     }
                 }
                 Text(
-                    workoutData.workout.name, fontSize = 30.sp,
+                    workout.name, fontSize = 30.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(10.dp)
                 )
-                if (workoutData.workout.hasStarted()) {
-                    Text("Started ${workoutData.workout.startTime!!.toLocalDate()}")
+                if (workout.hasStarted()) {
+                    Text("Started ${workout.startTime!!.toLocalDate()}")
                 }
-                ActiveExerciseSetRow(appState, workoutData)
+                ActiveExerciseSetRow(appState, workout)
             }
         }
     }
@@ -93,8 +89,8 @@ object ActiveWorkoutView : Viewable {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            items(workoutData.workout.exercises.size) { exercise ->
-                val exerciseSet = workoutData.workout.exercises[exercise]
+            items(workoutData.exercises.size) { exercise ->
+                val exerciseSet = workoutData.exercises[exercise]
                 Row(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
@@ -105,10 +101,7 @@ object ActiveWorkoutView : Viewable {
                         exercise = exerciseSet.active,
                         target = exerciseSet.target,
                         onValueChange = { it, reps ->
-                            println("setting reps of exercise no. $exercise, set $it to $reps")
-                            
-                            workoutData.workout.exercises[exercise].active.sets[it].reps = reps
-                            workoutData.workout = workoutData.workout.copy()
+                            workoutData.exercises[exercise].active.sets[it].reps = reps
                         }
                     )
                 }

@@ -168,7 +168,7 @@ class WorkoutGenerator(
     ): ExerciseSet {
         var exs = exercises.toMutableList()
         if (exs.size == 0) {
-            return ExerciseSet(exercise, "", emptyArray<SingleExerciseSet>())
+            return ExerciseSet(exercise, "", emptyList())
         }
 
         // Find the most used unit
@@ -222,7 +222,7 @@ class WorkoutGenerator(
         }
 
         // Compose & return data
-        return ExerciseSet(exercise, unit, sets)
+        return ExerciseSet(exercise, unit, listOf(*sets))
     }
 
     private inner class ExercisePriorityTracker(
@@ -237,7 +237,7 @@ class WorkoutGenerator(
 
         fun fromPriorities(
             exerciseManager: ExerciseManager,
-            bodyStats: BodyStats = BodyStats.average(),
+            bodyStats: BodyStats = ActualBodyStats.average(),
             providers: Array<ExercisePriorityProvider>
         ): WorkoutGenerator = WorkoutGenerator(
             exerciseManager,
@@ -249,12 +249,12 @@ class WorkoutGenerator(
 
         fun random(
             exerciseManager: ExerciseManager,
-            bodyStats: BodyStats = BodyStats.average()
+            bodyStats: BodyStats = ActualBodyStats.average()
         ): WorkoutGenerator = fromPriorities(exerciseManager, bodyStats, emptyArray())
 
         fun arms(
             exerciseManager: ExerciseManager,
-            bodyStats: BodyStats = BodyStats.average()
+            bodyStats: BodyStats = ActualBodyStats.average()
         ): WorkoutGenerator = fromPriorities(exerciseManager, bodyStats, armPriorities())
 
         fun armPriorities(): Array<ExercisePriorityProvider> = arrayOf(
@@ -269,7 +269,7 @@ class WorkoutGenerator(
 
         fun legs(
             exerciseManager: ExerciseManager,
-            bodyStats: BodyStats = BodyStats.average()
+            bodyStats: BodyStats = ActualBodyStats.average()
         ): WorkoutGenerator = fromPriorities(exerciseManager, bodyStats, legPriorities())
 
         fun warmupPriorities(end: Int = 2): Array<ExercisePriorityProvider> = arrayOf(
@@ -311,5 +311,5 @@ class WorkoutGenerator(
 
     override fun getUID(): String = uid
 
-    override fun toJson(): String = Json.encodeToString(this)
+    override fun toJson(): String = ExviSerializer.toJson(this)
 }
