@@ -2,7 +2,6 @@ package com.camackenzie.exvi.client.desktop
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import com.camackenzie.exvi.client.view.App
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -13,9 +12,13 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.camackenzie.exvi.client.view.ExviMaterialTheme
 import com.camackenzie.exvi.client.view.LoadingIcon
+import com.camackenzie.exvi.core.util.ExviLogger
+import io.github.aakira.napier.DebugAntilog
 import org.xml.sax.InputSource
 
 fun main() = application {
+    ExviLogger.base(DebugAntilog())
+
     Window(
         onCloseRequest = ::exitApplication,
         title = "Exvi Fitness",
