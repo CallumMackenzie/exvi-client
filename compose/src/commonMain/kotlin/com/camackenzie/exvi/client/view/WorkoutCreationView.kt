@@ -296,7 +296,7 @@ object WorkoutCreationView : Viewable {
     ) {
         Button(onClick = {
             viewData.model.workoutManager!!.putWorkouts(
-                arrayOf(workoutData),
+                arrayOf(workoutData.toActual()),
                 coroutineScope = viewData.appState.coroutineScope,
                 onFail = {
                     ExviLogger.e("Updating workout failed with code ${it.statusCode}: ${it.body}")
