@@ -9,7 +9,6 @@ import com.camackenzie.exvi.core.api.*
 import com.camackenzie.exvi.core.model.BodyStats
 import com.camackenzie.exvi.core.model.ActualBodyStats
 import com.camackenzie.exvi.core.model.ExviSerializer
-import com.camackenzie.exvi.core.model.toActual
 import com.camackenzie.exvi.core.util.*
 import com.soywiz.krypto.encoding.fromBase64
 import kotlinx.coroutines.*
