@@ -5,7 +5,9 @@
  */
 package com.camackenzie.exvi.client.model
 
+import com.camackenzie.exvi.core.model.ActualExercise
 import com.camackenzie.exvi.core.model.Exercise
+import com.camackenzie.exvi.core.model.ExviSerializer
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
@@ -13,7 +15,8 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 
-@kotlinx.serialization.Serializable
+@Serializable
+@Suppress("unused")
 data class ExerciseManager(
     @Transient
     var exercises: HashSet<Exercise> = HashSet()
@@ -31,7 +34,8 @@ data class ExerciseManager(
         }
     }
 
-    fun loadStandardExercises() = addAll(Json.decodeFromString(readTextFile("exercises.json")))
+    fun loadStandardExercises() =
+        addAll(ExviSerializer.fromJson<Array<ActualExercise>>(readTextFile("exercises.json")) as Array<Exercise>)
 
     fun loadStandardExercisesIfEmpty() {
         if (!this.hasExercises()) {
@@ -43,7 +47,7 @@ data class ExerciseManager(
 
     override fun getUID(): String = uid
 
-    override fun toJson(): String = Json.encodeToString(this)
+    override fun toJson(): String = ExviSerializer.toJson(this)
 
     fun getExercisesByFunction(add: (Exercise) -> Boolean): ArrayList<Exercise> {
         val ret: ArrayList<Exercise> = ArrayList()

@@ -11,6 +11,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.client.model.Model
+import com.camackenzie.exvi.core.model.ExviSerializer
+import com.camackenzie.exvi.core.util.ExviLogger
 import com.camackenzie.exvi.core.util.None
 import com.camackenzie.exvi.core.util.SelfSerializable
 import com.camackenzie.exvi.core.util.cached
@@ -54,8 +56,7 @@ enum class ExviView(
     fun compose(appState: AppState) = viewFun.View(appState)
 
     override fun getUID(): String = uid
-
-    override fun toJson(): String = Json.encodeToString(this)
+    override fun toJson(): String = ExviSerializer.toJson(this)
 
     companion object {
         const val uid = "ExviView"
@@ -95,6 +96,7 @@ class AppState(
             // then restore the active user and set the view to their home
             if (!processRestartInit && settings.hasKey("activeUser")) {
                 model.accountManager.activeAccount = Account.fromCrendentialsString(settings.getString("activeUser"))
+                ExviLogger.i { "Restored user session for ${model.activeAccount!!.username}" }
                 setView(ExviView.Home)
             }
         } catch (ex: Exception) {
@@ -106,7 +108,7 @@ class AppState(
      * Tell the application a fatal error has occurred
      */
     fun error(e: Exception) {
-        println("Uncaught Exception: $e")
+        ExviLogger.e(e, tag = "GUI") { "Uncaught Exception: $e" }
         error(e.toString())
     }
 
@@ -153,9 +155,9 @@ class AppState(
             },
             restore = {
                 AppState(
-                    model = Json.decodeFromString<Model>(it["model"] as String),
-                    currentView = Json.decodeFromString(it["currView"] as String),
-                    previousView = Json.decodeFromString(it["prevView"] as String),
+                    model = ExviSerializer.fromJson<Model>(it["model"] as String),
+                    currentView = ExviSerializer.fromJson(it["currView"] as String),
+                    previousView = ExviSerializer.fromJson(it["prevView"] as String),
                     provided = selfSerializableFromMap(it["provided"] as Map<String, Any?>),
                     coroutineScope = coroutineScope,
                     processRestartInit = true

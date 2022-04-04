@@ -12,9 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.model.Workout
+import com.camackenzie.exvi.core.util.ExviLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -252,7 +252,7 @@ object HomeView : Viewable {
                         onDeletingWorkoutChanged(true)
                         appState.model.workoutManager!!.deleteWorkouts(arrayOf(workout.id.get()),
                             onFail = {
-                                println(it.toJson())
+                                ExviLogger.e("Error code ${it.statusCode}: ${it.body}", tag = "CLIENT")
                             }, onComplete = {
                                 onDeletingWorkoutChanged(false)
                                 refreshWorkouts()

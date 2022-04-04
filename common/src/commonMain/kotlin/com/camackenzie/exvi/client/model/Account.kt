@@ -7,6 +7,8 @@ package com.camackenzie.exvi.client.model
 
 import com.camackenzie.exvi.core.api.*
 import com.camackenzie.exvi.core.model.BodyStats
+import com.camackenzie.exvi.core.model.ActualBodyStats
+import com.camackenzie.exvi.core.model.ExviSerializer
 import com.camackenzie.exvi.core.util.*
 import com.soywiz.krypto.encoding.fromBase64
 import kotlinx.coroutines.*
@@ -22,7 +24,7 @@ import kotlinx.serialization.*
 class Account private constructor(
     val username: String,
     private var accessKey: EncodedStringCache,
-    private var bodyStats: BodyStats = BodyStats.average(),
+    private var bodyStats: BodyStats = ActualBodyStats.average(),
 ) : SelfSerializable, Identifiable {
 
     @Transient
@@ -42,7 +44,7 @@ class Account private constructor(
         callback = {
             if (it.failed()) onFail(it)
             else {
-                val response = Json.decodeFromString<GetBodyStatsResponse>(it.body)
+                val response = ExviSerializer.fromJson<GetBodyStatsResponse>(it.body)
                 onSuccess(response.bodyStats)
             }
             onComplete()
@@ -58,7 +60,7 @@ class Account private constructor(
         onComplete: () -> Unit = {}
     ): Job = APIRequest.requestAsync(
         endpoint = APIEndpoints.DATA,
-        body = SetBodyStatsRequest(username, accessKey, bodyStats),
+        body = SetBodyStatsRequest(username, accessKey, bodyStats.toActual()),
         coroutineScope = coroutineScope,
         coroutineDispatcher = dispatcher,
         callback = {
@@ -79,7 +81,7 @@ class Account private constructor(
 
     override fun getUID(): String = uid
 
-    override fun toJson(): String = Json.encodeToString(this)
+    override fun toJson(): String = ExviSerializer.toJson(this)
 
     // A unique identifier for this user based on their username
     override fun getIdentifier(): EncodedStringCache = (CryptographyUtils.hashSHA256(username) + username).cached()
@@ -140,7 +142,7 @@ class Account private constructor(
             if (result.failed()) onFail(result)
             else {
                 // Parse access key
-                val accessKeyResult = Json.decodeFromString<AccountAccessKeyResult>(result.body)
+                val accessKeyResult = ExviSerializer.fromJson<AccountAccessKeyResult>(result.body)
                 onSuccess(accessKeyResult)
             }
             onComplete()
@@ -185,7 +187,7 @@ class Account private constructor(
             if (saltResponse.failed()) {
                 onFail(saltResponse)
             } else {
-                val salt = Json.decodeFromString<AccountSaltResult>(saltResponse.body)
+                val salt = ExviSerializer.fromJson<AccountSaltResult>(saltResponse.body)
                 val decryptedSalt = salt.salt.fromBase64().decodeToString()
                 val finalPassword: String = PasswordUtils.hashAndSaltAndEncryptPassword(
                     passwordRaw, decryptedSalt
@@ -193,7 +195,7 @@ class Account private constructor(
                 requestLoginRaw(username, finalPassword, coroutineScope, coroutineDispatcher) { loginResult ->
                     if (loginResult.failed()) onFail(loginResult)
                     else {
-                        val accessKeyResult = Json.decodeFromString<AccountAccessKeyResult>(loginResult.body)
+                        val accessKeyResult = ExviSerializer.fromJson<AccountAccessKeyResult>(loginResult.body)
                         onSuccess(accessKeyResult)
                     }
                 }
@@ -202,7 +204,7 @@ class Account private constructor(
         }
 
         fun fromCrendentialsString(s: String): Account =
-            Json.decodeFromString(CryptographyUtils.decodeString(s))
+            ExviSerializer.fromJson(CryptographyUtils.decodeString(s))
 
         fun fromAccessKey(username: String, accessKey: String): Account =
             Account(username, accessKey.cached())

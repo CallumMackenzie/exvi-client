@@ -6,9 +6,7 @@
 package com.camackenzie.exvi.client.model
 
 import com.camackenzie.exvi.core.api.*
-import com.camackenzie.exvi.core.model.ActiveWorkout
-import com.camackenzie.exvi.core.model.Workout
-import com.camackenzie.exvi.core.model.WorkoutManager
+import com.camackenzie.exvi.core.model.*
 import com.camackenzie.exvi.core.util.Identifiable
 import com.camackenzie.exvi.core.util.cached
 import kotlinx.coroutines.*
@@ -125,8 +123,8 @@ class ServerWorkoutManager(
         coroutineDispatcher = dispatcher
     ) {
         if (it.failed()) onFail(it) else {
-            val response = Json.decodeFromString<ActiveWorkoutListResult>(it.body)
-            onSuccess(response.workouts)
+            val response = ExviSerializer.fromJson<ActiveWorkoutListResult>(it.body)
+            onSuccess(response.workouts as Array<ActiveWorkout>)
         }
         onComplete()
     }
@@ -148,8 +146,8 @@ class ServerWorkoutManager(
         coroutineDispatcher = dispatcher
     ) {
         if (it.failed()) onFail(it) else {
-            val response = Json.decodeFromString<WorkoutListResult>(it.body)
-            onSuccess(response.workouts)
+            val response = ExviSerializer.fromJson<WorkoutListResult>(it.body)
+            onSuccess(response.workouts as Array<Workout>)
         }
         onComplete()
     }
@@ -162,7 +160,9 @@ class ServerWorkoutManager(
         onSuccess: () -> Unit,
         onComplete: () -> Unit
     ): Job {
-        val request = ActiveWorkoutPutRequest(username, accessKey, workoutsToAdd)
+        val request = ActiveWorkoutPutRequest(username, accessKey, workoutsToAdd.map {
+            it.toActual()
+        }.toTypedArray())
         registerAdding(request)
         return APIRequest.requestAsync(
             APIEndpoints.DATA,
@@ -184,7 +184,7 @@ class ServerWorkoutManager(
         onSuccess: () -> Unit,
         onComplete: () -> Unit
     ): Job {
-        val request = WorkoutPutRequest(username, accessKey, workoutsToAdd)
+        val request = WorkoutPutRequest(username, accessKey, workoutsToAdd.map { it.toActual() }.toTypedArray())
         registerAdding(request)
         return APIRequest.requestAsync(
             APIEndpoints.DATA,

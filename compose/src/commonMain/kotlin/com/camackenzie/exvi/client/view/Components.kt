@@ -172,7 +172,6 @@ fun PasswordField(
             val image = if (passwordVisible && enabled)
                 ExviIcons.Visibility
             else ExviIcons.VisibilityOff
-
             IconButton(onClick = {
                 onPasswordVisibleChange(!passwordVisible)
             }, enabled = enabled) {
