@@ -209,6 +209,8 @@ object HomeView : Viewable {
         workout: Workout,
         refreshWorkouts: () -> Unit
     ) {
+        val coroutineScope = rememberCoroutineScope()
+
         var deleteConfirmEnabled by remember { mutableStateOf(false) }
         val onDeleteConfirmEnabledChanged: (Boolean) -> Unit = { deleteConfirmEnabled = it }
 

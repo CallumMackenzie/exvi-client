@@ -9,6 +9,7 @@ import com.camackenzie.exvi.core.util.SelfSerializable
 import com.camackenzie.exvi.client.model.WorkoutGeneratorParams
 import com.camackenzie.exvi.core.model.*
 import com.camackenzie.exvi.core.util.ExviLogger
+import kotlinx.coroutines.*
 import kotlin.Unit
 
 fun selfSerializableFromMap(map: Map<String, Any?>): SelfSerializable =
@@ -52,6 +53,16 @@ fun ensureActiveAccount(appState: AppState) {
 fun listToFormattedString(l: List<*>): String = l.toString().replace(Regex("\\]|\\["), "")
 fun List<*>.toFormattedString(): String = listToFormattedString(this)
 fun Set<*>.toFormattedString(): String = this.toList().toFormattedString()
+
+fun waitUntilTrue(
+    supplier: () -> Boolean,
+    coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+    coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    whenTrue: () -> Unit,
+) = coroutineScope.launch(coroutineDispatcher) {
+    while (!supplier()) delay(100)
+    whenTrue()
+}
 
 fun <T> delegatedMutableStateOf(
     value: T,

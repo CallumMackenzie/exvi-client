@@ -7,6 +7,8 @@ package com.camackenzie.exvi.client.model
 
 import com.camackenzie.exvi.core.api.*
 import com.camackenzie.exvi.core.model.*
+import com.camackenzie.exvi.core.util.EncodedStringCache
+import com.camackenzie.exvi.core.util.ExviLogger
 import com.camackenzie.exvi.core.util.Identifiable
 import com.camackenzie.exvi.core.util.cached
 import kotlinx.coroutines.*
@@ -14,10 +16,7 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.*
 import kotlinx.datetime.Clock
 
-/**
- *
- * @author callum
- */
+@Suppress("unused")
 class ServerWorkoutManager(
     private val username: String,
     private val accessKey: String,
@@ -51,6 +50,10 @@ class ServerWorkoutManager(
     fun isDeletingAny(): Boolean = outgoingDeleteRequests.isNotEmpty()
     fun isUpdatingWorkouts(): Boolean = isPutting() || isDeletingAny()
     fun isUpdatingActiveWorkouts(): Boolean = isPuttingActive() || isDeletingAny()
+    fun isUpdatingWorkout(id: String) = outgoingPutRequests.containsKey(id)
+    fun isUpdatingWorkout(id: EncodedStringCache) = isUpdatingWorkout(id.get())
+    fun isUpdatingActiveWorkout(id: String) = outgoingActivePutRequests.containsKey(id)
+    fun isUpdatingActiveWorkout(id: EncodedStringCache) = isUpdatingWorkout(id.get())
 
     override fun deleteActiveWorkouts(
         toDelete: Array<String>,
@@ -186,6 +189,7 @@ class ServerWorkoutManager(
     ): Job {
         val request = WorkoutPutRequest(username, accessKey, workoutsToAdd.map { it.toActual() }.toTypedArray())
         registerAdding(request)
+        ExviLogger.i("Sending request: ${request.toJson()}", tag = "WORKOUT_MANAGER")
         return APIRequest.requestAsync(
             APIEndpoints.DATA,
             request,
@@ -309,7 +313,7 @@ data class LocalWorkoutManager constructor(
 
 class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager {
     private val localManager = LocalWorkoutManager()
-    private val serverManager = ServerWorkoutManager(username, accessKey)
+    val serverManager = ServerWorkoutManager(username, accessKey)
 
     // TODO: Add coroutine to sync with server periodically
 
