@@ -11,7 +11,7 @@ The client portion of my high school capstone project.
 
 ## Download & Run
 
-## Supported Platforms
+### Supported Platforms
 - Desktop Linux/MacOS/Windows (JVM)
 - Android
 
