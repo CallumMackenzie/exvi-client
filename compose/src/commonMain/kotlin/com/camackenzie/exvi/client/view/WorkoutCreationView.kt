@@ -16,7 +16,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.*
-import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.core.model.*
 import com.soywiz.krypto.SecureRandom
 import kotlinx.coroutines.*
@@ -28,7 +27,6 @@ import com.camackenzie.exvi.core.util.EncodedStringCache
 import com.camackenzie.exvi.core.util.ExviLogger
 import com.camackenzie.exvi.core.util.Identifiable
 import com.camackenzie.exvi.core.util.SelfSerializable
-import kotlinx.coroutines.*
 
 // TODO: Clean up this code
 object WorkoutCreationView : Viewable {
@@ -210,7 +208,6 @@ object WorkoutCreationView : Viewable {
                         generatorData.generatorDropdownExpanded = false
                     }
 
-                    // FIXME: This won't compile for JS
                     Button(onClick = { generatorData.generatorDropdownExpanded = true }) {
                         Text("Select Generator")
                     }

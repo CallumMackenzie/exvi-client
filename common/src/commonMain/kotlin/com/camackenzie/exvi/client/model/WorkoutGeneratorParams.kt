@@ -7,13 +7,12 @@ package com.camackenzie.exvi.client.model
 
 import com.camackenzie.exvi.core.model.ActualBodyStats
 import com.camackenzie.exvi.core.model.BodyStats
-import com.camackenzie.exvi.core.model.ExviSerializer
 import com.camackenzie.exvi.core.util.SelfSerializable
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 
 @Serializable
-@Suppress("unused")
+@Suppress("unused", "UNCHECKED_CAST")
 class WorkoutGeneratorParams(
     var minExercises: Int = 6,
     var maxExercises: Int = 9,
@@ -21,6 +20,9 @@ class WorkoutGeneratorParams(
     var bodyStats: BodyStats = ActualBodyStats.average(),
     var providers: Array<ExercisePriorityProvider> = emptyArray()
 ) : SelfSerializable {
+
+    override val serializer: KSerializer<SelfSerializable>
+        get() = serializer() as KSerializer<SelfSerializable>
 
     fun withBodyStats(bs: BodyStats): WorkoutGeneratorParams {
         bodyStats = bs
@@ -59,10 +61,4 @@ class WorkoutGeneratorParams(
         return this
     }
 
-    override fun getUID(): String = uid
-    override fun toJson(): String = ExviSerializer.toJson(this)
-
-    companion object {
-        const val uid = "WorkoutGeneratorParams"
-    }
 }

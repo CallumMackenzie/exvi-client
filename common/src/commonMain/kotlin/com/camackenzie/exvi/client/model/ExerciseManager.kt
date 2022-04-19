@@ -9,18 +9,20 @@ import com.camackenzie.exvi.core.model.ActualExercise
 import com.camackenzie.exvi.core.model.Exercise
 import com.camackenzie.exvi.core.model.ExviSerializer
 import com.camackenzie.exvi.core.util.SelfSerializable
-import kotlin.collections.ArrayList
-import kotlin.collections.HashSet
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 
 @Serializable
-@Suppress("unused")
+@Suppress("unused", "UNCHECKED_CAST")
 data class ExerciseManager(
     @Transient
     var exercises: HashSet<Exercise> = HashSet()
 ) : SelfSerializable {
+
+    override val serializer: KSerializer<SelfSerializable>
+        get() = serializer() as KSerializer<SelfSerializable>
 
     constructor(vararg exs: Exercise) : this() {
         addAll(arrayOf(*exs))
@@ -45,10 +47,6 @@ data class ExerciseManager(
 
     fun hasExercises(): Boolean = exercises.size != 0
 
-    override fun getUID(): String = uid
-
-    override fun toJson(): String = ExviSerializer.toJson(this)
-
     fun getExercisesByFunction(add: (Exercise) -> Boolean): ArrayList<Exercise> {
         val ret: ArrayList<Exercise> = ArrayList()
         for (exercise in exercises) {
@@ -66,9 +64,5 @@ data class ExerciseManager(
             }
         }
         return null
-    }
-
-    companion object {
-        const val uid = "ExerciseManager"
     }
 }

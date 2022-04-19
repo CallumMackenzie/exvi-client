@@ -1,43 +1,13 @@
 package com.camackenzie.exvi.client.view
 
-import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.camackenzie.exvi.client.model.Model
-import com.camackenzie.exvi.core.util.None
 import com.camackenzie.exvi.core.util.SelfSerializable
-import com.camackenzie.exvi.client.model.WorkoutGeneratorParams
-import com.camackenzie.exvi.core.model.*
+import com.camackenzie.exvi.core.api.NoneResult
 import com.camackenzie.exvi.core.util.ExviLogger
 import kotlinx.coroutines.*
 import kotlin.Unit
 
-fun selfSerializableFromMap(map: Map<String, Any?>): SelfSerializable =
-    selfSerializableFromJson(map["json"] as String, map["uid"] as String)
-
-fun selfSerializableToMap(ss: SelfSerializable): Map<String, Any?> =
-    mapOf("json" to ss.toJson(), "uid" to ss.getUID())
-
-fun selfSerializableFromJson(json: String, uid: String): SelfSerializable =
-    when (uid) {
-        ActualWorkout.uid -> ExviSerializer.fromJson<Workout>(json)
-        Model.uid -> ExviSerializer.fromJson<Model>(json)
-        ActualActiveWorkout.uid -> ExviSerializer.fromJson<ActiveWorkout>(json)
-        ActualBodyStats.uid -> ExviSerializer.fromJson<BodyStats>(json)
-        None.uid -> ExviSerializer.fromJson<None>(json)
-        ActualExercise.uid -> ExviSerializer.fromJson<Exercise>(json)
-        WorkoutGeneratorParams.uid -> ExviSerializer.fromJson<WorkoutGeneratorParams>(json)
-        ExviView.uid -> ExviSerializer.fromJson<ExviView>(json)
-        else -> throw Exception("Could not restore type \"$uid\"")
-    }
-
-val SelfSerializableSaver = mapSaver<SelfSerializable>(save = {
-    selfSerializableToMap(it)
-}, restore = {
-    selfSerializableFromMap(it)
-})
-
-fun noArgs(): SelfSerializable = None
+fun noArgs(): SelfSerializable = NoneResult()
 
 /**
  * Ensures there is an active account.

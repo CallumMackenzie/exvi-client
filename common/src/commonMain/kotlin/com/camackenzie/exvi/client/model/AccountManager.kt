@@ -5,27 +5,20 @@
  */
 package com.camackenzie.exvi.client.model
 
-import com.camackenzie.exvi.core.model.ExviSerializer
 import com.camackenzie.exvi.core.util.SelfSerializable
-import com.russhwolf.settings.Settings
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.KSerializer
 
+@Suppress("UNCHECKED_CAST")
 @kotlinx.serialization.Serializable
 class AccountManager : SelfSerializable {
 
+    override val serializer: KSerializer<SelfSerializable>
+        get() = serializer() as KSerializer<SelfSerializable>
     var activeAccount: Account? = null
 
     fun hasActiveAccount(): Boolean = activeAccount != null
 
     fun signOut() {
         activeAccount = null
-    }
-
-    override fun getUID(): String = uid
-    override fun toJson(): String = ExviSerializer.toJson(this)
-
-    companion object {
-        const val uid = "AccountManager"
     }
 }

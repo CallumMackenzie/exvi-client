@@ -8,23 +8,23 @@ package com.camackenzie.exvi.client.model
 import com.camackenzie.exvi.core.model.*
 import com.camackenzie.exvi.core.util.ExviLogger
 import com.camackenzie.exvi.core.util.SelfSerializable
-import kotlin.collections.ArrayList
-import kotlin.collections.List
-import kotlin.collections.HashMap
+import kotlinx.serialization.KSerializer
 import kotlin.math.max
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
 import kotlin.math.round
 
 /**
  *
  * @author callum
  */
+@Suppress("UNCHECKED_CAST")
 @kotlinx.serialization.Serializable
 class WorkoutGenerator(
     var exerciseManager: ExerciseManager,
     var params: WorkoutGeneratorParams = WorkoutGeneratorParams()
 ) : SelfSerializable {
+
+    override val serializer: KSerializer<SelfSerializable>
+        get() = serializer() as KSerializer<SelfSerializable>
 
     fun generateWorkout(
         wkr: Workout,
@@ -234,8 +234,6 @@ class WorkoutGenerator(
 
     companion object {
 
-        const val uid = "WorkoutGenerator"
-
         fun fromPriorities(
             exerciseManager: ExerciseManager,
             bodyStats: BodyStats = ActualBodyStats.average(),
@@ -309,8 +307,4 @@ class WorkoutGenerator(
             *warmupPriorities()
         )
     }
-
-    override fun getUID(): String = uid
-
-    override fun toJson(): String = ExviSerializer.toJson(this)
 }

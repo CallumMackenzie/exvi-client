@@ -1,3 +1,4 @@
+@file:Suppress("UNCHECKED_CAST")
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -7,8 +8,8 @@ package com.camackenzie.exvi.client.model
 
 import com.camackenzie.exvi.core.model.*
 import com.camackenzie.exvi.core.util.SelfSerializable
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 
 data class WeightedExerciseSet(
     val exerciseSet: ExerciseSet,
@@ -69,18 +70,14 @@ class ExerciseMusclePriority(
     override val setGenerator: ExerciseSetGenerator = DefaultExerciseSetGenerator
 ) : BoundedPriorityProvider() {
 
+    override val serializer: KSerializer<SelfSerializable>
+        get() = serializer() as KSerializer<SelfSerializable>
+
     override fun getPriority(g: WorkoutGenerator, exercise: Exercise, index: Int): Double =
         this.getPriorityBounded(index) {
             if (exercise.worksMuscle(muscle)) priority else 0.0
         }
 
-    override fun getUID(): String = uid
-
-    override fun toJson(): String = ExviSerializer.toJson(this)
-
-    companion object {
-        const val uid = "ExerciseMusclePriority"
-    }
 }
 
 /**
@@ -95,18 +92,13 @@ class ExerciseTypePriority(
     override val setGenerator: ExerciseSetGenerator = DefaultExerciseSetGenerator
 ) : BoundedPriorityProvider() {
 
+    override val serializer: KSerializer<SelfSerializable>
+        get() = serializer() as KSerializer<SelfSerializable>
+
     override fun getPriority(g: WorkoutGenerator, exercise: Exercise, index: Int): Double =
         this.getPriorityBounded(index) {
             if (exercise.isType(exerciseType)) priority else 0.0
         }
-
-    override fun getUID(): String = uid
-
-    override fun toJson(): String = ExviSerializer.toJson(this)
-
-    companion object {
-        const val uid = "ExerciseTypePriority"
-    }
 }
 
 /**
@@ -121,18 +113,13 @@ class ExerciseEquipmentPriority(
     override val setGenerator: ExerciseSetGenerator = DefaultExerciseSetGenerator
 ) : BoundedPriorityProvider() {
 
+    override val serializer: KSerializer<SelfSerializable>
+        get() = serializer() as KSerializer<SelfSerializable>
+
     override fun getPriority(g: WorkoutGenerator, exercise: Exercise, index: Int): Double =
         this.getPriorityBounded(index) {
             if (exercise.usesEquipment(equipment)) priority else 0.0
         }
-
-    override fun getUID(): String = uid
-
-    override fun toJson(): String = ExviSerializer.toJson(this)
-
-    companion object {
-        const val uid = "ExerciseEquipmentPriority"
-    }
 }
 
 /**
@@ -147,18 +134,13 @@ class ExerciseExperiencePriority(
     override val setGenerator: ExerciseSetGenerator = DefaultExerciseSetGenerator
 ) : BoundedPriorityProvider() {
 
+    override val serializer: KSerializer<SelfSerializable>
+        get() = serializer() as KSerializer<SelfSerializable>
+
     override fun getPriority(g: WorkoutGenerator, exercise: Exercise, index: Int): Double =
         this.getPriorityBounded(index) {
             if (exercise.experienceLevel == experience) priority else 0.0
         }
-
-    override fun getUID(): String = uid
-
-    override fun toJson(): String = ExviSerializer.toJson(this)
-
-    companion object {
-        const val uid = "ExerciseExperiencePriority"
-    }
 }
 
 /**
@@ -173,18 +155,14 @@ class ExerciseForceTypePriority(
     override val setGenerator: ExerciseSetGenerator = DefaultExerciseSetGenerator
 ) : BoundedPriorityProvider() {
 
+    override val serializer: KSerializer<SelfSerializable>
+        get() = serializer() as KSerializer<SelfSerializable>
+
     override fun getPriority(g: WorkoutGenerator, exercise: Exercise, index: Int): Double =
         this.getPriorityBounded(index) {
             if (exercise.forceType == forceType) priority else 0.0
         }
 
-    override fun getUID(): String = uid
-
-    override fun toJson(): String = ExviSerializer.toJson(this)
-
-    companion object {
-        const val uid = "ExerciseForceTypePriority"
-    }
 }
 
 /**
@@ -199,18 +177,13 @@ class ExerciseMechanicsPriority(
     override val setGenerator: ExerciseSetGenerator = DefaultExerciseSetGenerator
 ) : BoundedPriorityProvider() {
 
+    override val serializer: KSerializer<SelfSerializable>
+        get() = serializer() as KSerializer<SelfSerializable>
+
     override fun getPriority(g: WorkoutGenerator, exercise: Exercise, index: Int): Double {
         return this.getPriorityBounded(index) {
             if (exercise.mechanics == mechanics) priority else 0.0
         }
-    }
-
-    override fun getUID(): String = uid
-
-    override fun toJson(): String = ExviSerializer.toJson(this)
-
-    companion object {
-        const val uid = "ExerciseMechanicsPriority"
     }
 }
 
@@ -224,6 +197,10 @@ class ExerciseCompletionPriority(
     override val end: Int = Int.MAX_VALUE,
     override val setGenerator: ExerciseSetGenerator = DefaultExerciseSetGenerator
 ) : BoundedPriorityProvider() {
+
+    override val serializer: KSerializer<SelfSerializable>
+        get() = serializer() as KSerializer<SelfSerializable>
+
     override fun getPriority(g: WorkoutGenerator, exercise: Exercise, index: Int): Double =
         this.getPriorityBounded(index) {
             var sum = 0
@@ -233,12 +210,4 @@ class ExerciseCompletionPriority(
             if (exercise.hasVideoLink()) sum += 1
             sum * priority
         }
-
-    override fun getUID(): String = uid
-
-    override fun toJson(): String = ExviSerializer.toJson(this)
-
-    companion object {
-        const val uid = "ExerciseCompletionPriority"
-    }
 }

@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.camackenzie.exvi.client.model
 
 import androidx.compose.runtime.getValue
@@ -5,6 +7,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.camackenzie.exvi.core.model.*
+import com.camackenzie.exvi.core.util.SelfSerializable
+import kotlinx.serialization.KSerializer
 
 fun SingleExerciseSet.toComposable() = ComposeSingleExerciseSet(
     reps, weight.copy(), timing.map {
@@ -21,6 +25,9 @@ open class ComposeExerciseSet(
     unit: String,
     sets: Array<SingleExerciseSet>,
 ) : ExerciseSet {
+    override val serializer: KSerializer<SelfSerializable>
+        get() = ActualExerciseSet.serializer() as KSerializer<SelfSerializable>
+
     override val exercise: Exercise by mutableStateOf(exercise)
     override var sets: MutableList<SingleExerciseSet> = mutableStateListOf(*sets)
     override var unit: String by mutableStateOf(unit)
@@ -33,12 +40,6 @@ open class ComposeExerciseSet(
         return hash
     }
 
-    override fun getUID(): String = uid
-    override fun toJson(): String = toActual().toJson()
-
-    companion object {
-        const val uid = "ComposeExerciseSet"
-    }
 }
 
 open class ComposeSingleExerciseSet(
@@ -46,6 +47,9 @@ open class ComposeSingleExerciseSet(
     weight: Mass = 0.kilograms,
     timing: Array<Time>,
 ) : SingleExerciseSet {
+
+    override val serializer: KSerializer<SelfSerializable>
+        get() = ActualSingleExerciseSet.serializer() as KSerializer<SelfSerializable>
 
     override var reps: Int by mutableStateOf(reps)
     override var timing: Array<Time> by mutableStateOf(timing)
@@ -57,12 +61,6 @@ open class ComposeSingleExerciseSet(
         weight = weight.copy()
     )
 
-    override fun getUID(): String = uid
-    override fun toJson(): String = toActual().toJson()
-
-    companion object {
-        const val uid = "ComposeSingleExerciseSet"
-    }
 }
 
 open class ComposeActiveExercise(
@@ -76,14 +74,11 @@ open class ComposeActiveExercise(
         other.target
     )
 
+    override val serializer: KSerializer<SelfSerializable>
+        get() = ActualActiveExercise.serializer() as KSerializer<SelfSerializable>
+
     override var active: ExerciseSet by mutableStateOf(active)
     override var currentSet: Int by mutableStateOf(currentSet)
     override val target: ExerciseSet = target
 
-    override fun getUID(): String = uid
-    override fun toJson(): String = TODO()
-
-    companion object {
-        const val uid = "ComposeActiveExercise"
-    }
 }

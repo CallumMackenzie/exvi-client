@@ -1,12 +1,12 @@
 package com.camackenzie.exvi.client.model
 
-import com.camackenzie.exvi.core.model.BodyStats
-import com.camackenzie.exvi.core.model.ExviSerializer
 import com.camackenzie.exvi.core.util.SelfSerializable
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
 import com.russhwolf.settings.Settings
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
+@Suppress("UNCHECKED_CAST")
 @Serializable
 class Model : SelfSerializable {
 
@@ -16,10 +16,6 @@ class Model : SelfSerializable {
     @Transient
     @OptIn(com.russhwolf.settings.ExperimentalSettingsImplementation::class)
     val settings = Settings()
-
-    override fun getUID(): String = uid
-
-    override fun toJson(): String = ExviSerializer.toJson(this)
 
     val activeAccount: Account?
         get() = accountManager.activeAccount
@@ -37,8 +33,7 @@ class Model : SelfSerializable {
         exerciseManager.exercises.clear()
     }
 
-    companion object {
-        const val uid = "ExviClientModel"
-    }
+    override val serializer: KSerializer<SelfSerializable>
+        get() = serializer() as KSerializer<SelfSerializable>
 
 }

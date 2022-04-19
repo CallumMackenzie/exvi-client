@@ -6,26 +6,33 @@
 package com.camackenzie.exvi.client.model
 
 import com.camackenzie.exvi.core.api.*
-import com.camackenzie.exvi.core.model.BodyStats
 import com.camackenzie.exvi.core.model.ActualBodyStats
+import com.camackenzie.exvi.core.model.BodyStats
 import com.camackenzie.exvi.core.model.ExviSerializer
 import com.camackenzie.exvi.core.util.*
 import com.soywiz.krypto.encoding.fromBase64
-import kotlinx.coroutines.*
-import kotlinx.serialization.json.*
-import kotlinx.serialization.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 /**
  *
  * @author callum
  */
 @Serializable
-@Suppress("unused")
+@Suppress("unused", "UNCHECKED_CAST")
 class Account private constructor(
     val username: String,
     private var accessKey: EncodedStringCache,
     private var bodyStats: BodyStats = ActualBodyStats.average(),
 ) : SelfSerializable, Identifiable {
+
+    override val serializer: KSerializer<SelfSerializable>
+        get() = serializer() as KSerializer<SelfSerializable>
 
     @Transient
     val workoutManager: SyncedWorkoutManager = SyncedWorkoutManager(username, accessKey.get())
@@ -79,10 +86,6 @@ class Account private constructor(
     val credentialsString: String
         get() = CryptographyUtils.encodeString(this.toJson())
 
-    override fun getUID(): String = uid
-
-    override fun toJson(): String = ExviSerializer.toJson(this)
-
     // A unique identifier for this user based on their username
     override fun getIdentifier(): EncodedStringCache = (CryptographyUtils.hashSHA256(username) + username).cached()
 
@@ -93,8 +96,6 @@ class Account private constructor(
         ).append("...").toString()
 
     companion object {
-        const val uid = "UserAccount"
-
         /**
          * Request verification to create an account for the given user
          */

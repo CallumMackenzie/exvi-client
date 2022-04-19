@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.camackenzie.exvi.client.model
 
 import androidx.compose.runtime.getValue
@@ -7,6 +9,8 @@ import androidx.compose.runtime.setValue
 import com.camackenzie.exvi.core.model.*
 import com.camackenzie.exvi.core.util.EncodedStringCache
 import com.camackenzie.exvi.core.util.Identifiable
+import com.camackenzie.exvi.core.util.SelfSerializable
+import kotlinx.serialization.KSerializer
 
 fun Workout.toComposable() = ComposeWorkout(name, description, exercises, id.copy())
 
@@ -23,6 +27,9 @@ open class ComposeWorkout(
         other?.id ?: Identifiable.generateId()
     )
 
+    override val serializer: KSerializer<SelfSerializable>
+        get() = ActualWorkout.serializer() as KSerializer<SelfSerializable>
+
     override var name: String by mutableStateOf(name)
     override var description: String by mutableStateOf(description)
     override val id: EncodedStringCache = id
@@ -31,12 +38,6 @@ open class ComposeWorkout(
     }.toTypedArray())
 
     override fun newActiveWorkout(): ActiveWorkout = ActiveWorkout(this).toComposable()
-    override fun toJson(): String = toActual().toJson()
-    override fun getUID(): String = uid
-
-    companion object {
-        const val uid = "ComposeWorkout"
-    }
 }
 
 fun ActiveWorkout.toActual() =
@@ -62,17 +63,13 @@ open class ComposeActiveWorkout(
         other.endTimeMillis
     )
 
+    override val serializer: KSerializer<SelfSerializable>
+        get() = ActualActiveWorkout.serializer() as KSerializer<SelfSerializable>
+
     override val activeWorkoutId: EncodedStringCache = activeWorkoutId
     override val baseWorkoutId: EncodedStringCache = baseWorkoutId
     override val exercises: Array<ActiveExercise> = exercises
     override val name: String = name
     override var startTimeMillis: Long? by mutableStateOf(startTimeMillis)
     override var endTimeMillis: Long? by mutableStateOf(endTimeMillis)
-
-    override fun getUID(): String = uid
-    override fun toJson(): String = ExviSerializer.toJson(this)
-
-    companion object {
-        const val uid = "ComposeActiveWorkout"
-    }
 }

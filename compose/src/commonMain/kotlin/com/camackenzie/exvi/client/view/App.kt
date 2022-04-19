@@ -1,24 +1,18 @@
 package com.camackenzie.exvi.client.view
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.mapSaver
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.saveable.rememberSaveable
 import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.client.model.Model
+import com.camackenzie.exvi.core.api.NoneResult
 import com.camackenzie.exvi.core.model.ExviSerializer
 import com.camackenzie.exvi.core.util.ExviLogger
-import com.camackenzie.exvi.core.util.None
 import com.camackenzie.exvi.core.util.SelfSerializable
 import com.camackenzie.exvi.core.util.cached
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 
 /**
  * The entry function for the app
@@ -55,12 +49,9 @@ enum class ExviView(
     @Composable
     fun compose(appState: AppState) = viewFun.View(appState)
 
-    override fun getUID(): String = uid
-    override fun toJson(): String = ExviSerializer.toJson(this)
-
-    companion object {
-        const val uid = "ExviView"
-    }
+    @Suppress("UNCHECKED_CAST")
+    override val serializer: KSerializer<SelfSerializable>
+        get() = serializer() as KSerializer<SelfSerializable>
 }
 
 /**
@@ -70,7 +61,7 @@ class AppState(
     val model: Model = Model(),
     currentView: ExviView = ExviView.Login,
     previousView: ExviView = ExviView.None,
-    provided: SelfSerializable = None,
+    provided: SelfSerializable = NoneResult(),
     val coroutineScope: CoroutineScope,
     private val processRestartInit: Boolean = false
 ) {
@@ -149,16 +140,16 @@ class AppState(
                 mapOf(
                     "currView" to it.currentView.toJson(),
                     "prevView" to it.previousView.toJson(),
-                    "provided" to selfSerializableToMap(it.provided),
+                    "provided" to ExviSerializer.toJson(it.provided),
                     "model" to it.model.toJson()
                 )
             },
             restore = {
                 AppState(
-                    model = ExviSerializer.fromJson<Model>(it["model"] as String),
+                    model = ExviSerializer.fromJson(it["model"] as String),
                     currentView = ExviSerializer.fromJson(it["currView"] as String),
                     previousView = ExviSerializer.fromJson(it["prevView"] as String),
-                    provided = selfSerializableFromMap(it["provided"] as Map<String, Any?>),
+                    provided = ExviSerializer.fromJson(it["provided"] as String),
                     coroutineScope = coroutineScope,
                     processRestartInit = true
                 )
