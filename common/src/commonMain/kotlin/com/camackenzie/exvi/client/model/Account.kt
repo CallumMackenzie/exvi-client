@@ -44,7 +44,7 @@ class Account private constructor(
         onSuccess: (BodyStats) -> Unit = {},
         onComplete: () -> Unit = {}
     ): Job = APIRequest.requestAsync(
-        endpoint = APIEndpoints.DATA,
+        endpoint = APIInfo.DATA,
         body = GetBodyStatsRequest(username, accessKey),
         coroutineScope = coroutineScope,
         coroutineDispatcher = dispatcher,
@@ -66,7 +66,7 @@ class Account private constructor(
         onSuccess: () -> Unit = {},
         onComplete: () -> Unit = {}
     ): Job = APIRequest.requestAsync(
-        endpoint = APIEndpoints.DATA,
+        endpoint = APIInfo.DATA,
         body = SetBodyStatsRequest(username, accessKey, bodyStats.toActual()),
         coroutineScope = coroutineScope,
         coroutineDispatcher = dispatcher,
@@ -109,7 +109,7 @@ class Account private constructor(
             onSuccess: () -> Unit = {},
             onComplete: () -> Unit = {}
         ): Job = APIRequest.requestAsync(
-            APIEndpoints.VERIFICATION,
+            APIInfo.VERIFICATION,
             VerificationRequest(username, email, phone),
             coroutineScope = coroutineScope,
             coroutineDispatcher = coroutineDispatcher
@@ -131,7 +131,7 @@ class Account private constructor(
             onSuccess: (AccountAccessKeyResult) -> Unit = {},
             onComplete: () -> Unit = {}
         ): Job = APIRequest.requestAsync(
-            APIEndpoints.SIGN_UP,
+            APIInfo.SIGN_UP,
             AccountCreationRequest(
                 username,
                 verificationCode,
@@ -143,8 +143,7 @@ class Account private constructor(
             if (result.failed()) onFail(result)
             else {
                 // Parse access key
-                val accessKeyResult = ExviSerializer.fromJson<AccountAccessKeyResult>(result.body)
-                onSuccess(accessKeyResult)
+                onSuccess(ExviSerializer.fromJson(result.body))
             }
             onComplete()
         }
@@ -156,7 +155,7 @@ class Account private constructor(
             coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
             callback: (APIResult<String>) -> Unit
         ): Job = APIRequest.requestAsync(
-            APIEndpoints.LOGIN,
+            APIInfo.LOGIN,
             LoginRequest(username, passwordHash),
             coroutineScope = coroutineScope,
             coroutineDispatcher = coroutineDispatcher,
@@ -169,7 +168,7 @@ class Account private constructor(
             coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
             callback: (APIResult<String>) -> Unit
         ): Job = APIRequest.requestAsync(
-            APIEndpoints.GET_SALT,
+            APIInfo.GET_SALT,
             RetrieveSaltRequest(username),
             coroutineScope = coroutineScope,
             coroutineDispatcher = coroutineDispatcher,

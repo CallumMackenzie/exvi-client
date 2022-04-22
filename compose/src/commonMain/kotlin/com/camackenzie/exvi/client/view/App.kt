@@ -3,6 +3,7 @@ package com.camackenzie.exvi.client.view
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import com.camackenzie.exvi.client.model.APIInfo
 import com.camackenzie.exvi.client.model.Account
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.api.NoneResult
@@ -13,6 +14,9 @@ import com.camackenzie.exvi.core.util.cached
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+
+// App version to ensure compatibility with server
+private const val APP_VERSION = 3;
 
 /**
  * The entry function for the app
@@ -44,7 +48,8 @@ enum class ExviView(
     WorkoutCreation(WorkoutCreationView),
     ActiveWorkout(ActiveWorkoutView),
     None(ErrorView),
-    Error(ErrorView);
+    Error(ErrorView),
+    InvalidAppVersion(InvalidAppVersionView);
 
     @Composable
     fun compose(appState: AppState) = viewFun.View(appState)
@@ -89,6 +94,18 @@ class AppState(
                 model.accountManager.activeAccount = Account.fromCrendentialsString(settings.getString("activeUser"))
                 ExviLogger.i { "Restored user session for ${model.activeAccount!!.username}" }
                 setView(ExviView.Home)
+            }
+
+            // If process is not restarting, ensure app version is compatible with server
+            if (!processRestartInit) {
+                APIInfo.checkAppCompatibility(APP_VERSION,
+                    coroutineScope,
+                    onFail = {
+                        if (it.statusCode != 418)
+                            setView(ExviView.InvalidAppVersion)
+                    }, onSuccess = {
+                        ExviLogger.i { "App version validated" }
+                    })
             }
         } catch (ex: Exception) {
             error(ex)

@@ -6,15 +6,16 @@
 package com.camackenzie.exvi.client.model
 
 import com.camackenzie.exvi.core.api.*
-import com.camackenzie.exvi.core.model.*
+import com.camackenzie.exvi.core.model.ActiveWorkout
+import com.camackenzie.exvi.core.model.ExviSerializer
+import com.camackenzie.exvi.core.model.Workout
+import com.camackenzie.exvi.core.model.WorkoutManager
 import com.camackenzie.exvi.core.util.EncodedStringCache
 import com.camackenzie.exvi.core.util.ExviLogger
 import com.camackenzie.exvi.core.util.Identifiable
 import com.camackenzie.exvi.core.util.cached
 import kotlinx.coroutines.*
-import kotlinx.serialization.json.*
-import kotlinx.serialization.*
-import kotlinx.datetime.Clock
+import kotlinx.serialization.Serializable
 
 @Suppress("unused")
 class ServerWorkoutManager(
@@ -71,7 +72,7 @@ class ServerWorkoutManager(
         )
         registerDeleting(request)
         return APIRequest.requestAsync(
-            APIEndpoints.DATA,
+            APIInfo.DATA,
             request,
             coroutineScope = coroutineScope,
             coroutineDispatcher = dispatcher
@@ -98,7 +99,7 @@ class ServerWorkoutManager(
         )
         registerDeleting(request)
         return APIRequest.requestAsync(
-            APIEndpoints.DATA,
+            APIInfo.DATA,
             request,
             coroutineScope = coroutineScope,
             coroutineDispatcher = dispatcher
@@ -116,7 +117,7 @@ class ServerWorkoutManager(
         onSuccess: (Array<ActiveWorkout>) -> Unit,
         onComplete: () -> Unit
     ): Job = APIRequest.requestAsync(
-        APIEndpoints.DATA,
+        APIInfo.DATA,
         WorkoutListRequest(
             username,
             accessKey,
@@ -139,7 +140,7 @@ class ServerWorkoutManager(
         onSuccess: (Array<Workout>) -> Unit,
         onComplete: () -> Unit
     ): Job = APIRequest.requestAsync(
-        APIEndpoints.DATA,
+        APIInfo.DATA,
         WorkoutListRequest(
             username,
             accessKey,
@@ -168,7 +169,7 @@ class ServerWorkoutManager(
         }.toTypedArray())
         registerAdding(request)
         return APIRequest.requestAsync(
-            APIEndpoints.DATA,
+            APIInfo.DATA,
             request,
             coroutineScope = coroutineScope,
             coroutineDispatcher = dispatcher
@@ -189,9 +190,15 @@ class ServerWorkoutManager(
     ): Job {
         val request = WorkoutPutRequest(username, accessKey, workoutsToAdd.map { it.toActual() }.toTypedArray())
         registerAdding(request)
-        ExviLogger.i("Sending request: ${request.toJson()}", tag = "WORKOUT_MANAGER")
+        ExviLogger.i(
+            "Sending request: ${
+                request.workouts.map {
+                    it.name
+                }
+            }", tag = "WORKOUT_MANAGER"
+        )
         return APIRequest.requestAsync(
-            APIEndpoints.DATA,
+            APIInfo.DATA,
             request,
             coroutineScope = coroutineScope,
             coroutineDispatcher = dispatcher
