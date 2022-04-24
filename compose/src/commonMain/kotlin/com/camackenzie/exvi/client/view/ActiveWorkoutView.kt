@@ -2,9 +2,13 @@ package com.camackenzie.exvi.client.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.*
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Button
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,7 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.icons.ExviIcons
 import com.camackenzie.exvi.client.model.ComposeActiveWorkout
-import com.camackenzie.exvi.core.model.*
+import com.camackenzie.exvi.core.model.ActiveWorkout
+import com.camackenzie.exvi.core.model.toLocalDate
 import com.camackenzie.exvi.core.util.ExviLogger
 
 object ActiveWorkoutView : Viewable {
@@ -90,8 +95,7 @@ object ActiveWorkoutView : Viewable {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            items(workoutData.exercises.size) { exercise ->
-                val exerciseSet = workoutData.exercises[exercise]
+            items(workoutData.exercises) { exerciseSet ->
                 Row(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
@@ -102,7 +106,8 @@ object ActiveWorkoutView : Viewable {
                         exercise = exerciseSet.active,
                         target = exerciseSet.target,
                         onValueChange = { it, reps ->
-                            workoutData.exercises[exercise].active.sets[it].reps = reps
+                            exerciseSet.active.sets[it].reps = reps
+                            workoutData.exercises = arrayOf(*workoutData.exercises)
                         }
                     )
                 }

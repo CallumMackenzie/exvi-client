@@ -8,9 +8,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -80,12 +84,12 @@ fun RepField(
     label: @Composable (() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null
 ) {
-    val reps = if (set?.reps ?: -1 <= 0) null else set?.reps
+    val reps = if ((set?.reps ?: -1) <= 0) null else set?.reps
 
     OptIntField(
         modifier = modifier,
         value = reps,
-        maxDigits = 5,
+        maxDigits = 4,
         onValueChange = {
             onValueChange(it ?: 0)
         },
@@ -191,7 +195,7 @@ fun EmailField(
     TextField(
         enabled = enabled,
         value = email,
-        onValueChange = { it ->
+        onValueChange = {
             if (it.length <= 40
                 && it.matches(emailRegex)
             ) onEmailChange(it)
@@ -207,7 +211,7 @@ fun PhoneField(phone: String, onPhoneChange: (String) -> Unit, enabled: Boolean 
     TextField(
         enabled = enabled,
         value = phone,
-        onValueChange = { it ->
+        onValueChange = {
             if (it.length <= 15
                 && it.matches(phoneRegex)
             ) onPhoneChange(it)
@@ -223,7 +227,7 @@ fun VerificationCodeField(code: String, onCodeChange: (String) -> Unit, enabled:
     TextField(
         enabled = enabled,
         value = code,
-        onValueChange = { it ->
+        onValueChange = {
             if (it.length <= 6
                 && it.matches(codeRegex)
             ) onCodeChange(it)

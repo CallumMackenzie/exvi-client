@@ -47,29 +47,31 @@ fun ActiveWorkout.toComposable() =
     ComposeActiveWorkout(name, baseWorkoutId, exercises, activeWorkoutId, startTimeMillis, endTimeMillis)
 
 open class ComposeActiveWorkout(
-    name: String,
-    baseWorkoutId: EncodedStringCache,
+    override val name: String,
+    override val baseWorkoutId: EncodedStringCache,
     exercises: Array<ActiveExercise>,
-    activeWorkoutId: EncodedStringCache,
+    override val activeWorkoutId: EncodedStringCache,
     startTimeMillis: Long? = null,
     endTimeMillis: Long? = null,
 ) : ActiveWorkout {
-    constructor(other: ActiveWorkout) : this(
+    constructor(other: ActiveWorkout, exercises: Array<ActiveExercise>) : this(
         other.name,
         other.baseWorkoutId,
-        other.exercises.map { ComposeActiveExercise(it) }.toTypedArray(),
+        exercises,
         other.activeWorkoutId,
         other.startTimeMillis,
         other.endTimeMillis
     )
 
+    constructor(other: ActiveWorkout) : this(
+        other,
+        other.exercises.map { ComposeActiveExercise(it) }.toTypedArray(),
+    )
+
     override val serializer: KSerializer<SelfSerializable>
         get() = ActualActiveWorkout.serializer() as KSerializer<SelfSerializable>
 
-    override val activeWorkoutId: EncodedStringCache = activeWorkoutId
-    override val baseWorkoutId: EncodedStringCache = baseWorkoutId
-    override val exercises: Array<ActiveExercise> = exercises
-    override val name: String = name
+    override var exercises: Array<ActiveExercise> by mutableStateOf(exercises)
     override var startTimeMillis: Long? by mutableStateOf(startTimeMillis)
     override var endTimeMillis: Long? by mutableStateOf(endTimeMillis)
 }
