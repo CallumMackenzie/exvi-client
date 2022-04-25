@@ -388,6 +388,7 @@ object WorkoutCreationView : Viewable {
                 IconButton(onClick = {
                     // Add new exercise set to editor exercise
                     workoutData.editorExercise!!.sets.add(SingleExerciseSet(8))
+                    workoutData.refreshEditorExercise()
                 }) {
                     Icon(ExviIcons.Add, "Add Set")
                 }
@@ -614,26 +615,45 @@ object WorkoutCreationView : Viewable {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.Start)
         ) {
+            // Exercise name
             Text(exerciseSet.exercise.name, Modifier.fillMaxWidth(0.5f))
 
+            // Move exercise up
+            IconButton(onClick = {
+                if (index > 0)
+                    wd.swapExercises(index, index - 1)
+            }) {
+                Icon(ExviIcons.ArrowUp, "Move Up")
+            }
+            // Move exercise down
+            IconButton(onClick = {
+                if (index + 1 < wd.exercises.size)
+                    wd.swapExercises(index, index + 1)
+            }) {
+                Icon(ExviIcons.ArrowDown, "Move Down")
+            }
+            // Edit exercise
             IconButton(onClick = {
                 wd.editorExerciseIndex = index
                 selectorViewData.rightPane = RightPaneView.Editor.str
             }) {
                 Icon(Icons.Default.Edit, "Edit Exercise")
             }
+            // View exercise info
             IconButton(onClick = {
                 wd.infoExercise = exerciseSet.exercise
                 selectorViewData.rightPane = RightPaneView.Info.str
             }) {
                 Icon(Icons.Default.Info, "Exercise Info")
             }
+            // Lock exercise
             Switch(
                 checked = wd.lockedExercises.contains(index),
                 onCheckedChange = {
                     wd.lockExercise(index, it)
                 }
             )
+            // Remove exercise
             IconButton(onClick = {
                 wd.removeExercise(index)
             }) {
@@ -716,14 +736,39 @@ object WorkoutCreationView : Viewable {
                 exercises[editorExerciseIndex!!] = ex
             }
 
+        // Reload editor exercise for full recomposition
         fun refreshEditorExercise() {
-            editorExercise = editorExercise!!.toComposable()
+            if (editorExercise != null)
+                editorExercise = editorExercise!!.toComposable()
         }
 
+        // Append exercise to end of list
         fun addExercise(ex: ExerciseSet) {
             exercises.add(ex)
         }
 
+        // Swap exercises at index a and b
+        fun swapExercises(a: Int, b: Int) {
+            // If indexes equal, don't swap
+            if (a == b) return
+
+            // Switch actual exercises
+            val aVal = exercises[a]
+            exercises[a] = exercises[b]
+            exercises[b] = aVal
+
+            // Sync exercise locking
+            val aLocked = lockedExercises.contains(a)
+            val bLocked = lockedExercises.contains(b)
+            lockExercise(a, bLocked)
+            lockExercise(b, aLocked)
+
+            // Sync exercise editor to new index if needed
+            if (a == editorExerciseIndex) editorExerciseIndex = b
+            else if (b == editorExerciseIndex) editorExerciseIndex = a
+        }
+
+        // Remove exercise at index
         fun removeExercise(index: Int) {
             // Sync with exercise set editor
             if (index == editorExerciseIndex) editorExerciseIndex = null
@@ -734,12 +779,13 @@ object WorkoutCreationView : Viewable {
             // Shift locked exercise indexes
             lockedExercises = lockedExercises.map {
                 it - ((if (it >= index) 1 else 0) +
-                        (if (it >= editorExerciseIndex ?: Int.MAX_VALUE) 1 else 0))
+                        (if (it >= (editorExerciseIndex ?: Int.MAX_VALUE)) 1 else 0))
             }.toSet()
             // Remove exercise
             exercises.removeAt(index)
         }
 
+        // Lock or unlock exercise at index
         fun lockExercise(index: Int, lock: Boolean) {
             lockedExercises = if (lock) // Lock exercise
                 setOf(*lockedExercises.toTypedArray(), index)

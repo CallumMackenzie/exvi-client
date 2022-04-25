@@ -85,7 +85,6 @@ fun RepField(
     placeholder: @Composable (() -> Unit)? = null
 ) {
     val reps = if ((set?.reps ?: -1) <= 0) null else set?.reps
-
     OptIntField(
         modifier = modifier,
         value = reps,
@@ -114,6 +113,8 @@ fun RepList(
     onValueChange: (Int, Int) -> Unit,
     target: ExerciseSet? = null,
     modifier: Modifier = Modifier.fillMaxWidth(),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(10.dp, Alignment.Start),
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     label: @Composable ((Int) -> Unit)? = null,
     placeholder: @Composable ((Int) -> Unit)? = null,
     contents: @Composable (Int, @Composable () -> Unit) -> Unit = { _, repField -> repField() }
@@ -121,8 +122,8 @@ fun RepList(
     // TODO: Make this a flow row
     LazyRow(
         modifier,
-        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
-        verticalAlignment = Alignment.CenterVertically
+        horizontalArrangement = horizontalArrangement,
+        verticalAlignment = verticalAlignment
     ) {
         val nSets = exercise.sets.size
         items(nSets) { setIdx ->

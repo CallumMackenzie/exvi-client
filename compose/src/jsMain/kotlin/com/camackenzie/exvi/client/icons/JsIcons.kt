@@ -8,3 +8,5 @@ internal actual fun addIcon(): ImageVector = Icons.Default.Warning
 internal actual fun stopIcon(): ImageVector = Icons.Default.Lock
 internal actual fun visibilityIcon(): ImageVector = Icons.Default.Warning
 internal actual fun visibilityOffIcon(): ImageVector = Icons.Default.Check
+internal actual fun arrowDownIcon(): ImageVector = Icons.Default.KeyboardArrowDown
+internal actual fun arrowUpIcon(): ImageVector = Icons.Default.KeyboardArrowUp

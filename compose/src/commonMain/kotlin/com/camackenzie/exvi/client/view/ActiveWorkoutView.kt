@@ -88,7 +88,7 @@ object ActiveWorkoutView : Viewable {
     @Composable
     private fun ActiveExerciseSetRow(
         appState: AppState,
-        workoutData: WorkoutData
+        workoutData: WorkoutData,
     ) {
         LazyColumn(
             Modifier.fillMaxWidth(),
@@ -103,6 +103,7 @@ object ActiveWorkoutView : Viewable {
                 ) {
                     Text(exerciseSet.exercise.name)
                     RepList(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
                         exercise = exerciseSet.active,
                         target = exerciseSet.target,
                         onValueChange = { it, reps ->
