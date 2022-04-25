@@ -22,6 +22,7 @@ import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.*
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.ui.text.style.TextOverflow
 import com.camackenzie.exvi.client.icons.ExviIcons
 import com.camackenzie.exvi.core.util.EncodedStringCache
 import com.camackenzie.exvi.core.util.ExviLogger
@@ -611,53 +612,65 @@ object WorkoutCreationView : Viewable {
     ) {
         val exerciseSet = wd.exercises[index]
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.Start)
-        ) {
-            // Exercise name
-            Text(exerciseSet.exercise.name, Modifier.fillMaxWidth(0.5f))
+        fun moveUp() {
+            if (index > 0)
+                wd.swapExercises(index, index - 1)
+        }
 
-            // Move exercise up
-            IconButton(onClick = {
-                if (index > 0)
-                    wd.swapExercises(index, index - 1)
-            }) {
-                Icon(ExviIcons.ArrowUp, "Move Up")
-            }
-            // Move exercise down
-            IconButton(onClick = {
-                if (index + 1 < wd.exercises.size)
-                    wd.swapExercises(index, index + 1)
-            }) {
-                Icon(ExviIcons.ArrowDown, "Move Down")
-            }
-            // Edit exercise
-            IconButton(onClick = {
-                wd.editorExerciseIndex = index
-                selectorViewData.rightPane = RightPaneView.Editor.str
-            }) {
-                Icon(Icons.Default.Edit, "Edit Exercise")
-            }
-            // View exercise info
-            IconButton(onClick = {
-                wd.infoExercise = exerciseSet.exercise
-                selectorViewData.rightPane = RightPaneView.Info.str
-            }) {
-                Icon(Icons.Default.Info, "Exercise Info")
-            }
-            // Lock exercise
-            Switch(
-                checked = wd.lockedExercises.contains(index),
-                onCheckedChange = {
-                    wd.lockExercise(index, it)
+        fun moveDown() {
+            if (index + 1 < wd.exercises.size)
+                wd.swapExercises(index, index + 1)
+        }
+
+        fun setEditing() {
+            wd.editorExerciseIndex = index
+            selectorViewData.rightPane = RightPaneView.Editor.str
+        }
+
+        fun viewInfo() {
+            wd.infoExercise = exerciseSet.exercise
+            selectorViewData.rightPane = RightPaneView.Info.str
+        }
+
+        fun toggleLock(lock: Boolean) = wd.lockExercise(index, lock)
+
+        fun removeSelf() = wd.removeExercise(index)
+
+        BoxWithConstraints {
+            if (maxWidth > 610.dp) {
+                // Large displays
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.Start)
+                ) {
+                    // Exercise name
+                    Text(exerciseSet.exercise.name, Modifier.fillMaxWidth(0.4f), overflow = TextOverflow.Ellipsis)
+                    // Move exercise up
+                    IconButton(onClick = ::moveUp) { Icon(ExviIcons.ArrowUp, "Move Up") }
+                    // Move exercise down
+                    IconButton(onClick = ::moveDown) { Icon(ExviIcons.ArrowDown, "Move Down") }
+                    // Edit exercise
+                    IconButton(onClick = ::setEditing) { Icon(Icons.Default.Edit, "Edit Exercise") }
+                    // View exercise info
+                    IconButton(onClick = ::viewInfo) { Icon(Icons.Default.Info, "Exercise Info") }
+                    // Lock exercise
+                    Switch(checked = wd.lockedExercises.contains(index), onCheckedChange = ::toggleLock)
+                    // Remove exercise
+                    IconButton(onClick = ::removeSelf) { Icon(Icons.Default.Close, "Remove Exercise") }
                 }
-            )
-            // Remove exercise
-            IconButton(onClick = {
-                wd.removeExercise(index)
-            }) {
-                Icon(Icons.Default.Close, "Remove Exercise")
+            } else if (maxWidth > 100.dp) {
+                // Small displays
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                ) {
+                    // Exercise name
+                    Text(exerciseSet.exercise.name, Modifier.fillMaxWidth(0.5f), overflow = TextOverflow.Ellipsis)
+                    // Move exercise up
+                    IconButton(onClick = ::moveUp) { Icon(ExviIcons.ArrowUp, "Move Up") }
+                    // Move exercise down
+                    IconButton(onClick = ::moveDown) { Icon(ExviIcons.ArrowDown, "Move Down") }
+                }
             }
         }
     }
