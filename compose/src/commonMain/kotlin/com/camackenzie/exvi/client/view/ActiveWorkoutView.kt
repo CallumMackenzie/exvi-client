@@ -20,12 +20,15 @@ import com.camackenzie.exvi.client.model.ComposeActiveWorkout
 import com.camackenzie.exvi.core.model.ActiveWorkout
 import com.camackenzie.exvi.core.model.toLocalDate
 import com.camackenzie.exvi.core.util.ExviLogger
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 object ActiveWorkoutView : Viewable {
 
     private class WorkoutData(
         other: ActiveWorkout,
-        playing: Boolean = false
+        playing: Boolean = false,
+        val coroutineScope: CoroutineScope,
     ) : ComposeActiveWorkout(other) {
         var playing by mutableStateOf(playing)
     }
@@ -38,7 +41,8 @@ object ActiveWorkoutView : Viewable {
             appState.setView(ExviView.Home)
         }
 
-        val workout = remember { WorkoutData(appState.provided as ActiveWorkout) }
+        val coroutineScope = rememberCoroutineScope()
+        val workout = remember { WorkoutData(appState.provided as ActiveWorkout, coroutineScope = coroutineScope) }
 
         Column(
             Modifier.fillMaxSize(),
@@ -70,6 +74,26 @@ object ActiveWorkoutView : Viewable {
                     }) {
                         if (!workout.playing) Icon(Icons.Default.PlayArrow, "Play Workout")
                         else Icon(ExviIcons.Stop, "Pause Workout")
+                    }
+                    Button(onClick = {
+                        appState.model.workoutManager!!.putActiveWorkouts(
+                            arrayOf(workout),
+                            appState.coroutineScope,
+                            Dispatchers.Default,
+                            onFail = {
+                                ExviLogger.e(tag = "ACTIVE_WORKOUT") {
+                                    "Could not update \"${workout.name}\": code ${it.statusCode}, \"${
+                                        it.body
+                                    }\""
+                                }
+                            },
+                            onSuccess = {
+                                ExviLogger.i(tag = "ACTIVE_WORKOUT") { "Successfully updated \"${workout.name}\"" }
+                            }
+                        )
+                        appState.setView(ExviView.Home)
+                    }) {
+                        Text("Save & Exit")
                     }
                 }
                 Text(

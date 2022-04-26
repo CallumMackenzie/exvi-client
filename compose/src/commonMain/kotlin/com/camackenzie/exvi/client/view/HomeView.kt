@@ -1,8 +1,11 @@
 package com.camackenzie.exvi.client.view
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.Button
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
@@ -12,11 +15,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.camackenzie.exvi.client.model.Model
+import com.camackenzie.exvi.core.model.ActiveWorkout
+import com.camackenzie.exvi.core.model.TimeUnit
 import com.camackenzie.exvi.core.model.Workout
+import com.camackenzie.exvi.core.model.formatToElapsedTime
 import com.camackenzie.exvi.core.util.ExviLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 
 object HomeView : Viewable {
 
@@ -73,7 +80,7 @@ object HomeView : Viewable {
                 verticalArrangement = Arrangement.Center
             ) {
                 Text("Your Progress", fontSize = 25.sp)
-                AccountView(appState.model)
+                AccountView(appState, workoutListData)
             }
         }
     }
@@ -105,14 +112,45 @@ object HomeView : Viewable {
                 verticalArrangement = Arrangement.Center
             ) {
                 Text("Your Progress", fontSize = 25.sp)
-                AccountView(appState.model)
+                AccountView(appState, workoutListData)
             }
         }
     }
 
     @Composable
-    private fun AccountView(model: Model) {
-        // TODO: Display account info
+    private fun AccountView(appState: AppState, wld: WorkoutListData) {
+        wld.ensureWorkoutsSynced()
+
+        if (!wld.retrievingActiveWorkouts) {
+            LazyColumn {
+                if (wld.activeWorkouts.isEmpty()) {
+                    item {
+                        Text("No recent active workouts")
+                    }
+                } else {
+                    item {
+                        val wk = wld.activeWorkouts[0]
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp, Alignment.Start)
+                        ) {
+                            Text(wk.name, fontSize = 20.sp)
+                            if (wk.startTime == null) Text("Has not been started")
+                            else Text(
+                                "Started ${
+                                    (TimeUnit.now() - wk.startTime!!).formatToElapsedTime()
+                                } ago"
+                            )
+                            IconButton(onClick = {
+                                appState.setView(ExviView.ActiveWorkout, wk)
+                            }) {
+                                Icon(Icons.Default.PlayArrow, "Resume workout")
+                            }
+                        }
+                    }
+                }
+            }
+        } else LoadingIcon()
     }
 
     @Composable
@@ -209,8 +247,6 @@ object HomeView : Viewable {
         workout: Workout,
         refreshWorkouts: () -> Unit
     ) {
-        val coroutineScope = rememberCoroutineScope()
-
         var deleteConfirmEnabled by remember { mutableStateOf(false) }
         val onDeleteConfirmEnabledChanged: (Boolean) -> Unit = { deleteConfirmEnabled = it }
 
@@ -271,13 +307,17 @@ object HomeView : Viewable {
 
     private class WorkoutListData(
         workouts: Array<Workout> = emptyArray(),
+        activeWorkouts: Array<ActiveWorkout> = emptyArray(),
         retrievingWorkouts: Boolean = false,
+        retrievingActiveWorkouts: Boolean = false,
         workoutsSynced: Boolean = false,
         val appState: AppState,
         val coroutineScope: CoroutineScope
     ) {
         var workouts by mutableStateOf(workouts)
+        var activeWorkouts by mutableStateOf(activeWorkouts)
         var retrievingWorkouts by mutableStateOf(retrievingWorkouts)
+        var retrievingActiveWorkouts by mutableStateOf(retrievingActiveWorkouts)
         var workoutsSynced by mutableStateOf(workoutsSynced)
 
         fun ensureWorkoutsSynced() {
@@ -290,18 +330,36 @@ object HomeView : Viewable {
 
         fun refreshWorkouts() {
             retrievingWorkouts = true
-            appState.model.workoutManager?.getWorkouts(
-                dispatcher = Dispatchers.Default,
-                coroutineScope = coroutineScope,
-                onSuccess = {
-                    retrievingWorkouts = false
-                    workouts = it
-                },
-                onFail = {
-                    if (it.statusCode != 418)
-                        appState.error(Exception("getWorkouts: code ${it.statusCode}: ${it.body}"))
-                }
-            )
+            retrievingActiveWorkouts = true
+            coroutineScope.launch {
+                joinAll(appState.model.workoutManager!!.getWorkouts(
+                    dispatcher = Dispatchers.Default,
+                    coroutineScope = coroutineScope,
+                    onSuccess = {
+                        workouts = it
+                    },
+                    onFail = {
+                        if (it.statusCode != 418)
+                            appState.error(Exception("getWorkouts: code ${it.statusCode}: ${it.body}"))
+                    },
+                    onComplete = {
+                        retrievingWorkouts = false
+                    }
+                ), appState.model.workoutManager!!.getActiveWorkouts(
+                    dispatcher = Dispatchers.Default,
+                    coroutineScope = coroutineScope,
+                    onSuccess = {
+                        activeWorkouts = it
+                    },
+                    onFail = {
+                        if (it.statusCode != 418)
+                            appState.error(Exception("getActiveWorkouts: code ${it.statusCode}: ${it.body}"))
+                    },
+                    onComplete = {
+                        retrievingActiveWorkouts = false
+                    }
+                ))
+            }
         }
     }
 }
