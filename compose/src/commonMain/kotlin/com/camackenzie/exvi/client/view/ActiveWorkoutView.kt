@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.icons.ExviIcons
 import com.camackenzie.exvi.client.model.ComposeActiveWorkout
 import com.camackenzie.exvi.core.model.ActiveWorkout
+import androidx.compose.ui.text.style.TextOverflow
 import com.camackenzie.exvi.core.model.toLocalDate
 import com.camackenzie.exvi.core.util.ExviLogger
 import kotlinx.coroutines.CoroutineScope
@@ -123,9 +124,9 @@ object ActiveWorkoutView : Viewable {
                 Row(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(exerciseSet.exercise.name)
+                    Text(exerciseSet.exercise.name, modifier = Modifier.fillMaxWidth(0.4f), overflow = TextOverflow.Ellipsis)
                     RepList(
                         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
                         exercise = exerciseSet.active,

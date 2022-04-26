@@ -524,6 +524,7 @@ object WorkoutCreationView : Viewable {
                         Text("Exercise Name")
                     }
                 )
+                // TODO: Add muscle worked dropdown
             }
             ExviBox {
                 LazyColumn(

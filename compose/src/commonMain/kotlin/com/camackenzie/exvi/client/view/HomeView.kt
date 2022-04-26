@@ -130,6 +130,9 @@ object HomeView : Viewable {
                     }
                 } else {
                     item {
+                        var deleteConfirmEnabled by remember { mutableStateOf(false) }
+                        var deletingWorkout by rememberSaveable { mutableStateOf(false) }
+
                         val wk = wld.activeWorkouts[0]
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -139,14 +142,43 @@ object HomeView : Viewable {
                             if (wk.startTime == null) Text("Has not been started")
                             else Text(
                                 "Started ${
-                                    (TimeUnit.now() - wk.startTime!!).formatToElapsedTime()
+                                    (TimeUnit.now() - wk.startTime!!).formatToElapsedTime(
+                                        setOf(
+                                            TimeUnit.Minute, TimeUnit.Second,
+                                            TimeUnit.Hour, TimeUnit.Day, TimeUnit.Year
+                                        )
+                                    )
                                 } ago"
                             )
+
                             IconButton(onClick = {
                                 appState.setView(ExviView.ActiveWorkout, wk)
-                            }) {
+                            }, enabled = !deletingWorkout) {
                                 Icon(Icons.Default.PlayArrow, "Resume workout")
                             }
+
+                            if (!deleteConfirmEnabled) {
+                                IconButton(onClick = {
+                                    deleteConfirmEnabled = true
+                                }, enabled = !deletingWorkout) {
+                                    Icon(Icons.Default.Delete, "Delete Active Workout")
+                                }
+                            } else {
+                                IconButton(onClick = {
+                                    deleteConfirmEnabled = false
+                                    deletingWorkout = true
+                                    appState.model.workoutManager!!.deleteActiveWorkouts(arrayOf(wk.activeWorkoutId.get()),
+                                        onFail = {
+                                            ExviLogger.e("Error code ${it.statusCode}: ${it.body}", tag = "CLIENT")
+                                        }, onComplete = {
+                                            deletingWorkout = false
+                                            wld.refreshWorkouts()
+                                        })
+                                }, enabled = !deletingWorkout) {
+                                    Icon(Icons.Default.Close, "Delete Active Workout")
+                                }
+                            }
+                            if (deletingWorkout) LoadingIcon()
                         }
                     }
                 }
@@ -214,8 +246,8 @@ object HomeView : Viewable {
                         items(wld.workouts.size) {
                             WorkoutListViewItem(
                                 appState,
+                                wld,
                                 wld.workouts[it],
-                                wld::refreshWorkouts
                             )
                         }
                     } else {
@@ -245,14 +277,11 @@ object HomeView : Viewable {
     @Composable
     private fun WorkoutListViewItem(
         appState: AppState,
-        workout: Workout,
-        refreshWorkouts: () -> Unit
+        wld: WorkoutListData,
+        workout: Workout
     ) {
         var deleteConfirmEnabled by remember { mutableStateOf(false) }
-        val onDeleteConfirmEnabledChanged: (Boolean) -> Unit = { deleteConfirmEnabled = it }
-
         var deletingWorkout by rememberSaveable { mutableStateOf(false) }
-        val onDeletingWorkoutChanged: (Boolean) -> Unit = { deletingWorkout = it }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -281,20 +310,20 @@ object HomeView : Viewable {
                 }
                 if (!deleteConfirmEnabled) {
                     IconButton(onClick = {
-                        onDeleteConfirmEnabledChanged(true)
+                        deleteConfirmEnabled = true
                     }, enabled = !deletingWorkout) {
                         Icon(Icons.Default.Delete, "Delete Workout")
                     }
                 } else {
                     IconButton(onClick = {
-                        onDeleteConfirmEnabledChanged(false)
-                        onDeletingWorkoutChanged(true)
+                        deleteConfirmEnabled = false
+                        deletingWorkout = true
                         appState.model.workoutManager!!.deleteWorkouts(arrayOf(workout.id.get()),
                             onFail = {
                                 ExviLogger.e("Error code ${it.statusCode}: ${it.body}", tag = "CLIENT")
                             }, onComplete = {
-                                onDeletingWorkoutChanged(false)
-                                refreshWorkouts()
+                                deletingWorkout = false
+                                wld.refreshWorkouts()
                             })
                     }, enabled = !deletingWorkout) {
                         Icon(Icons.Default.Close, "Delete Workout")
