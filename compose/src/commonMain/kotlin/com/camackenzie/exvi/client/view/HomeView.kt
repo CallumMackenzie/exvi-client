@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.camackenzie.exvi.core.api.WorkoutListRequest
 import com.camackenzie.exvi.core.model.ActiveWorkout
 import com.camackenzie.exvi.core.model.TimeUnit
 import com.camackenzie.exvi.core.model.Workout
@@ -333,6 +334,7 @@ object HomeView : Viewable {
             retrievingActiveWorkouts = true
             coroutineScope.launch {
                 joinAll(appState.model.workoutManager!!.getWorkouts(
+                    type = WorkoutListRequest.Type.ListAllTemplates,
                     dispatcher = Dispatchers.Default,
                     coroutineScope = coroutineScope,
                     onSuccess = {
@@ -346,6 +348,7 @@ object HomeView : Viewable {
                         retrievingWorkouts = false
                     }
                 ), appState.model.workoutManager!!.getActiveWorkouts(
+                    type = WorkoutListRequest.Type.ListAllActive,
                     dispatcher = Dispatchers.Default,
                     coroutineScope = coroutineScope,
                     onSuccess = {

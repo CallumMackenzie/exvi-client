@@ -111,6 +111,7 @@ class ServerWorkoutManager(
     }
 
     override fun getActiveWorkouts(
+        type: WorkoutListRequest.Type,
         coroutineScope: CoroutineScope,
         dispatcher: CoroutineDispatcher,
         onFail: (APIResult<String>) -> Unit,
@@ -134,6 +135,7 @@ class ServerWorkoutManager(
     }
 
     override fun getWorkouts(
+        type: WorkoutListRequest.Type,
         coroutineScope: CoroutineScope,
         dispatcher: CoroutineDispatcher,
         onFail: (APIResult<String>) -> Unit,
@@ -229,6 +231,7 @@ data class LocalWorkoutManager constructor(
     }
 
     override fun getWorkouts(
+        type: WorkoutListRequest.Type,
         coroutineScope: CoroutineScope,
         dispatcher: CoroutineDispatcher,
         onFail: (APIResult<String>) -> Unit,
@@ -305,6 +308,7 @@ data class LocalWorkoutManager constructor(
     }
 
     override fun getActiveWorkouts(
+        type: WorkoutListRequest.Type,
         coroutineScope: CoroutineScope,
         dispatcher: CoroutineDispatcher,
         onFail: (APIResult<String>) -> Unit,
@@ -340,6 +344,7 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
     }
 
     override fun getWorkouts(
+        type: WorkoutListRequest.Type,
         coroutineScope: CoroutineScope,
         dispatcher: CoroutineDispatcher,
         onFail: (APIResult<String>) -> Unit,
@@ -348,6 +353,7 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
     ): Job = coroutineScope.launch(dispatcher) {
         if (!serverManager.isUpdatingWorkouts()) {
             serverManager.getWorkouts(
+                type,
                 coroutineScope,
                 dispatcher,
                 onFail = onFail,
@@ -361,6 +367,7 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
             )
         } else {
             localManager.getWorkouts(
+                type,
                 coroutineScope,
                 dispatcher,
                 onFail = onFail,
@@ -408,12 +415,13 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
 
     // TODO: Make this work with the local cache
     override fun getActiveWorkouts(
+        type: WorkoutListRequest.Type,
         coroutineScope: CoroutineScope,
         dispatcher: CoroutineDispatcher,
         onFail: (APIResult<String>) -> Unit,
         onSuccess: (Array<ActiveWorkout>) -> Unit,
         onComplete: () -> Unit
-    ): Job = serverManager.getActiveWorkouts(coroutineScope, dispatcher, onFail, onSuccess, onComplete)
+    ): Job = serverManager.getActiveWorkouts(type, coroutineScope, dispatcher, onFail, onSuccess, onComplete)
 
     // TODO: Make this work with the local cache
     override fun putActiveWorkouts(
