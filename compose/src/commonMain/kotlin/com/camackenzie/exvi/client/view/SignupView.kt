@@ -12,8 +12,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.model.Account
-import com.camackenzie.exvi.core.api.toJson
 import com.camackenzie.exvi.core.util.ExviLogger
+import com.camackenzie.exvi.client.components.*
 
 object SignupView : Viewable {
 

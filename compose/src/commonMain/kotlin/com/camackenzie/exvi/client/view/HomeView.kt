@@ -25,6 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import com.camackenzie.exvi.client.components.*
 
 object HomeView : Viewable {
 
@@ -164,19 +165,40 @@ object HomeView : Viewable {
                                     Icon(Icons.Default.Delete, "Delete Active Workout")
                                 }
                             } else {
-                                IconButton(onClick = {
-                                    deleteConfirmEnabled = false
-                                    deletingWorkout = true
-                                    appState.model.workoutManager!!.deleteActiveWorkouts(arrayOf(wk.activeWorkoutId.get()),
-                                        onFail = {
-                                            ExviLogger.e("Error code ${it.statusCode}: ${it.body}", tag = "CLIENT")
-                                        }, onComplete = {
-                                            deletingWorkout = false
-                                            wld.refreshWorkouts()
-                                        })
-                                }, enabled = !deletingWorkout) {
-                                    Icon(Icons.Default.Close, "Delete Active Workout")
-                                }
+                                AlertDialog(
+                                    onDismissRequest = {
+                                        deleteConfirmEnabled = false
+                                    },
+                                    title = {
+                                        Text(text = "Delete \"${wk.name}\"?")
+                                    },
+                                    buttons = {
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            Button(onClick = {
+                                                deletingWorkout = true
+                                                deleteConfirmEnabled = false
+                                                appState.model.workoutManager!!.deleteActiveWorkouts(arrayOf(wk.activeWorkoutId.get()),
+                                                    onFail = {
+                                                        ExviLogger.e(
+                                                            "Error code ${it.statusCode}: ${it.body}",
+                                                            tag = "CLIENT"
+                                                        )
+                                                    }, onComplete = {
+                                                        deletingWorkout = false
+                                                        wld.refreshWorkouts()
+                                                    })
+                                            }) {
+                                                Text("Delete")
+                                            }
+                                            Button(onClick = { deleteConfirmEnabled = false }) {
+                                                Text("Cancel")
+                                            }
+                                        }
+                                    }
+                                )
                             }
                             if (deletingWorkout) LoadingIcon()
                         }

@@ -23,6 +23,7 @@ import com.camackenzie.exvi.core.model.toLocalDate
 import com.camackenzie.exvi.core.util.ExviLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import com.camackenzie.exvi.client.components.*
 
 object ActiveWorkoutView : Viewable {
 

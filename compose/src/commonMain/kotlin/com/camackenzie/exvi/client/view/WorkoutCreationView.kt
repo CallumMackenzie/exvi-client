@@ -28,6 +28,7 @@ import com.soywiz.krypto.SecureRandom
 import kotlinx.coroutines.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import com.camackenzie.exvi.client.components.*
 
 // TODO: Clean up this code
 object WorkoutCreationView : Viewable {
@@ -212,9 +213,11 @@ object WorkoutCreationView : Viewable {
                     Button(onClick = { generatorData.generatorDropdownExpanded = true }) {
                         Text("Select Generator")
                     }
-                    DropdownMenu(expanded = generatorData.generatorDropdownExpanded, onDismissRequest = {
-                        generatorData.generatorDropdownExpanded = false
-                    }) {
+                    com.camackenzie.exvi.client.components.DropdownMenu(
+                        expanded = generatorData.generatorDropdownExpanded,
+                        onDismissRequest = {
+                            generatorData.generatorDropdownExpanded = false
+                        }) {
                         DropdownMenuItem(onClick = { setGenerator(WorkoutGenerator.armPriorities()) }) {
                             Text("Arms")
                         }
@@ -655,9 +658,11 @@ object WorkoutCreationView : Viewable {
                         IconButton(onClick = { dropdownExtended = true }) {
                             Icon(Icons.Default.Menu, "More Controls")
                         }
-                        DropdownMenu(expanded = dropdownExtended, onDismissRequest = {
-                            dropdownExtended = false
-                        }) {
+                        com.camackenzie.exvi.client.components.DropdownMenu(
+                            expanded = dropdownExtended,
+                            onDismissRequest = {
+                                dropdownExtended = false
+                            }) {
                             DropdownMenuItem(onClick = viewInfo) {
                                 Icon(Icons.Default.Info, "Exercise Info")
                             }
@@ -681,9 +686,11 @@ object WorkoutCreationView : Viewable {
                         IconButton(onClick = { dropdownExtended = true }) {
                             Icon(Icons.Default.Menu, "More Controls")
                         }
-                        DropdownMenu(expanded = dropdownExtended, onDismissRequest = {
-                            dropdownExtended = false
-                        }) {
+                        com.camackenzie.exvi.client.components.DropdownMenu(
+                            expanded = dropdownExtended,
+                            onDismissRequest = {
+                                dropdownExtended = false
+                            }) {
                             Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Text("Lock")
                                 Switch(checked = wd.lockedExercises.contains(index), onCheckedChange = toggleLock)
@@ -709,9 +716,11 @@ object WorkoutCreationView : Viewable {
                         IconButton(onClick = { dropdownExtended = true }) {
                             Icon(Icons.Default.Menu, "Controls")
                         }
-                        DropdownMenu(expanded = dropdownExtended, onDismissRequest = {
-                            dropdownExtended = false
-                        }) {
+                        com.camackenzie.exvi.client.components.DropdownMenu(
+                            expanded = dropdownExtended,
+                            onDismissRequest = {
+                                dropdownExtended = false
+                            }) {
                             DropdownMenuItem(onClick = moveUp) {
                                 Icon(ExviIcons.ArrowUp, "Move Up")
                             }

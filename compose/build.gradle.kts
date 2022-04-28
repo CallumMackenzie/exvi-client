@@ -17,19 +17,20 @@ kotlin {
             kotlinOptions.jvmTarget = "11"
         }
     }
-    js(IR) {
-        browser()
-        binaries.executable()
-    }
     sourceSets {
         val commonMain by getting {
             resources.srcDirs("resources")
+            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
             dependencies {
                 api(project(":common"))
                 api(compose.runtime)
-                api(compose.foundation)
-                api(compose.material)
                 api(compose.ui)
+                api(compose.animationGraphics)
+                api(compose.material)
+                api(compose.material3)
+                api(compose.foundation)
+                api(compose.materialIconsExtended)
+                api(compose.uiTooling)
             }
         }
         val jvmMain by creating {
@@ -41,7 +42,6 @@ kotlin {
         val androidMain by getting {
             dependsOn(jvmMain)
         }
-        val jsMain by getting
         val desktopMain by getting {
             dependsOn(jvmMain)
             dependencies {
@@ -77,4 +77,5 @@ dependencies {
     api(compose.material3)
     api(compose.foundation)
     api(compose.materialIconsExtended)
+    api(compose.uiTooling)
 }
