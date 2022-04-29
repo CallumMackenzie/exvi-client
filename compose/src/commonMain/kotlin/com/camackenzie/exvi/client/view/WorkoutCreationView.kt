@@ -20,10 +20,7 @@ import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.icons.ExviIcons
 import com.camackenzie.exvi.client.model.*
 import com.camackenzie.exvi.core.model.*
-import com.camackenzie.exvi.core.util.EncodedStringCache
-import com.camackenzie.exvi.core.util.ExviLogger
-import com.camackenzie.exvi.core.util.Identifiable
-import com.camackenzie.exvi.core.util.SelfSerializable
+import com.camackenzie.exvi.core.util.*
 import com.soywiz.krypto.SecureRandom
 import kotlinx.coroutines.*
 import kotlinx.serialization.*
@@ -266,7 +263,7 @@ object WorkoutCreationView : Viewable {
                         generatorData.maxExercises = it
                         generatorData.minExercises = it
                     },
-                    placeholder = { Text("N/A") },
+                    placeholder = { Text("${generatorData.minExercises}-${generatorData.maxExercises}") },
                     maxDigits = 3,
                     label = { Text("N. Exercises") }
                 )
@@ -494,9 +491,14 @@ object WorkoutCreationView : Viewable {
                 searchData.searchExercises.sortBy {
                     var sum = 0
                     for (word in searchData.searchContent.split("\\s+")) {
+                        // By name
                         sum += if (it.name.contains(word, true)) {
                             it.name.length - word.length
                         } else 100
+                        // By muscle
+                        if (searchData.muscleWorked != null &&
+                            !it.musclesWorked.contains(searchData.muscleWorked!!.workData(1.0))
+                        ) sum += 100
                     }
                     sum
                 }
@@ -512,9 +514,10 @@ object WorkoutCreationView : Viewable {
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
             ) {
                 TextField(
+                    modifier = Modifier.fillMaxWidth(0.5f),
                     value = searchData.searchContent,
                     onValueChange = {
                         if (!it.contains("\n")) {
@@ -527,7 +530,28 @@ object WorkoutCreationView : Viewable {
                         Text("Exercise Name")
                     }
                 )
-                // TODO: Add muscle worked dropdown
+                Button(onClick = { searchData.muscleDropdownExpanded = true }) {
+                    Text(searchData.muscleWorked?.muscleName ?: "Any muscle")
+                }
+                com.camackenzie.exvi.client.components.DropdownMenu(
+                    expanded = searchData.muscleDropdownExpanded,
+                    onDismissRequest = { searchData.muscleDropdownExpanded = false },
+                ) {
+                    DropdownMenuItem(onClick = {
+                        searchData.muscleWorked = null
+                        searchData.muscleDropdownExpanded = false
+                        searchData.exercisesSorted = false
+                    }) {
+                        Text("Any")
+                    }
+                    for (item in Muscle.values()) {
+                        DropdownMenuItem(onClick = {
+                            searchData.muscleWorked = item
+                            searchData.muscleDropdownExpanded = false
+                            searchData.exercisesSorted = false
+                        }) { Text(item.muscleName) }
+                    }
+                }
             }
             ExviBox {
                 LazyColumn(
@@ -924,12 +948,16 @@ private class WorkoutSearchData(
     searchContent: String = "",
     exercisesSorted: Boolean = false,
     searchExercises: Array<Exercise> = emptyArray(),
-    processRunning: Boolean = false
+    processRunning: Boolean = false,
+    muscleWorked: Muscle? = null,
+    muscleDropdownExpanded: Boolean = false,
 ) {
     var searchContent by mutableStateOf(searchContent)
     var exercisesSorted by mutableStateOf(exercisesSorted)
     var searchExercises by mutableStateOf(searchExercises)
     var processRunning by mutableStateOf(processRunning)
+    var muscleWorked by mutableStateOf(muscleWorked)
+    var muscleDropdownExpanded by mutableStateOf(muscleDropdownExpanded)
 
     companion object {
         fun saver(): Saver<WorkoutSearchData, Any> = mapSaver(

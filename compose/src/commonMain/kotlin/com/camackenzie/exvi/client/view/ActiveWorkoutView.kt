@@ -123,7 +123,7 @@ object ActiveWorkoutView : Viewable {
         ) {
             items(workoutData.exercises) { exerciseSet ->
                 Row(
-                    Modifier.fillMaxWidth(),
+                    Modifier.padding(10.dp).fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
