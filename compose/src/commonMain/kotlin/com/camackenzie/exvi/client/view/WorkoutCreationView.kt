@@ -490,16 +490,18 @@ object WorkoutCreationView : Viewable {
                 searchData.processRunning = true
                 searchData.searchExercises.sortBy {
                     var sum = 0
+                    // Sort by keywords
                     for (word in searchData.searchContent.split("\\s+")) {
-                        // By name
                         sum += if (it.name.contains(word, true)) {
                             it.name.length - word.length
-                        } else 100
-                        // By muscle
-                        if (searchData.muscleWorked != null &&
-                            !it.musclesWorked.contains(searchData.muscleWorked!!.workData(1.0))
-                        ) sum += 100
+                        } else 50
                     }
+                    // By muscle
+                    if (searchData.muscleWorked != null &&
+                        !it.musclesWorked.contains(searchData.muscleWorked!!.workData(1.0))
+                    ) sum += 50
+                    // By experience level
+                    if (it.experienceLevel != searchData.experienceLevel) sum += 50
                     sum
                 }
                 searchData.exercisesSorted = true
@@ -516,6 +518,7 @@ object WorkoutCreationView : Viewable {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
             ) {
+                // Exercise name search input
                 TextField(
                     modifier = Modifier.fillMaxWidth(0.5f),
                     value = searchData.searchContent,
@@ -530,8 +533,9 @@ object WorkoutCreationView : Viewable {
                         Text("Exercise Name")
                     }
                 )
+                // Muscle type dropdown selector
                 Button(onClick = { searchData.muscleDropdownExpanded = true }) {
-                    Text(searchData.muscleWorked?.muscleName ?: "Any muscle")
+                    Text(searchData.muscleWorked?.muscleName ?: "any muscle")
                 }
                 com.camackenzie.exvi.client.components.DropdownMenu(
                     expanded = searchData.muscleDropdownExpanded,
@@ -542,7 +546,7 @@ object WorkoutCreationView : Viewable {
                         searchData.muscleDropdownExpanded = false
                         searchData.exercisesSorted = false
                     }) {
-                        Text("Any")
+                        Text("any")
                     }
                     for (item in Muscle.values()) {
                         DropdownMenuItem(onClick = {
@@ -550,6 +554,29 @@ object WorkoutCreationView : Viewable {
                             searchData.muscleDropdownExpanded = false
                             searchData.exercisesSorted = false
                         }) { Text(item.muscleName) }
+                    }
+                }
+                // Exercise experience level selector
+                Button(onClick = { searchData.experienceLevelDropdownExtended = true }) {
+                    Text(searchData.experienceLevel?.toString() ?: "any experience")
+                }
+                com.camackenzie.exvi.client.components.DropdownMenu(
+                    expanded = searchData.experienceLevelDropdownExtended,
+                    onDismissRequest = { searchData.experienceLevelDropdownExtended = false },
+                ) {
+                    DropdownMenuItem(onClick = {
+                        searchData.experienceLevel = null
+                        searchData.experienceLevelDropdownExtended = false
+                        searchData.exercisesSorted = false
+                    }) {
+                        Text("any")
+                    }
+                    for (item in ExerciseExperienceLevel.values()) {
+                        DropdownMenuItem(onClick = {
+                            searchData.experienceLevel = item
+                            searchData.experienceLevelDropdownExtended = false
+                            searchData.exercisesSorted = false
+                        }) { Text(item.toString()) }
                     }
                 }
             }
@@ -951,6 +978,8 @@ private class WorkoutSearchData(
     processRunning: Boolean = false,
     muscleWorked: Muscle? = null,
     muscleDropdownExpanded: Boolean = false,
+    experienceLevelDropdownExtended: Boolean = false,
+    experienceLevel: ExerciseExperienceLevel? = null,
 ) {
     var searchContent by mutableStateOf(searchContent)
     var exercisesSorted by mutableStateOf(exercisesSorted)
@@ -958,16 +987,22 @@ private class WorkoutSearchData(
     var processRunning by mutableStateOf(processRunning)
     var muscleWorked by mutableStateOf(muscleWorked)
     var muscleDropdownExpanded by mutableStateOf(muscleDropdownExpanded)
+    var experienceLevel by mutableStateOf(experienceLevel)
+    var experienceLevelDropdownExtended by mutableStateOf(experienceLevelDropdownExtended)
 
     companion object {
         fun saver(): Saver<WorkoutSearchData, Any> = mapSaver(
             save = {
                 mapOf(
-                    "searchContent" to it.searchContent
+                    "searchContent" to it.searchContent,
+                    "muscleWorked" to it.muscleWorked,
+                    "experienceLevel" to it.experienceLevel,
                 )
             }, restore = {
                 WorkoutSearchData(
-                    searchContent = it["searchContent"] as String
+                    searchContent = it["searchContent"] as String,
+                    muscleWorked = it["muscleWorked"] as Muscle?,
+                    experienceLevel = it["experienceLevel"] as ExerciseExperienceLevel?,
                 )
             }
         )
