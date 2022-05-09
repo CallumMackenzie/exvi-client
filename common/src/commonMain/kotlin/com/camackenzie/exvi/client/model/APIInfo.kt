@@ -22,11 +22,7 @@ object APIInfo {
     private const val STAGE_NAME = "test"
     const val ROOT = "https://s36irvth41.execute-api.us-east-2.amazonaws.com/"
     private const val STAGE = ROOT + STAGE_NAME
-    const val VERIFICATION = "$STAGE/verification"
-    const val SIGN_UP = "$STAGE/signup"
-    const val LOGIN = "$STAGE/login"
-    const val GET_SALT = "$STAGE/salt"
-    const val DATA = "$STAGE/data"
+    const val ENDPOINT = "$STAGE/data"
 
     fun checkAppCompatibility(
         appVersion: Int,
@@ -36,7 +32,7 @@ object APIInfo {
         onFail: (APIResult<String>) -> Unit = {},
         onComplete: () -> Unit = {}
     ) = APIRequest.requestAsync(
-        DATA, CompatibleVersionRequest(appVersion),
+        ENDPOINT, CompatibleVersionRequest(appVersion),
         APIRequest.jsonHeaders(),
         coroutineScope,
         dispatcher

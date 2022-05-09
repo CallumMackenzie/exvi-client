@@ -489,7 +489,7 @@ object WorkoutCreationView : Viewable {
             viewData.coroutineScope.launch(Dispatchers.Default) {
                 searchData.processRunning = true
                 searchData.searchExercises.sortBy {
-                    var sum = 0
+                    var sum: Int = 0
                     // Sort by keywords
                     for (word in searchData.searchContent.split("\\s+")) {
                         sum += if (it.name.contains(word, true)) {

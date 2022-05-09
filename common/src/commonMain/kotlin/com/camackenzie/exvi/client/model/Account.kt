@@ -44,7 +44,7 @@ class Account private constructor(
         onSuccess: (BodyStats) -> Unit = {},
         onComplete: () -> Unit = {}
     ): Job = APIRequest.requestAsync(
-        endpoint = APIInfo.DATA,
+        endpoint = APIInfo.ENDPOINT,
         body = GetBodyStatsRequest(username, accessKey),
         coroutineScope = coroutineScope,
         coroutineDispatcher = dispatcher,
@@ -66,7 +66,7 @@ class Account private constructor(
         onSuccess: () -> Unit = {},
         onComplete: () -> Unit = {}
     ): Job = APIRequest.requestAsync(
-        endpoint = APIInfo.DATA,
+        endpoint = APIInfo.ENDPOINT,
         body = SetBodyStatsRequest(username, accessKey, bodyStats.toActual()),
         coroutineScope = coroutineScope,
         coroutineDispatcher = dispatcher,
@@ -109,7 +109,7 @@ class Account private constructor(
             onSuccess: () -> Unit = {},
             onComplete: () -> Unit = {}
         ): Job = APIRequest.requestAsync(
-            APIInfo.VERIFICATION,
+            APIInfo.ENDPOINT,
             VerificationRequest(username, email, phone),
             coroutineScope = coroutineScope,
             coroutineDispatcher = coroutineDispatcher
@@ -131,7 +131,7 @@ class Account private constructor(
             onSuccess: (AccountAccessKeyResult) -> Unit = {},
             onComplete: () -> Unit = {}
         ): Job = APIRequest.requestAsync(
-            APIInfo.SIGN_UP,
+            APIInfo.ENDPOINT,
             AccountCreationRequest(
                 username,
                 verificationCode,
@@ -155,7 +155,7 @@ class Account private constructor(
             coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
             callback: (APIResult<String>) -> Unit
         ): Job = APIRequest.requestAsync(
-            APIInfo.LOGIN,
+            APIInfo.ENDPOINT,
             LoginRequest(username, passwordHash),
             coroutineScope = coroutineScope,
             coroutineDispatcher = coroutineDispatcher,
@@ -168,7 +168,7 @@ class Account private constructor(
             coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
             callback: (APIResult<String>) -> Unit
         ): Job = APIRequest.requestAsync(
-            APIInfo.GET_SALT,
+            APIInfo.ENDPOINT,
             RetrieveSaltRequest(username),
             coroutineScope = coroutineScope,
             coroutineDispatcher = coroutineDispatcher,

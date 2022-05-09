@@ -16,7 +16,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 
 // App version to ensure compatibility with server
-private const val APP_VERSION = 4
+private const val APP_VERSION = 5
 
 /**
  * The entry function for the app

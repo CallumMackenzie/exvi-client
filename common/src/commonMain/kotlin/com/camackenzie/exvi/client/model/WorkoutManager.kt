@@ -72,7 +72,7 @@ class ServerWorkoutManager(
         )
         registerDeleting(request)
         return APIRequest.requestAsync(
-            APIInfo.DATA,
+            APIInfo.ENDPOINT,
             request,
             coroutineScope = coroutineScope,
             coroutineDispatcher = dispatcher
@@ -99,7 +99,7 @@ class ServerWorkoutManager(
         )
         registerDeleting(request)
         return APIRequest.requestAsync(
-            APIInfo.DATA,
+            APIInfo.ENDPOINT,
             request,
             coroutineScope = coroutineScope,
             coroutineDispatcher = dispatcher
@@ -118,7 +118,7 @@ class ServerWorkoutManager(
         onSuccess: (Array<ActiveWorkout>) -> Unit,
         onComplete: () -> Unit
     ): Job = APIRequest.requestAsync(
-        APIInfo.DATA,
+        APIInfo.ENDPOINT,
         WorkoutListRequest(
             username,
             accessKey,
@@ -142,7 +142,7 @@ class ServerWorkoutManager(
         onSuccess: (Array<Workout>) -> Unit,
         onComplete: () -> Unit
     ): Job = APIRequest.requestAsync(
-        APIInfo.DATA,
+        APIInfo.ENDPOINT,
         WorkoutListRequest(
             username,
             accessKey,
@@ -171,7 +171,7 @@ class ServerWorkoutManager(
         }.toTypedArray())
         registerAdding(request)
         return APIRequest.requestAsync(
-            APIInfo.DATA,
+            APIInfo.ENDPOINT,
             request,
             coroutineScope = coroutineScope,
             coroutineDispatcher = dispatcher
@@ -200,7 +200,7 @@ class ServerWorkoutManager(
             }", tag = "WORKOUT_MANAGER"
         )
         return APIRequest.requestAsync(
-            APIInfo.DATA,
+            APIInfo.ENDPOINT,
             request,
             coroutineScope = coroutineScope,
             coroutineDispatcher = dispatcher
