@@ -11,7 +11,7 @@ import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSource
 
 @Composable
-actual fun VideoPlayer(url: String, modifier: Modifier) {
+actual fun VideoPlayer(url: String, modifier: Modifier): Boolean {
     val context = LocalContext.current
     
     val exoPlayer = remember {
@@ -34,4 +34,5 @@ actual fun VideoPlayer(url: String, modifier: Modifier) {
             }
         }
     )
+    return true
 }

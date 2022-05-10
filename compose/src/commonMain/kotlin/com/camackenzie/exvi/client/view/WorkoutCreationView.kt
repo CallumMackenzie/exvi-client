@@ -463,7 +463,8 @@ object WorkoutCreationView : Viewable {
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(10.dp)
                     )
-                    VideoPlayer(exercise.videoLink)
+                    val created = VideoPlayer(exercise.videoLink)
+                    if (!created) Text("Video player error")
                 }
             }
         } else {
@@ -810,7 +811,6 @@ object WorkoutCreationView : Viewable {
         }
     }
 }
-
 
 private val workoutNamePresets = arrayOf(
     "Pull Day", "Push Day", "Leg Day", "Chest Day",

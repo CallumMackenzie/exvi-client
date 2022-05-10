@@ -13,20 +13,32 @@ import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent
 import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent
 import uk.co.caprica.vlcj.support.Info
 
-// TODO: Package native libs so this works
+// TODO: Package native libs so the vlc video player actually works
 
 @Composable
-actual fun VideoPlayer(url: String, modifier: Modifier) {
+actual fun VideoPlayer(url: String, modifier: Modifier): Boolean {
     remember {
         val info = Info.getInstance()
         ExviLogger.i(tag = "VIDEO") { "VLCJ version: ${info.vlcjVersion().version()}" }
     }
 
-    NativeDiscovery().discover()
-    val mediaPlayerComponent = remember {
-        if (isMacOS()) CallbackMediaPlayerComponent()
-        else EmbeddedMediaPlayerComponent()
+    try {
+        NativeDiscovery().discover()
+    } catch (e: Throwable) {
+        ExviLogger.e(e, tag = "VIDEO") { "Video player native lib discovery" }
+        return false
     }
+
+    val mediaPlayerComponent = remember {
+        try {
+            if (isMacOS()) CallbackMediaPlayerComponent()
+            else EmbeddedMediaPlayerComponent()
+        } catch (e: Throwable) {
+            ExviLogger.e(e, tag = "VIDEO") { "Video player creation error" }
+            null
+        }
+    } ?: return false
+
     SideEffect {
         val ok = mediaPlayerComponent.mediaPlayer().media().play(url)
         ExviLogger.i(tag = "VIDEO") { "Video player: $ok" }
@@ -38,6 +50,7 @@ actual fun VideoPlayer(url: String, modifier: Modifier) {
             mediaPlayerComponent
         }
     )
+    return true
 }
 
 private fun Any.mediaPlayer(): MediaPlayer = when (this) {
