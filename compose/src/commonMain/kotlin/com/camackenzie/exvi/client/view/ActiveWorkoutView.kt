@@ -24,15 +24,21 @@ import com.camackenzie.exvi.core.util.ExviLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import com.camackenzie.exvi.client.components.*
+import com.camackenzie.exvi.core.model.Time
+import com.camackenzie.exvi.core.model.seconds
 
 object ActiveWorkoutView : Viewable {
 
     private class WorkoutData(
         other: ActiveWorkout,
         playing: Boolean = false,
+        currentExerciseIndex: Int = 0,
+        currentExerciseRemainingTime: Time? = null,
         val coroutineScope: CoroutineScope,
     ) : ComposeActiveWorkout(other) {
         var playing by mutableStateOf(playing)
+        var currentExerciseIndex by mutableStateOf(currentExerciseIndex)
+        var currentExerciseRemainingTime by mutableStateOf(currentExerciseRemainingTime)
     }
 
     @Composable
@@ -105,6 +111,17 @@ object ActiveWorkoutView : Viewable {
                 )
                 if (workout.hasStarted()) {
                     Text("Started ${workout.startTime!!.toLocalDate()}")
+                    if (workout.playing) {
+                        remember {
+                            workout.currentExerciseRemainingTime = 10.seconds
+                        }
+
+                        Timer(
+                            remainingTime = workout.currentExerciseRemainingTime!!,
+                            onRemainingTimeChanged = { workout.currentExerciseRemainingTime = it },
+                            coroutineScope = workout.coroutineScope
+                        )
+                    }
                 }
                 ActiveExerciseSetRow(appState, workout)
             }
@@ -127,7 +144,11 @@ object ActiveWorkoutView : Viewable {
                     horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(exerciseSet.exercise.name, modifier = Modifier.fillMaxWidth(0.4f), overflow = TextOverflow.Ellipsis)
+                    Text(
+                        exerciseSet.exercise.name,
+                        modifier = Modifier.fillMaxWidth(0.4f),
+                        overflow = TextOverflow.Ellipsis
+                    )
                     RepList(
                         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
                         exercise = exerciseSet.active,
