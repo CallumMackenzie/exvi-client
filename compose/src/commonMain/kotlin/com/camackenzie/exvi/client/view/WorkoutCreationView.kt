@@ -456,6 +456,15 @@ object WorkoutCreationView : Viewable {
                     )
                     Text(exercise.tips)
                 }
+
+                if (exercise.hasVideoLink()) {
+                    Text(
+                        "Video", fontSize = 18.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                    VideoPlayer(exercise.videoLink)
+                }
             }
         } else {
             Text("No Exercise Selected")

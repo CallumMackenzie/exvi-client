@@ -41,11 +41,15 @@ kotlin {
         }
         val androidMain by getting {
             dependsOn(jvmMain)
+            dependencies {
+                implementation("com.google.android.exoplayer:exoplayer:2.17.1")
+            }
         }
         val desktopMain by getting {
             dependsOn(jvmMain)
             dependencies {
                 api(compose.preview)
+                implementation("uk.co.caprica:vlcj:4.7.0")
             }
         }
     }
