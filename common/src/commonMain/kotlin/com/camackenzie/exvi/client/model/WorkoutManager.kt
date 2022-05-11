@@ -21,9 +21,9 @@ import kotlinx.serialization.Serializable
 class ServerWorkoutManager(
     private val username: String,
     private val accessKey: String,
-    val outgoingPutRequests: MutableMap<String, WorkoutPutRequest> = HashMap(),
-    val outgoingDeleteRequests: MutableMap<String, DeleteWorkoutsRequest> = HashMap(),
-    val outgoingActivePutRequests: MutableMap<String, ActiveWorkoutPutRequest> = HashMap()
+    private val outgoingPutRequests: MutableMap<String, WorkoutPutRequest> = HashMap(),
+    private val outgoingDeleteRequests: MutableMap<String, DeleteWorkoutsRequest> = HashMap(),
+    private val outgoingActivePutRequests: MutableMap<String, ActiveWorkoutPutRequest> = HashMap()
 ) : WorkoutManager {
 
     private fun registerDeleting(request: DeleteWorkoutsRequest) = request.workoutIds.forEach {
@@ -54,7 +54,7 @@ class ServerWorkoutManager(
     fun isUpdatingWorkout(id: String) = outgoingPutRequests.containsKey(id)
     fun isUpdatingWorkout(id: EncodedStringCache) = isUpdatingWorkout(id.get())
     fun isUpdatingActiveWorkout(id: String) = outgoingActivePutRequests.containsKey(id)
-    fun isUpdatingActiveWorkout(id: EncodedStringCache) = isUpdatingWorkout(id.get())
+    fun isUpdatingActiveWorkout(id: EncodedStringCache) = isUpdatingActiveWorkout(id.get())
 
     override fun deleteActiveWorkouts(
         toDelete: Array<String>,
@@ -225,9 +225,10 @@ data class LocalWorkoutManager constructor(
     }
 
     fun ensureNoDuplicates() {
-        val newWorkouts = arrayListOf(*workouts.toSet().toTypedArray())
         workouts.clear()
-        workouts.addAll(newWorkouts)
+        workouts.addAll(workouts.toSet())
+        activeWorkouts.clear()
+        activeWorkouts.addAll(activeWorkouts.toSet())
     }
 
     override fun getWorkouts(
@@ -336,11 +337,10 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         onSuccess: () -> Unit,
         onComplete: () -> Unit
     ): Job = coroutineScope.launch(dispatcher) {
-        val jobs = listOf(
-            localManager.deleteWorkouts(toDelete, coroutineScope, dispatcher, {}, {}, {}),
+        listOf(
+            localManager.deleteWorkouts(toDelete, coroutineScope, dispatcher),
             serverManager.deleteWorkouts(toDelete, coroutineScope, dispatcher, onFail, onSuccess, onComplete)
-        )
-        jobs.joinAll()
+        ).joinAll()
     }
 
     override fun getWorkouts(
@@ -350,32 +350,27 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         onFail: (APIResult<String>) -> Unit,
         onSuccess: (Array<Workout>) -> Unit,
         onComplete: () -> Unit
-    ): Job = coroutineScope.launch(dispatcher) {
-        if (!serverManager.isUpdatingWorkouts()) {
-            serverManager.getWorkouts(
-                type,
-                coroutineScope,
-                dispatcher,
-                onFail = onFail,
-                onSuccess = {
-                    localManager.workouts.clear()
-                    localManager.workouts.addAll(it)
-                    localManager.ensureNoDuplicates()
-                    onSuccess(it)
-                },
-                onComplete = onComplete
-            )
-        } else {
-            localManager.getWorkouts(
-                type,
-                coroutineScope,
-                dispatcher,
-                onFail = onFail,
-                onSuccess = onSuccess,
-                onComplete = onComplete
-            )
-        }.join()
-    }
+    ): Job = if (serverManager.isUpdatingWorkouts()) localManager.getWorkouts(
+        type,
+        coroutineScope,
+        dispatcher,
+        onFail = onFail,
+        onSuccess = onSuccess,
+        onComplete = onComplete
+    )
+    else serverManager.getWorkouts(
+        type,
+        coroutineScope,
+        dispatcher,
+        onFail = onFail,
+        onSuccess = {
+            localManager.workouts.clear()
+            localManager.workouts.addAll(it)
+            localManager.ensureNoDuplicates()
+            onSuccess(it)
+        },
+        onComplete = onComplete
+    )
 
 
     override fun putWorkouts(
@@ -391,9 +386,9 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
                 workoutsToAdd,
                 coroutineScope,
                 dispatcher,
-                onFail = onFail,
-                onSuccess = onSuccess,
-                onComplete = onComplete
+                onFail,
+                onSuccess,
+                onComplete
             ), localManager.putWorkouts(
                 workoutsToAdd,
                 coroutineScope,
@@ -403,7 +398,6 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         jobs.joinAll()
     }
 
-    // TODO: Make this work with the local cache
     override fun deleteActiveWorkouts(
         toDelete: Array<String>,
         coroutineScope: CoroutineScope,
@@ -411,9 +405,13 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         onFail: (APIResult<String>) -> Unit,
         onSuccess: () -> Unit,
         onComplete: () -> Unit
-    ): Job = serverManager.deleteActiveWorkouts(toDelete, coroutineScope, dispatcher, onFail, onSuccess, onComplete)
+    ): Job = coroutineScope.launch(dispatcher) {
+        listOf(
+            serverManager.deleteActiveWorkouts(toDelete, coroutineScope, dispatcher, onFail, onSuccess, onComplete),
+            localManager.deleteActiveWorkouts(toDelete, coroutineScope, dispatcher)
+        ).joinAll()
+    }
 
-    // TODO: Make this work with the local cache
     override fun getActiveWorkouts(
         type: WorkoutListRequest.Type,
         coroutineScope: CoroutineScope,
@@ -421,9 +419,11 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         onFail: (APIResult<String>) -> Unit,
         onSuccess: (Array<ActiveWorkout>) -> Unit,
         onComplete: () -> Unit
-    ): Job = serverManager.getActiveWorkouts(type, coroutineScope, dispatcher, onFail, onSuccess, onComplete)
+    ): Job = if (serverManager.isUpdatingActiveWorkouts())
+        localManager.getActiveWorkouts(type, coroutineScope, dispatcher, onFail, onSuccess, onComplete)
+    else
+        serverManager.getActiveWorkouts(type, coroutineScope, dispatcher, onFail, onSuccess, onComplete)
 
-    // TODO: Make this work with the local cache
     override fun putActiveWorkouts(
         workoutsToAdd: Array<ActiveWorkout>,
         coroutineScope: CoroutineScope,
@@ -431,5 +431,10 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         onFail: (APIResult<String>) -> Unit,
         onSuccess: () -> Unit,
         onComplete: () -> Unit
-    ): Job = serverManager.putActiveWorkouts(workoutsToAdd, coroutineScope, dispatcher, onFail, onSuccess, onComplete)
+    ): Job = coroutineScope.launch(dispatcher) {
+        listOf(
+            serverManager.putActiveWorkouts(workoutsToAdd, coroutineScope, dispatcher, onFail, onSuccess, onComplete),
+            localManager.putActiveWorkouts(workoutsToAdd, coroutineScope, dispatcher)
+        ).joinAll()
+    }
 }

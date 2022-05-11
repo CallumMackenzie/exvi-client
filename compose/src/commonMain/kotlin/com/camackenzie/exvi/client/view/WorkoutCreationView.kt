@@ -544,51 +544,27 @@ object WorkoutCreationView : Viewable {
                     }
                 )
                 // Muscle type dropdown selector
-                Button(onClick = { searchData.muscleDropdownExpanded = true }) {
-                    Text(searchData.muscleWorked?.muscleName ?: "any muscle")
-                }
-                com.camackenzie.exvi.client.components.DropdownMenu(
-                    expanded = searchData.muscleDropdownExpanded,
-                    onDismissRequest = { searchData.muscleDropdownExpanded = false },
-                ) {
-                    DropdownMenuItem(onClick = {
-                        searchData.muscleWorked = null
-                        searchData.muscleDropdownExpanded = false
+                EnumSelector(variants = Muscle.values(),
+                    value = searchData.muscleWorked,
+                    onValueChanged = {
+                        searchData.muscleWorked = it
                         searchData.exercisesSorted = false
-                    }) {
-                        Text("any")
-                    }
-                    for (item in Muscle.values()) {
-                        DropdownMenuItem(onClick = {
-                            searchData.muscleWorked = item
-                            searchData.muscleDropdownExpanded = false
-                            searchData.exercisesSorted = false
-                        }) { Text(item.muscleName) }
-                    }
-                }
+                    },
+                    content = @Composable { Text(EnumUtils.formatName(it?.name ?: "any")) },
+                    dropdownExpanded = searchData.muscleDropdownExpanded,
+                    onDropdownExpandedChanged = { searchData.muscleDropdownExpanded = it }
+                )
                 // Exercise experience level selector
-                Button(onClick = { searchData.experienceLevelDropdownExtended = true }) {
-                    Text(searchData.experienceLevel?.toString() ?: "any experience")
-                }
-                com.camackenzie.exvi.client.components.DropdownMenu(
-                    expanded = searchData.experienceLevelDropdownExtended,
-                    onDismissRequest = { searchData.experienceLevelDropdownExtended = false },
-                ) {
-                    DropdownMenuItem(onClick = {
-                        searchData.experienceLevel = null
-                        searchData.experienceLevelDropdownExtended = false
+                EnumSelector(variants = ExerciseExperienceLevel.values(),
+                    value = searchData.experienceLevel,
+                    onValueChanged = {
+                        searchData.experienceLevel = it
                         searchData.exercisesSorted = false
-                    }) {
-                        Text("any")
-                    }
-                    for (item in ExerciseExperienceLevel.values()) {
-                        DropdownMenuItem(onClick = {
-                            searchData.experienceLevel = item
-                            searchData.experienceLevelDropdownExtended = false
-                            searchData.exercisesSorted = false
-                        }) { Text(item.toString()) }
-                    }
-                }
+                    },
+                    content = @Composable { Text(EnumUtils.formatName(it?.toString() ?: "any experience")) },
+                    dropdownExpanded = searchData.experienceLevelDropdownExtended,
+                    onDropdownExpandedChanged = { searchData.experienceLevelDropdownExtended = it }
+                )
             }
             ExviBox {
                 LazyColumn(

@@ -174,18 +174,6 @@ object HomeView : Viewable {
                             horizontalArrangement = Arrangement.spacedBy(3.dp, Alignment.Start)
                         ) {
                             Text(wk.name, fontSize = 20.sp)
-                            if (wk.startTime == null) Text("Has not been started")
-                            else Text(
-                                "Started ${
-                                    (TimeUnit.now() - wk.startTime!!).formatToElapsedTime(
-                                        setOf(
-                                            TimeUnit.Minute, TimeUnit.Second,
-                                            TimeUnit.Hour, TimeUnit.Day, TimeUnit.Year
-                                        )
-                                    )
-                                } ago"
-                            )
-
                             IconButton(onClick = {
                                 appState.setView(ExviView.ActiveWorkout, wk)
                             }, enabled = !deletingWorkout) {

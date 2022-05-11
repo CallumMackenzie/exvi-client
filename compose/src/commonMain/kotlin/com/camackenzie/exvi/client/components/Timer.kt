@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.camackenzie.exvi.core.model.Time
+import com.camackenzie.exvi.core.model.TimeUnit
 import com.camackenzie.exvi.core.model.formatToElapsedTime
 import com.camackenzie.exvi.core.model.milliseconds
 import com.camackenzie.exvi.core.model.toDuration
@@ -23,5 +24,5 @@ fun Timer(
         delay(timeGranularity.toDuration())
         onRemainingTimeChanged(remainingTime - timeGranularity)
     }
-    Text(remainingTime.formatToElapsedTime())
+    Text(remainingTime.formatToElapsedTime(setOf(TimeUnit.Second)))
 }

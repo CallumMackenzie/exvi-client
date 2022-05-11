@@ -111,17 +111,6 @@ object ActiveWorkoutView : Viewable {
                 )
                 if (workout.hasStarted()) {
                     Text("Started ${workout.startTime!!.toLocalDate()}")
-                    if (workout.playing) {
-                        remember {
-                            workout.currentExerciseRemainingTime = 10.seconds
-                        }
-
-                        Timer(
-                            remainingTime = workout.currentExerciseRemainingTime!!,
-                            onRemainingTimeChanged = { workout.currentExerciseRemainingTime = it },
-                            coroutineScope = workout.coroutineScope
-                        )
-                    }
                 }
                 ActiveExerciseSetRow(appState, workout)
             }
