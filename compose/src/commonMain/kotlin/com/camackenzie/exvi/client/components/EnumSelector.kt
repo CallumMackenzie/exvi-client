@@ -3,6 +3,7 @@ package com.camackenzie.exvi.client.components
 import androidx.compose.material.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.material.*
+import androidx.compose.ui.Modifier
 
 @Composable
 fun <T : Enum<T>> EnumSelector(
@@ -10,11 +11,12 @@ fun <T : Enum<T>> EnumSelector(
     value: T?,
     onValueChanged: (T?) -> Unit,
     content: @Composable (T?) -> Unit,
+    modifier: Modifier = Modifier,
     dropdownContent: @Composable (T?) -> Unit = content,
     dropdownExpanded: Boolean,
     onDropdownExpandedChanged: (Boolean) -> Unit,
 ) {
-    Button(onClick = { onDropdownExpandedChanged(true) }) { content(value) }
+    Button(modifier = modifier, onClick = { onDropdownExpandedChanged(true) }) { content(value) }
     com.camackenzie.exvi.client.components.DropdownMenu(
         expanded = dropdownExpanded,
         onDismissRequest = { onDropdownExpandedChanged(false) },

@@ -254,37 +254,33 @@ fun Expandable(
 ) {
     Column(
         modifier,
-        verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             Modifier.border(1.dp, Color.Black)
-                .padding(10.dp)
+                .padding(5.dp)
                 .align(Alignment.CenterHorizontally),
             contentAlignment = Alignment.Center
         ) {
             Column(
                 Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Top)
+                verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top)
             ) {
                 Row(
                     Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.Start),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (!expanded) {
                         IconButton(onClick = {
                             onExpandedChanged(true)
-                        }) {
-                            Icon(Icons.Default.KeyboardArrowDown, "Expand")
-                        }
+                        }) { Icon(Icons.Default.KeyboardArrowDown, "Expand") }
                     } else {
                         IconButton(onClick = {
                             onExpandedChanged(false)
-                        }) {
-                            Icon(Icons.Default.KeyboardArrowUp, "Retract")
-                        }
+                        }) { Icon(Icons.Default.KeyboardArrowUp, "Retract") }
                     }
                     header()
                 }

@@ -56,8 +56,14 @@ object WorkoutCreationView : Viewable {
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            WorkoutNameField(workoutData)
-                            FinishWorkoutButton(viewData, workoutData)
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                WorkoutNameField(workoutData, Modifier.fillMaxWidth(0.6f))
+                                FinishWorkoutButton(viewData, workoutData)
+                            }
                             CancelWorkoutButton(appState)
                         }
                     }
@@ -88,7 +94,7 @@ object WorkoutCreationView : Viewable {
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
                         ) {
-                            WorkoutNameField(workoutData)
+                            WorkoutNameField(workoutData, Modifier.fillMaxWidth(0.6f))
                             FinishWorkoutButton(viewData, workoutData)
                             CancelWorkoutButton(appState)
                         }
@@ -170,6 +176,11 @@ object WorkoutCreationView : Viewable {
         workoutData: WorkoutData
     ) {
         val generatorData = workoutData.generatorData
+        fun setGenerator(generator: Array<ExercisePriorityProvider>) {
+            generatorData.params.providers = generator
+            generatorData.generatorDropdownExpanded = false
+        }
+
         Column(
             Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -202,11 +213,6 @@ object WorkoutCreationView : Viewable {
                     Text("Generate")
                 }
                 Box {
-                    fun setGenerator(generator: Array<ExercisePriorityProvider>) {
-                        generatorData.params.providers = generator
-                        generatorData.generatorDropdownExpanded = false
-                    }
-
                     Button(onClick = { generatorData.generatorDropdownExpanded = true }) {
                         Text("Select Generator")
                     }
@@ -263,7 +269,7 @@ object WorkoutCreationView : Viewable {
                         generatorData.maxExercises = it
                         generatorData.minExercises = it
                     },
-                    placeholder = { Text("${generatorData.minExercises}-${generatorData.maxExercises}") },
+                    placeholder = { Text("${generatorData.minExercises ?: "*"}-${generatorData.maxExercises ?: "*"}") },
                     maxDigits = 3,
                     label = { Text("N. Exercises") }
                 )
@@ -272,10 +278,10 @@ object WorkoutCreationView : Viewable {
     }
 
     @Composable
-    private fun WorkoutNameField(workoutData: WorkoutData) {
+    private fun WorkoutNameField(workoutData: WorkoutData, modifier: Modifier = Modifier) {
         val regex = Regex("([a-zA-Z0-9.]|\\s)*")
-
-        TextField(value = workoutData.name,
+        TextField(modifier = modifier,
+            value = workoutData.name,
             label = { Text("Workout Name") },
             placeholder = {
                 Text(workoutNamePresets[(SecureRandom.nextDouble() * workoutNamePresets.size).toInt()])
@@ -348,7 +354,6 @@ object WorkoutCreationView : Viewable {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            // Null assertions not used because jetpack throws null ptr exception when exercise is removed
             if (workoutData.editorExercise != null) {
                 Text(
                     workoutData.editorExercise?.exercise?.name ?: "",
@@ -463,7 +468,7 @@ object WorkoutCreationView : Viewable {
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(10.dp)
                     )
-                    val created = VideoPlayer(exercise.videoLink)
+                    val created = VideoPlayer(exercise.videoLink, Modifier.fillMaxWidth().requiredHeight(300.dp))
                     if (!created) Text("Video player error")
                 }
             }
@@ -480,91 +485,129 @@ object WorkoutCreationView : Viewable {
         selectorViewData: SelectorViewData,
         listViewModifier: Modifier = Modifier.fillMaxSize(),
     ) {
-        val exerciseManager = viewData.model.exerciseManager
+        // Ensure exercises are loaded and sorted
+        searchData.ensureExercisesSorted(viewData.model.exerciseManager, viewData.coroutineScope)
 
-        if (!searchData.processRunning && searchData.searchExercises.isEmpty()) {
-            viewData.coroutineScope.launch(Dispatchers.Default) {
-                searchData.processRunning = true
-                exerciseManager.loadStandardExercisesIfEmpty()
-                searchData.searchExercises = exerciseManager.exercises.toTypedArray()
-                searchData.exercisesSorted = false
-                searchData.processRunning = false
-            }
-        }
-
-        if (!searchData.processRunning
-            && searchData.searchExercises.isNotEmpty()
-            && !searchData.exercisesSorted
-        ) {
-            viewData.coroutineScope.launch(Dispatchers.Default) {
-                searchData.processRunning = true
-                searchData.searchExercises.sortBy {
-                    var sum: Int = 0
-                    // Sort by keywords
-                    for (word in searchData.searchContent.split("\\s+")) {
-                        sum += if (it.name.contains(word, true)) {
-                            it.name.length - word.length
-                        } else 50
-                    }
-                    // By muscle
-                    if (searchData.muscleWorked != null &&
-                        !it.musclesWorked.contains(searchData.muscleWorked!!.workData(1.0))
-                    ) sum += 50
-                    // By experience level
-                    if (it.experienceLevel != searchData.experienceLevel) sum += 50
-                    sum
+        // Search field for exercise keywords
+        @Composable
+        fun TextSearchField(modifier: Modifier) = TextField(
+            modifier = modifier,
+            value = searchData.searchContent,
+            onValueChange = {
+                if (!it.contains("\n")) {
+                    searchData.searchContent = it
+                    searchData.exercisesSorted = false
                 }
-                searchData.exercisesSorted = true
-                searchData.processRunning = false
+            },
+            label = { Text("Exercise Name") },
+            placeholder = {
+                Text("Exercise Name")
             }
-        }
+        )
+
+        // Search field for muscles
+        @Composable
+        fun MuscleSearchField(modifier: Modifier) = EnumSelector(modifier = modifier,
+            variants = Muscle.values(),
+            value = searchData.muscleWorked,
+            onValueChanged = {
+                searchData.muscleWorked = it
+                searchData.exercisesSorted = false
+            },
+            content = @Composable { Text(EnumUtils.formatName(it?.name ?: "any muscle")) },
+            dropdownExpanded = searchData.muscleDropdownExpanded,
+            onDropdownExpandedChanged = { searchData.muscleDropdownExpanded = it }
+        )
+
+        // Search field for experience level
+        @Composable
+        fun ExperienceSearchField(modifier: Modifier) = EnumSelector(modifier = modifier,
+            variants = ExerciseExperienceLevel.values(),
+            value = searchData.experienceLevel,
+            onValueChanged = {
+                searchData.experienceLevel = it
+                searchData.exercisesSorted = false
+            },
+            content = @Composable { Text(EnumUtils.formatName(it?.toString() ?: "any experience")) },
+            dropdownExpanded = searchData.experienceLevelDropdownExtended,
+            onDropdownExpandedChanged = { searchData.experienceLevelDropdownExtended = it }
+        )
+
+        // Search field for mechanics
+        @Composable
+        fun MechanicsSearchField(modifier: Modifier) = EnumSelector(modifier = modifier,
+            variants = ExerciseMechanics.values(),
+            value = searchData.mechanics,
+            onValueChanged = {
+                searchData.mechanics = it
+                searchData.exercisesSorted = false
+            },
+            content = @Composable { Text(EnumUtils.formatName(it?.toString() ?: "any mechanics")) },
+            dropdownExpanded = searchData.mechanicsDropdownExtended,
+            onDropdownExpandedChanged = { searchData.mechanicsDropdownExtended = it }
+        )
 
         Column(
             listViewModifier,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
-            ) {
-                // Exercise name search input
-                TextField(
-                    modifier = Modifier.fillMaxWidth(0.5f),
-                    value = searchData.searchContent,
-                    onValueChange = {
-                        if (!it.contains("\n")) {
-                            searchData.searchContent = it
-                            searchData.exercisesSorted = false
-                        }
-                    },
-                    label = { Text("Exercise Name") },
-                    placeholder = {
-                        Text("Exercise Name")
+            BoxWithConstraints {
+                if (maxWidth > 700.dp) Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                ) {
+                    // Exercise name search input
+                    TextSearchField(Modifier.fillMaxWidth(1f / 4f))
+                    MuscleSearchField(Modifier.fillMaxWidth(1f / 3f))
+                    ExperienceSearchField(Modifier.fillMaxWidth(1f / 2f))
+                    MechanicsSearchField(Modifier.fillMaxWidth())
+                }
+                else if (maxWidth > 500.dp && maxHeight > 250.dp) Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(1.dp, Alignment.CenterVertically)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                    ) {
+                        TextSearchField(Modifier.fillMaxWidth(0.6f))
+                        MuscleSearchField(Modifier.fillMaxWidth())
                     }
-                )
-                // Muscle type dropdown selector
-                EnumSelector(variants = Muscle.values(),
-                    value = searchData.muscleWorked,
-                    onValueChanged = {
-                        searchData.muscleWorked = it
-                        searchData.exercisesSorted = false
-                    },
-                    content = @Composable { Text(EnumUtils.formatName(it?.name ?: "any")) },
-                    dropdownExpanded = searchData.muscleDropdownExpanded,
-                    onDropdownExpandedChanged = { searchData.muscleDropdownExpanded = it }
-                )
-                // Exercise experience level selector
-                EnumSelector(variants = ExerciseExperienceLevel.values(),
-                    value = searchData.experienceLevel,
-                    onValueChanged = {
-                        searchData.experienceLevel = it
-                        searchData.exercisesSorted = false
-                    },
-                    content = @Composable { Text(EnumUtils.formatName(it?.toString() ?: "any experience")) },
-                    dropdownExpanded = searchData.experienceLevelDropdownExtended,
-                    onDropdownExpandedChanged = { searchData.experienceLevelDropdownExtended = it }
-                )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                    ) {
+                        ExperienceSearchField(Modifier.fillMaxWidth(1f / 2f))
+                        MechanicsSearchField(Modifier.fillMaxWidth())
+                    }
+                }
+                else if (maxWidth > 400.dp && maxHeight > 350.dp) Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(1.dp, Alignment.CenterVertically)
+                ) {
+                    TextSearchField(Modifier.fillMaxWidth())
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                    ) {
+                        MuscleSearchField(Modifier.fillMaxWidth(1f / 3f))
+                        ExperienceSearchField(Modifier.fillMaxWidth(1f / 2f))
+                        MechanicsSearchField(Modifier.fillMaxWidth())
+                    }
+                }
+                else Expandable(header = @Composable { Text("Filters") }) {
+                    Column(
+                        Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(1.dp, Alignment.CenterVertically)
+                    ) {
+                        TextSearchField(Modifier.fillMaxWidth())
+                        MuscleSearchField(Modifier.fillMaxWidth())
+                        ExperienceSearchField(Modifier.fillMaxWidth())
+                        MechanicsSearchField(Modifier.fillMaxWidth())
+                    }
+                }
             }
             ExviBox {
                 LazyColumn(
@@ -572,15 +615,10 @@ object WorkoutCreationView : Viewable {
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    if (!searchData.processRunning) {
-                        items(searchData.searchExercises.size) {
-                            AllExercisesListViewItem(workoutData, selectorViewData, searchData.searchExercises[it])
-                        }
-                    } else {
-                        item {
-                            LoadingIcon()
-                        }
+                    if (!searchData.processRunning) items(searchData.searchExercises.size) {
+                        AllExercisesListViewItem(workoutData, selectorViewData, searchData.searchExercises[it])
                     }
+                    else item { LoadingIcon() }
                 }
             }
         }
@@ -628,7 +666,7 @@ object WorkoutCreationView : Viewable {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            Text(exercise.name)
+            Text(exercise.name, modifier = Modifier.fillMaxWidth(0.6f), overflow = TextOverflow.Ellipsis)
             IconButton(onClick = {
                 workoutData.infoExercise = exercise
                 selectorViewData.rightPane = "Info"
@@ -962,18 +1000,63 @@ private class WorkoutSearchData(
     searchExercises: Array<Exercise> = emptyArray(),
     processRunning: Boolean = false,
     muscleWorked: Muscle? = null,
-    muscleDropdownExpanded: Boolean = false,
-    experienceLevelDropdownExtended: Boolean = false,
     experienceLevel: ExerciseExperienceLevel? = null,
+    mechanics: ExerciseMechanics? = null,
 ) {
-    var searchContent by mutableStateOf(searchContent)
     var exercisesSorted by mutableStateOf(exercisesSorted)
     var searchExercises by mutableStateOf(searchExercises)
     var processRunning by mutableStateOf(processRunning)
+
+    var searchContent by mutableStateOf(searchContent)
+
     var muscleWorked by mutableStateOf(muscleWorked)
-    var muscleDropdownExpanded by mutableStateOf(muscleDropdownExpanded)
+    var muscleDropdownExpanded by mutableStateOf(false)
+
     var experienceLevel by mutableStateOf(experienceLevel)
-    var experienceLevelDropdownExtended by mutableStateOf(experienceLevelDropdownExtended)
+    var experienceLevelDropdownExtended by mutableStateOf(false)
+
+    var mechanics by mutableStateOf(mechanics)
+    var mechanicsDropdownExtended by mutableStateOf(false)
+
+    fun ensureExercisesSorted(exerciseManager: ExerciseManager, coroutineScope: CoroutineScope) {
+        // Ensure exercises are loaded into memory
+        if (!processRunning && searchExercises.isEmpty()) {
+            coroutineScope.launch(Dispatchers.Default) {
+                processRunning = true
+                exerciseManager.loadStandardExercisesIfEmpty()
+                searchExercises = exerciseManager.exercises.toTypedArray()
+                exercisesSorted = false
+                processRunning = false
+            }
+        }
+
+        // Sort exercises if they need to be sorted and they are not already being sorted
+        if (!processRunning
+            && searchExercises.isNotEmpty()
+            && !exercisesSorted
+        ) {
+            coroutineScope.launch(Dispatchers.Default) {
+                processRunning = true
+                searchExercises.sortBy {
+                    var sum = 0
+                    // Sort by keywords
+                    for (word in searchContent.split("\\s+"))
+                        if (!it.name.contains(word, true)) sum += 1
+                    // By muscle
+                    if (muscleWorked != null &&
+                        !it.musclesWorked.contains(muscleWorked!!.workData(1.0))
+                    ) sum += 1
+                    // By experience level
+                    if (it.experienceLevel != experienceLevel) sum += 1
+                    // By mechanics
+                    if (it.mechanics != mechanics) sum += 1
+                    sum
+                }
+                exercisesSorted = true
+                processRunning = false
+            }
+        }
+    }
 
     companion object {
         fun saver(): Saver<WorkoutSearchData, Any> = mapSaver(
