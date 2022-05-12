@@ -138,13 +138,22 @@ object ActiveWorkoutView : Viewable {
                         modifier = Modifier.fillMaxWidth(0.4f),
                         overflow = TextOverflow.Ellipsis
                     )
+                    val setSetValue: (Int, Int) -> Unit = { it, reps ->
+                        exerciseSet.active.sets[it].reps = reps
+                        workoutData.exercises = arrayOf(*workoutData.exercises)
+                    }
                     RepList(
                         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
                         exercise = exerciseSet.active,
                         target = exerciseSet.target,
-                        onValueChange = { it, reps ->
-                            exerciseSet.active.sets[it].reps = reps
-                            workoutData.exercises = arrayOf(*workoutData.exercises)
+                        onValueChange = setSetValue,
+                        contents = { idx, repField ->
+                            Row {
+                                repField()
+                                IconButton(onClick = {
+                                    setSetValue(idx, exerciseSet.target.sets[idx].reps)
+                                }) { Icon(ExviIcons.Target, "Target reached") }
+                            }
                         }
                     )
                 }

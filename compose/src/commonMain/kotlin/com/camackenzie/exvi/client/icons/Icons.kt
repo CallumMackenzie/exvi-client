@@ -21,6 +21,9 @@ object ExviIcons {
 
     val ArrowUp: ImageVector
         get() = arrowUpIcon()
+
+    val Target: ImageVector
+        get() = targetIcon()
 }
 
 internal expect fun addIcon(): ImageVector
@@ -29,3 +32,4 @@ internal expect fun visibilityIcon(): ImageVector
 internal expect fun visibilityOffIcon(): ImageVector
 internal expect fun arrowDownIcon(): ImageVector
 internal expect fun arrowUpIcon(): ImageVector
+internal expect fun targetIcon(): ImageVector
