@@ -25,7 +25,7 @@ actual fun VideoPlayer(url: String, modifier: Modifier): Boolean {
     try {
         NativeDiscovery().discover()
     } catch (e: Throwable) {
-        ExviLogger.e(e, tag = "VIDEO") { "Video player native lib discovery" }
+        ExviLogger.e(e, tag = "VIDEO") { "Video player native lib discovery error" }
         return false
     }
 

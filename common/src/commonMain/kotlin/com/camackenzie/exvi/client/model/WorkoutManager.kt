@@ -6,10 +6,7 @@
 package com.camackenzie.exvi.client.model
 
 import com.camackenzie.exvi.core.api.*
-import com.camackenzie.exvi.core.model.ActiveWorkout
-import com.camackenzie.exvi.core.model.ExviSerializer
-import com.camackenzie.exvi.core.model.Workout
-import com.camackenzie.exvi.core.model.WorkoutManager
+import com.camackenzie.exvi.core.model.*
 import com.camackenzie.exvi.core.util.EncodedStringCache
 import com.camackenzie.exvi.core.util.ExviLogger
 import com.camackenzie.exvi.core.util.Identifiable
@@ -44,7 +41,7 @@ class ServerWorkoutManager(
         request.workouts.forEach { outgoingPutRequests.remove(it.id.get()) }
 
     private fun registerAdded(request: ActiveWorkoutPutRequest) =
-        request.workouts.forEach { outgoingPutRequests.remove(it.activeWorkoutId.get()) }
+        request.workouts.forEach { outgoingActivePutRequests.remove(it.activeWorkoutId.get()) }
 
     fun isPuttingActive(): Boolean = outgoingActivePutRequests.isNotEmpty()
     fun isPutting(): Boolean = outgoingPutRequests.isNotEmpty()
@@ -322,12 +319,35 @@ data class LocalWorkoutManager constructor(
     }
 }
 
-
-class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager {
+class SyncedWorkoutManager(
+    username: String,
+    accessKey: String,
+//    private val syncScope: CoroutineScope,
+//    private val syncDispatcher: CoroutineDispatcher = Dispatchers.Default,
+) : WorkoutManager {
     private val localManager = LocalWorkoutManager()
-    val serverManager = ServerWorkoutManager(username, accessKey)
-
-    // TODO: Add coroutine to sync with server periodically
+    private val serverManager = ServerWorkoutManager(username, accessKey)
+//    private var syncJob: Job = syncScope.launch(syncDispatcher) {
+//        while (true) {
+//            joinAll(
+//                getWorkouts(WorkoutListRequest.Type.ListAllTemplates,
+//                    syncScope, syncDispatcher, onFail = {
+//                        ExviLogger.i(tag = "WORKOUT_SYNC") { "Workouts failed to sync: ${it.toJson()}" }
+//                    },
+//                    onSuccess = {
+//                        ExviLogger.i(tag = "WORKOUT_SYNC") { "Workouts synced" }
+//                    }),
+//                getActiveWorkouts(WorkoutListRequest.Type.ListAllActive, syncScope, syncDispatcher,
+//                    onFail = {
+//                        ExviLogger.e(tag = "WORKOUT_SYNC") { "Active workouts failed to sync: ${it.toJson()}" }
+//                    },
+//                    onSuccess = {
+//                        ExviLogger.i(tag = "WORKOUT_SYNC") { "Active workouts synced" }
+//                    })
+//            )
+//            delay(30.seconds.toDuration())
+//        }
+//    }
 
     override fun deleteWorkouts(
         toDelete: Array<String>,
