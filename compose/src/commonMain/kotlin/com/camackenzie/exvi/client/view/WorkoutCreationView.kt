@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.camackenzie.exvi.client.components.*
 import com.camackenzie.exvi.client.icons.ExviIcons
 import com.camackenzie.exvi.client.model.*
 import com.camackenzie.exvi.core.model.*
@@ -25,7 +26,6 @@ import com.soywiz.krypto.SecureRandom
 import kotlinx.coroutines.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import com.camackenzie.exvi.client.components.*
 
 // TODO: Clean up this code
 object WorkoutCreationView : Viewable {
@@ -1065,12 +1065,14 @@ private class WorkoutSearchData(
                     "searchContent" to it.searchContent,
                     "muscleWorked" to it.muscleWorked,
                     "experienceLevel" to it.experienceLevel,
+                    "mechanics" to it.mechanics,
                 )
             }, restore = {
                 WorkoutSearchData(
                     searchContent = it["searchContent"] as String,
                     muscleWorked = it["muscleWorked"] as Muscle?,
                     experienceLevel = it["experienceLevel"] as ExerciseExperienceLevel?,
+                    mechanics = it["mechanics"] as ExerciseMechanics?,
                 )
             }
         )

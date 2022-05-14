@@ -1,7 +1,5 @@
 package com.camackenzie.exvi.client.desktop
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
-import com.camackenzie.exvi.client.view.App
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -10,13 +8,14 @@ import androidx.compose.ui.res.loadXmlImageVector
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import com.camackenzie.exvi.client.view.App
 import com.camackenzie.exvi.client.view.ExviMaterialTheme
-import com.camackenzie.exvi.core.util.ExviLogger
-import io.github.aakira.napier.DebugAntilog
+import com.camackenzie.exvi.core.util.setDefaultLogger
+import io.github.aakira.napier.LogLevel
 import org.xml.sax.InputSource
 
 fun main() = application {
-    ExviLogger.base(DebugAntilog())
+    setDefaultLogger({ println(it) }, mapOf(*LogLevel.values().map { it to "[$it]" }.toTypedArray()))
 
     Window(
         onCloseRequest = ::exitApplication,

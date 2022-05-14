@@ -26,6 +26,12 @@ class ServerWorkoutManager(
     private val outgoingActivePutRequests: MutableMap<String, ActiveWorkoutPutRequest> = HashMap()
 ) : WorkoutManager {
 
+    var fetchingWorkouts: Boolean = false
+        private set
+
+    var fetchingActiveWorkouts: Boolean = false
+        private set
+
     private fun registerDeleting(request: DeleteWorkoutsRequest) = request.workoutIds.forEach {
         outgoingDeleteRequests[it.get()] = request
     }
@@ -51,9 +57,22 @@ class ServerWorkoutManager(
     fun isDeletingAny(): Boolean = outgoingDeleteRequests.isNotEmpty()
     fun isUpdatingWorkouts(): Boolean = isPutting() || isDeletingAny()
     fun isUpdatingActiveWorkouts(): Boolean = isPuttingActive() || isDeletingAny()
-    fun isUpdatingWorkout(id: String) = outgoingPutRequests.containsKey(id)
+    fun isUpdatingWorkout(id: String): Boolean {
+        if (outgoingPutRequests.containsKey(id)) return true
+        if (outgoingDeleteRequests.containsKey(id))
+            return outgoingDeleteRequests[id]!!.workoutType == DeleteWorkoutsRequest.WorkoutType.Workout
+        return false
+    }
+
     fun isUpdatingWorkout(id: EncodedStringCache) = isUpdatingWorkout(id.get())
-    fun isUpdatingActiveWorkout(id: String) = outgoingActivePutRequests.containsKey(id)
+
+    fun isUpdatingActiveWorkout(id: String): Boolean {
+        if (outgoingActivePutRequests.containsKey(id)) return true
+        if (outgoingDeleteRequests.containsKey(id))
+            return outgoingDeleteRequests[id]!!.workoutType == DeleteWorkoutsRequest.WorkoutType.ActiveWorkout
+        return false
+    }
+
     fun isUpdatingActiveWorkout(id: EncodedStringCache) = isUpdatingActiveWorkout(id.get())
 
     override fun deleteActiveWorkouts(
@@ -117,21 +136,26 @@ class ServerWorkoutManager(
         onFail: (APIResult<String>) -> Unit,
         onSuccess: (Array<ActiveWorkout>) -> Unit,
         onComplete: () -> Unit
-    ): Job = APIRequest.requestAsync(
-        APIInfo.ENDPOINT,
-        WorkoutListRequest(
-            username,
-            accessKey,
-            WorkoutListRequest.Type.ListAllActive
-        ),
-        coroutineScope = coroutineScope,
-        coroutineDispatcher = dispatcher
-    ) {
-        if (it.failed()) onFail(it) else {
-            val response = ExviSerializer.fromJson<ActiveWorkoutListResult>(it.body)
-            onSuccess(response.workouts as Array<ActiveWorkout>)
-        }
-        onComplete()
+    ): Job = coroutineScope.launch(dispatcher) {
+        fetchingActiveWorkouts = true
+        APIRequest.requestAsync(
+            APIInfo.ENDPOINT,
+            WorkoutListRequest(
+                username,
+                accessKey,
+                WorkoutListRequest.Type.ListAllActive
+            ),
+            coroutineScope = coroutineScope,
+            coroutineDispatcher = dispatcher
+        ) {
+            fetchingActiveWorkouts = false
+            if (it.failed()) onFail(it) else {
+                val response = ExviSerializer.fromJson<ActiveWorkoutListResult>(it.body)
+                @Suppress("unchecked_cast")
+                onSuccess(response.workouts as Array<ActiveWorkout>)
+            }
+            onComplete()
+        }.join()
     }
 
     override fun getWorkouts(
@@ -141,21 +165,26 @@ class ServerWorkoutManager(
         onFail: (APIResult<String>) -> Unit,
         onSuccess: (Array<Workout>) -> Unit,
         onComplete: () -> Unit
-    ): Job = APIRequest.requestAsync(
-        APIInfo.ENDPOINT,
-        WorkoutListRequest(
-            username,
-            accessKey,
-            WorkoutListRequest.Type.ListAllTemplates
-        ),
-        coroutineScope = coroutineScope,
-        coroutineDispatcher = dispatcher
-    ) {
-        if (it.failed()) onFail(it) else {
-            val response = ExviSerializer.fromJson<WorkoutListResult>(it.body)
-            onSuccess(response.workouts as Array<Workout>)
-        }
-        onComplete()
+    ): Job = coroutineScope.launch(dispatcher) {
+        fetchingWorkouts = true
+        APIRequest.requestAsync(
+            APIInfo.ENDPOINT,
+            WorkoutListRequest(
+                username,
+                accessKey,
+                WorkoutListRequest.Type.ListAllTemplates
+            ),
+            coroutineScope = coroutineScope,
+            coroutineDispatcher = dispatcher,
+        ) {
+            fetchingWorkouts = false
+            if (it.failed()) onFail(it) else {
+                val response = ExviSerializer.fromJson<WorkoutListResult>(it.body)
+                @Suppress("unchecked_cast")
+                onSuccess(response.workouts as Array<Workout>)
+            }
+            onComplete()
+        }.join()
     }
 
     override fun putActiveWorkouts(
@@ -210,7 +239,6 @@ class ServerWorkoutManager(
             onComplete()
         }
     }
-
 }
 
 @Serializable
@@ -222,13 +250,6 @@ data class LocalWorkoutManager constructor(
     companion object {
         // Used to delay local manager calls to give compose time to react
         private const val STATIC_DELAY = 50L
-    }
-
-    fun ensureNoDuplicates() {
-        workouts.clear()
-        workouts.addAll(workouts.toSet())
-        activeWorkouts.clear()
-        activeWorkouts.addAll(activeWorkouts.toSet())
     }
 
     override fun getWorkouts(
@@ -272,8 +293,8 @@ data class LocalWorkoutManager constructor(
     ): Job = coroutineScope.launch(dispatcher) {
         Identifiable.intersectIndexed(
             workoutsToAdd.toList(), workouts,
-            onIntersect = { a, _, _, bi -> workouts[bi] = a },
-            onAOnly = { a, _ -> workouts.add(a) }
+            onIntersect = { toAdd, _, _, wIdx -> workouts[wIdx] = toAdd },
+            onAOnly = { toAdd, _ -> workouts.add(toAdd) }
         )
         delay(STATIC_DELAY)
         onSuccess()
@@ -322,12 +343,9 @@ data class LocalWorkoutManager constructor(
     }
 }
 
-
 class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager {
     private val localManager = LocalWorkoutManager()
     val serverManager = ServerWorkoutManager(username, accessKey)
-
-    // TODO: Add coroutine to sync with server periodically
 
     override fun deleteWorkouts(
         toDelete: Array<String>,
@@ -350,28 +368,58 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         onFail: (APIResult<String>) -> Unit,
         onSuccess: (Array<Workout>) -> Unit,
         onComplete: () -> Unit
-    ): Job = if (serverManager.isUpdatingWorkouts()) localManager.getWorkouts(
-        type,
-        coroutineScope,
-        dispatcher,
-        onFail = onFail,
-        onSuccess = onSuccess,
-        onComplete = onComplete
-    )
-    else serverManager.getWorkouts(
-        type,
-        coroutineScope,
-        dispatcher,
-        onFail = onFail,
-        onSuccess = {
+    ): Job = coroutineScope.launch(dispatcher) {
+        if (serverManager.isUpdatingWorkouts()) {
+            var localWorkouts = arrayOf<Workout>()
+            localManager.getWorkouts(
+                type,
+                coroutineScope,
+                dispatcher,
+                onFail = onFail,
+                onSuccess = {
+                    localWorkouts = it
+                    onSuccess(it)
+                },
+                onComplete = onComplete
+            ).join()
+            serverManager.getWorkouts(
+                type,
+                coroutineScope,
+                dispatcher,
+                onSuccess = { remoteWorkouts ->
+                    val finalWorkouts = ArrayList<Workout>(remoteWorkouts.size + localWorkouts.size)
+                    Identifiable.intersectIndexed(
+                        localWorkouts.toList(),
+                        remoteWorkouts.toList(),
+                        onIntersect = { loc, _, rem, _ ->
+                            // TODO: Check which one is newer
+                            finalWorkouts.add(rem)
+                        },
+                        onAOnly = { loc, _ -> finalWorkouts.add(loc) },
+                        onBOnly = { rem, _ -> finalWorkouts.add(rem) }
+                    )
+                    ExviLogger.i(tag = "WORKOUT_MANAGER") { "Merged remote and local workouts" }
+                    onSuccess(finalWorkouts.toTypedArray())
+                },
+                onFail = { ExviLogger.e(tag = "WORKOUT_MANAGER") { "Failed merging local and remote workouts: ${it.toJson()}" } }
+            )
+        } else {
+            var workouts = emptyArray<Workout>()
+            serverManager.getWorkouts(
+                type,
+                coroutineScope,
+                dispatcher,
+                onFail = onFail,
+                onSuccess = {
+                    workouts = it
+                },
+                onComplete = onComplete
+            ).join()
             localManager.workouts.clear()
-            localManager.workouts.addAll(it)
-            localManager.ensureNoDuplicates()
-            onSuccess(it)
-        },
-        onComplete = onComplete
-    )
-
+            localManager.putWorkouts(workouts, coroutineScope, dispatcher).join()
+            onSuccess(workouts)
+        }
+    }
 
     override fun putWorkouts(
         workoutsToAdd: Array<Workout>,
@@ -381,7 +429,7 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         onSuccess: () -> Unit,
         onComplete: () -> Unit
     ): Job = coroutineScope.launch(dispatcher) {
-        val jobs = listOf(
+        joinAll(
             serverManager.putWorkouts(
                 workoutsToAdd,
                 coroutineScope,
@@ -392,10 +440,10 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
             ), localManager.putWorkouts(
                 workoutsToAdd,
                 coroutineScope,
-                dispatcher
+                dispatcher,
+                onFail = { ExviLogger.e(tag = "WORKOUT_MANAGER") { "Failed to locally update workouts: ${it.toJson()}" } }
             )
         )
-        jobs.joinAll()
     }
 
     override fun deleteActiveWorkouts(
@@ -406,10 +454,10 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         onSuccess: () -> Unit,
         onComplete: () -> Unit
     ): Job = coroutineScope.launch(dispatcher) {
-        listOf(
+        joinAll(
             serverManager.deleteActiveWorkouts(toDelete, coroutineScope, dispatcher, onFail, onSuccess, onComplete),
             localManager.deleteActiveWorkouts(toDelete, coroutineScope, dispatcher)
-        ).joinAll()
+        )
     }
 
     override fun getActiveWorkouts(
@@ -432,9 +480,9 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         onSuccess: () -> Unit,
         onComplete: () -> Unit
     ): Job = coroutineScope.launch(dispatcher) {
-        listOf(
+        joinAll(
             serverManager.putActiveWorkouts(workoutsToAdd, coroutineScope, dispatcher, onFail, onSuccess, onComplete),
             localManager.putActiveWorkouts(workoutsToAdd, coroutineScope, dispatcher)
-        ).joinAll()
+        )
     }
 }

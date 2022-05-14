@@ -10,22 +10,26 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.mapSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.camackenzie.exvi.client.components.RepList
 import com.camackenzie.exvi.client.icons.ExviIcons
 import com.camackenzie.exvi.client.model.ComposeActiveWorkout
 import com.camackenzie.exvi.core.model.ActiveWorkout
-import androidx.compose.ui.text.style.TextOverflow
+import com.camackenzie.exvi.core.model.ExviSerializer
+import com.camackenzie.exvi.core.model.Time
 import com.camackenzie.exvi.core.model.toLocalDate
 import com.camackenzie.exvi.core.util.ExviLogger
+import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import com.camackenzie.exvi.client.components.*
-import com.camackenzie.exvi.core.model.Time
-import com.camackenzie.exvi.core.model.seconds
 
 object ActiveWorkoutView : Viewable {
 
@@ -39,6 +43,25 @@ object ActiveWorkoutView : Viewable {
         var playing by mutableStateOf(playing)
         var currentExerciseIndex by mutableStateOf(currentExerciseIndex)
         var currentExerciseRemainingTime by mutableStateOf(currentExerciseRemainingTime)
+
+        companion object {
+            fun saver(coroutineScope: CoroutineScope): Saver<WorkoutData, Any> = mapSaver(
+                save = {
+                    mapOf(
+                        "playing" to it.playing,
+                        "currentExerciseIndex" to it.currentExerciseIndex,
+                        "base" to ExviSerializer.toJson<SelfSerializable>(it.serializer, it.toActual())
+                    )
+                }, restore = {
+                    WorkoutData(
+                        playing = it["playing"] as Boolean,
+                        currentExerciseIndex = it["currentExerciseIndex"] as Int,
+                        other = ExviSerializer.fromJson<SelfSerializable>(it["base"] as String) as ActiveWorkout,
+                        coroutineScope = coroutineScope,
+                    )
+                }
+            )
+        }
     }
 
     @Composable
@@ -50,7 +73,9 @@ object ActiveWorkoutView : Viewable {
         }
 
         val coroutineScope = rememberCoroutineScope()
-        val workout = remember { WorkoutData(appState.provided as ActiveWorkout, coroutineScope = coroutineScope) }
+        val workout = rememberSaveable(
+            saver = WorkoutData.saver(coroutineScope)
+        ) { WorkoutData(appState.provided as ActiveWorkout, coroutineScope = coroutineScope) }
 
         Column(
             Modifier.fillMaxSize(),
