@@ -15,7 +15,13 @@ import io.github.aakira.napier.LogLevel
 import org.xml.sax.InputSource
 
 fun main() = application {
-    setDefaultLogger({ println(it) }, mapOf(*LogLevel.values().map { it to "[$it]" }.toTypedArray()))
+    setDefaultLogger({ logLevel, output ->
+        when (logLevel) {
+            LogLevel.ERROR,
+            LogLevel.WARNING -> System.err.println(output)
+            else -> println(output)
+        }
+    })
 
     Window(
         onCloseRequest = ::exitApplication,

@@ -22,12 +22,8 @@ import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.components.RepList
 import com.camackenzie.exvi.client.icons.ExviIcons
 import com.camackenzie.exvi.client.model.ComposeActiveWorkout
-import com.camackenzie.exvi.core.model.ActiveWorkout
-import com.camackenzie.exvi.core.model.ExviSerializer
-import com.camackenzie.exvi.core.model.Time
-import com.camackenzie.exvi.core.model.toLocalDate
+import com.camackenzie.exvi.core.model.*
 import com.camackenzie.exvi.core.util.ExviLogger
-import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -50,13 +46,13 @@ object ActiveWorkoutView : Viewable {
                     mapOf(
                         "playing" to it.playing,
                         "currentExerciseIndex" to it.currentExerciseIndex,
-                        "base" to ExviSerializer.toJson<SelfSerializable>(it.serializer, it.toActual())
+                        "base" to ExviSerializer.toJson(ActualActiveWorkout.serializer(), it.toActual()),
                     )
                 }, restore = {
                     WorkoutData(
                         playing = it["playing"] as Boolean,
                         currentExerciseIndex = it["currentExerciseIndex"] as Int,
-                        other = ExviSerializer.fromJson<SelfSerializable>(it["base"] as String) as ActiveWorkout,
+                        other = ExviSerializer.fromJson(ActualActiveWorkout.serializer(), it["base"] as String),
                         coroutineScope = coroutineScope,
                     )
                 }

@@ -8,6 +8,7 @@ The client portion of my high school capstone project.
 - Gradle
 - GitHub Actions for CD
   - Used to build the latest commits for various platforms
+- JitPack
 
 ## Download & Run
 

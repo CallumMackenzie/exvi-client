@@ -1018,6 +1018,8 @@ private class WorkoutSearchData(
     var mechanics by mutableStateOf(mechanics)
     var mechanicsDropdownExtended by mutableStateOf(false)
 
+    var searchJob: Job? = null
+
     fun ensureExercisesSorted(exerciseManager: ExerciseManager, coroutineScope: CoroutineScope) {
         // Ensure exercises are loaded into memory
         if (!processRunning && searchExercises.isEmpty()) {
@@ -1030,12 +1032,13 @@ private class WorkoutSearchData(
             }
         }
 
-        // Sort exercises if they need to be sorted and they are not already being sorted
+        // Sort exercises if they need to be sorted, and they are not already being sorted
         if (!processRunning
             && searchExercises.isNotEmpty()
             && !exercisesSorted
         ) {
-            coroutineScope.launch(Dispatchers.Default) {
+            searchJob?.cancel()
+            searchJob = coroutineScope.launch(Dispatchers.Default) {
                 processRunning = true
                 searchExercises.sortBy {
                     var sum = 0
@@ -1052,8 +1055,8 @@ private class WorkoutSearchData(
                     if (it.mechanics != mechanics) sum += 1
                     sum
                 }
-                exercisesSorted = true
                 processRunning = false
+                exercisesSorted = true
             }
         }
     }
