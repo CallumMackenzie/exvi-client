@@ -306,7 +306,7 @@ object WorkoutCreationView : Viewable {
                     ExviLogger.e("Updating workout failed with code ${it.statusCode}: ${it.body}")
                 },
                 onSuccess = {
-                    ExviLogger.i("Workout \"${workoutData.name}\" updated successfully")
+                    ExviLogger.i(tag = "WORKOUT_CREATION") { "Workout \"${workoutData.name}\" updated successfully" }
                 }
             )
             viewData.appState.setView(ExviView.Home)

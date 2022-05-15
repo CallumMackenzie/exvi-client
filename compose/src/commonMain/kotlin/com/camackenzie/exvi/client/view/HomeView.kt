@@ -245,19 +245,21 @@ object HomeView : Viewable {
         wld.ensureWorkoutsSynced()
         LazyColumn {
             item {
-                if (wld.retrievingWorkouts
-                    || serverWorkoutManager.fetchingWorkouts
-                ) Column(
+                Column(
                     Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Fetching your workouts...")
-                    LoadingIcon()
-                } else IconButton(onClick = {
-                    wld.refreshWorkouts()
-                }) {
-                    Icon(Icons.Default.Refresh, "Refresh Workout List")
+                    if (wld.retrievingWorkouts
+                        || serverWorkoutManager.fetchingWorkouts
+                    ) {
+                        Text("Fetching your workouts...")
+                        LoadingIcon()
+                    } else IconButton(onClick = {
+                        wld.refreshWorkouts()
+                    }) {
+                        Icon(Icons.Default.Refresh, "Refresh Workout List")
+                    }
                 }
             }
 
@@ -267,7 +269,10 @@ object HomeView : Viewable {
                     wld,
                     wld.workouts[it],
                 )
-            } else if (!wld.retrievingWorkouts && !serverWorkoutManager.fetchingWorkouts) item {
+            } // If list is empty and workouts are not being retrieved in any way
+            else if (!wld.retrievingWorkouts
+                && !serverWorkoutManager.fetchingWorkouts
+            ) item {
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -353,8 +358,8 @@ object HomeView : Viewable {
                                         onFail = {
                                             ExviLogger.e("Error code ${it.statusCode}: ${it.body}", tag = "CLIENT")
                                         }, onComplete = {
-                                            deletingWorkout = false
                                             wld.refreshWorkouts()
+                                            deletingWorkout = false
                                         })
                                 }, enabled = !deletingWorkout) {
                                     Text("Delete")
@@ -419,7 +424,7 @@ object HomeView : Viewable {
                         activeWorkouts = it
                     },
                     onFail = {
-                        if (it.statusCode != 418)
+                        if (it.statusCode != 418 && it.statusCode != 504)
                             appState.error(Exception("getActiveWorkouts: code ${it.statusCode}: ${it.body}"))
                     },
                     onComplete = {

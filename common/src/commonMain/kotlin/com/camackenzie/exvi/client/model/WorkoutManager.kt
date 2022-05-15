@@ -356,7 +356,11 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         onComplete: () -> Unit
     ): Job = coroutineScope.launch(dispatcher) {
         listOf(
-            localManager.deleteWorkouts(toDelete, coroutineScope, dispatcher),
+            localManager.deleteWorkouts(toDelete, coroutineScope, dispatcher, onFail = {
+                ExviLogger.e(tag = "WORKOUT_MANAGER") { "Failed to delete locally: ${it.toJson()}" }
+            }, onSuccess = {
+                ExviLogger.i(tag = "WORKOUT_MANAGER") { "Deleted workout(s) locally" }
+            }),
             serverManager.deleteWorkouts(toDelete, coroutineScope, dispatcher, onFail, onSuccess, onComplete)
         ).joinAll()
     }
@@ -370,6 +374,7 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
         onComplete: () -> Unit
     ): Job = coroutineScope.launch(dispatcher) {
         if (serverManager.isUpdatingWorkouts()) {
+            // Retrieve local workouts
             var localWorkouts = arrayOf<Workout>()
             localManager.getWorkouts(
                 type,
@@ -382,6 +387,7 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
                 },
                 onComplete = onComplete
             ).join()
+            // Request server workouts, but don't wait
             serverManager.getWorkouts(
                 type,
                 coroutineScope,
@@ -391,7 +397,7 @@ class SyncedWorkoutManager(username: String, accessKey: String) : WorkoutManager
                     Identifiable.intersectIndexed(
                         localWorkouts.toList(),
                         remoteWorkouts.toList(),
-                        onIntersect = { loc, _, rem, _ ->
+                        onIntersect = { local, _, rem, _ ->
                             // TODO: Check which one is newer
                             finalWorkouts.add(rem)
                         },
