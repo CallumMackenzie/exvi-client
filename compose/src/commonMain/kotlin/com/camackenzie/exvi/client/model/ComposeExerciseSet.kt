@@ -28,7 +28,7 @@ open class ComposeExerciseSet(
     override val serializer: KSerializer<SelfSerializable>
         get() = ActualExerciseSet.serializer() as KSerializer<SelfSerializable>
 
-    override val exercise: Exercise by mutableStateOf(exercise)
+    override var exercise: Exercise by mutableStateOf(exercise)
     override var sets: MutableList<SingleExerciseSet> = mutableStateListOf(*sets)
     override var unit: String by mutableStateOf(unit)
 

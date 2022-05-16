@@ -49,6 +49,7 @@ enum class ExviView(
     ActiveWorkout(ActiveWorkoutView),
     None(ErrorView),
     Error(ErrorView),
+    Friends(FriendView),
     InvalidAppVersion(InvalidAppVersionView);
 
     @Composable

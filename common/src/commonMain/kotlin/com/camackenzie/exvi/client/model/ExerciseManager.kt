@@ -8,6 +8,7 @@ package com.camackenzie.exvi.client.model
 import com.camackenzie.exvi.core.model.ActualExercise
 import com.camackenzie.exvi.core.model.Exercise
 import com.camackenzie.exvi.core.model.ExviSerializer
+import com.camackenzie.exvi.core.model.StandardExercise
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -30,14 +31,13 @@ data class ExerciseManager(
 
     constructor() : this(HashSet())
 
-    fun addAll(exs: Array<Exercise>) {
-        for (ex in exs) {
-            exercises.add(ex)
-        }
-    }
+    fun addAll(exs: Array<Exercise>) = exercises.addAll(exs)
 
-    fun loadStandardExercises() =
-        addAll(ExviSerializer.fromJson<Array<ActualExercise>>(readTextFile("exercises.json")) as Array<Exercise>)
+    fun loadStandardExercises() {
+        val actualExercises = ExviSerializer.fromJson<Array<ActualExercise>>(readTextFile("exercises.json"))
+        addAll(actualExercises as Array<Exercise>)
+        StandardExercise.setStandardExerciseSet(actualExercises)
+    }
 
     fun loadStandardExercisesIfEmpty() {
         if (!this.hasExercises()) {

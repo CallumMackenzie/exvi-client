@@ -40,10 +40,17 @@ object HomeView : Viewable {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TopBar(appState)
-            Button(onClick = {
-                appState.setView(ExviView.WorkoutCreation)
-            }) {
-                Text("Create Workout")
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(onClick = { appState.setView(ExviView.WorkoutCreation) }) {
+                    Text("Create Workout")
+                }
+                Button(onClick = { appState.setView(ExviView.Friends) }) {
+                    Text("Friends")
+                }
             }
             BoxWithConstraints(
                 Modifier.fillMaxWidth(),
