@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.camackenzie.exvi.client.components.*
 import com.camackenzie.exvi.client.icons.ExviIcons
 import com.camackenzie.exvi.client.model.*
 import com.camackenzie.exvi.core.model.*
@@ -25,7 +26,6 @@ import com.soywiz.krypto.SecureRandom
 import kotlinx.coroutines.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import com.camackenzie.exvi.client.components.*
 
 // TODO: Clean up this code
 object WorkoutCreationView : Viewable {
@@ -306,7 +306,7 @@ object WorkoutCreationView : Viewable {
                     ExviLogger.e("Updating workout failed with code ${it.statusCode}: ${it.body}")
                 },
                 onSuccess = {
-                    ExviLogger.i("Workout \"${workoutData.name}\" updated successfully")
+                    ExviLogger.i(tag = "WORKOUT_CREATION") { "Workout \"${workoutData.name}\" updated successfully" }
                 }
             )
             viewData.appState.setView(ExviView.Home)
@@ -1018,6 +1018,8 @@ private class WorkoutSearchData(
     var mechanics by mutableStateOf(mechanics)
     var mechanicsDropdownExtended by mutableStateOf(false)
 
+    var searchJob: Job? = null
+
     fun ensureExercisesSorted(exerciseManager: ExerciseManager, coroutineScope: CoroutineScope) {
         // Ensure exercises are loaded into memory
         if (!processRunning && searchExercises.isEmpty()) {
@@ -1030,12 +1032,13 @@ private class WorkoutSearchData(
             }
         }
 
-        // Sort exercises if they need to be sorted and they are not already being sorted
+        // Sort exercises if they need to be sorted, and they are not already being sorted
         if (!processRunning
             && searchExercises.isNotEmpty()
             && !exercisesSorted
         ) {
-            coroutineScope.launch(Dispatchers.Default) {
+            searchJob?.cancel()
+            searchJob = coroutineScope.launch(Dispatchers.Default) {
                 processRunning = true
                 searchExercises.sortBy {
                     var sum = 0
@@ -1052,8 +1055,8 @@ private class WorkoutSearchData(
                     if (it.mechanics != mechanics) sum += 1
                     sum
                 }
-                exercisesSorted = true
                 processRunning = false
+                exercisesSorted = true
             }
         }
     }
@@ -1065,12 +1068,14 @@ private class WorkoutSearchData(
                     "searchContent" to it.searchContent,
                     "muscleWorked" to it.muscleWorked,
                     "experienceLevel" to it.experienceLevel,
+                    "mechanics" to it.mechanics,
                 )
             }, restore = {
                 WorkoutSearchData(
                     searchContent = it["searchContent"] as String,
                     muscleWorked = it["muscleWorked"] as Muscle?,
                     experienceLevel = it["experienceLevel"] as ExerciseExperienceLevel?,
+                    mechanics = it["mechanics"] as ExerciseMechanics?,
                 )
             }
         )

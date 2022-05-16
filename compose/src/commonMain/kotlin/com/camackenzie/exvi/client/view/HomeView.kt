@@ -1,11 +1,10 @@
 package com.camackenzie.exvi.client.view
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
@@ -15,19 +14,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.camackenzie.exvi.client.components.AlertDialog
+import com.camackenzie.exvi.client.components.LoadingIcon
 import com.camackenzie.exvi.core.api.WorkoutListRequest
 import com.camackenzie.exvi.core.model.ActiveWorkout
-import com.camackenzie.exvi.core.model.TimeUnit
 import com.camackenzie.exvi.core.model.Workout
-import com.camackenzie.exvi.core.model.formatToElapsedTime
 import com.camackenzie.exvi.core.util.ExviLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import com.camackenzie.exvi.client.components.*
-import androidx.compose.foundation.border
-import androidx.compose.material.MaterialTheme
 
 object HomeView : Viewable {
 
@@ -156,82 +152,87 @@ object HomeView : Viewable {
     private fun ActiveWorkoutListView(
         appState: AppState, wld: WorkoutListData
     ) {
+        val serverWorkoutManager = appState.model.workoutManager!!.serverManager
         wld.ensureWorkoutsSynced()
 
-        if (!wld.retrievingActiveWorkouts) {
-            LazyColumn {
-                if (wld.activeWorkouts.isEmpty()) {
-                    item {
-                        Text("No recent active workouts")
+        if (wld.retrievingActiveWorkouts
+            || serverWorkoutManager.fetchingActiveWorkouts
+        ) {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Fetching your active workouts...")
+                LoadingIcon()
+            }
+        }
+
+        LazyColumn {
+            if (wld.activeWorkouts.isNotEmpty()) items(wld.activeWorkouts) { wk ->
+                var deleteConfirmEnabled by remember { mutableStateOf(false) }
+                var deletingWorkout by rememberSaveable { mutableStateOf(false) }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(3.dp, Alignment.Start)
+                ) {
+                    Text(wk.name, fontSize = 20.sp)
+                    IconButton(onClick = {
+                        appState.setView(ExviView.ActiveWorkout, wk)
+                    }, enabled = !deletingWorkout) {
+                        Icon(Icons.Default.PlayArrow, "Resume workout")
                     }
-                } else {
-                    items(wld.activeWorkouts) { wk ->
-                        var deleteConfirmEnabled by remember { mutableStateOf(false) }
-                        var deletingWorkout by rememberSaveable { mutableStateOf(false) }
+                    IconButton(onClick = {
+                        deleteConfirmEnabled = true
+                    }, enabled = !deletingWorkout) {
+                        Icon(Icons.Default.Delete, "Delete Active Workout")
+                    }
+                    if (deletingWorkout) LoadingIcon()
 
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp, Alignment.Start)
-                        ) {
-                            Text(wk.name, fontSize = 20.sp)
-                            IconButton(onClick = {
-                                appState.setView(ExviView.ActiveWorkout, wk)
-                            }, enabled = !deletingWorkout) {
-                                Icon(Icons.Default.PlayArrow, "Resume workout")
-                            }
-                            IconButton(onClick = {
-                                deleteConfirmEnabled = true
-                            }, enabled = !deletingWorkout) {
-                                Icon(Icons.Default.Delete, "Delete Active Workout")
-                            }
-                            if (deletingWorkout) LoadingIcon()
-
-                            if (deleteConfirmEnabled) {
-                                AlertDialog(
-                                    modifier = Modifier.border(1.dp, MaterialTheme.colors.primary),
-                                    onDismissRequest = {
-                                        deleteConfirmEnabled = false
-                                    },
-                                    title = {
-                                        Text(text = "Delete \"${wk.name}\"?")
-                                    },
-                                    buttons = {
-                                        Row(
-                                            Modifier.padding(5.dp),
-                                            horizontalArrangement = Arrangement.spacedBy(
-                                                5.dp,
-                                                Alignment.CenterHorizontally
-                                            ),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                        ) {
-                                            Button(onClick = {
-                                                deletingWorkout = true
-                                                deleteConfirmEnabled = false
-                                                appState.model.workoutManager!!.deleteActiveWorkouts(arrayOf(wk.activeWorkoutId.get()),
-                                                    onFail = {
-                                                        ExviLogger.e(
-                                                            "Error code ${it.statusCode}: ${it.body}",
-                                                            tag = "CLIENT"
-                                                        )
-                                                    }, onComplete = {
-                                                        deletingWorkout = false
-                                                        wld.refreshWorkouts()
-                                                    })
-                                            }) {
-                                                Text("Delete")
-                                            }
-                                            Button(onClick = { deleteConfirmEnabled = false }) {
-                                                Text("Cancel")
-                                            }
-                                        }
-                                    }
-                                )
+                    if (deleteConfirmEnabled) AlertDialog(
+                        modifier = Modifier.border(1.dp, MaterialTheme.colors.primary),
+                        onDismissRequest = {
+                            deleteConfirmEnabled = false
+                        },
+                        title = {
+                            Text(text = "Delete \"${wk.name}\"?")
+                        },
+                        buttons = {
+                            Row(
+                                Modifier.padding(5.dp),
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    5.dp,
+                                    Alignment.CenterHorizontally
+                                ),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Button(onClick = {
+                                    deletingWorkout = true
+                                    deleteConfirmEnabled = false
+                                    appState.model.workoutManager!!.deleteActiveWorkouts(arrayOf(wk.activeWorkoutId.get()),
+                                        onFail = {
+                                            ExviLogger.e(
+                                                "Error code ${it.statusCode}: ${it.body}",
+                                                tag = "CLIENT"
+                                            )
+                                        }, onComplete = {
+                                            deletingWorkout = false
+                                            wld.refreshWorkouts()
+                                        })
+                                }) {
+                                    Text("Delete")
+                                }
+                                Button(onClick = { deleteConfirmEnabled = false }) {
+                                    Text("Cancel")
+                                }
                             }
                         }
-                    }
+                    )
                 }
+            } else if (!wld.retrievingActiveWorkouts) item {
+                Text("No recent active workouts")
             }
-        } else LoadingIcon()
+        }
     }
 
 
@@ -240,57 +241,51 @@ object HomeView : Viewable {
         appState: AppState,
         wld: WorkoutListData
     ) {
+        val serverWorkoutManager = appState.model.workoutManager!!.serverManager
         wld.ensureWorkoutsSynced()
+        LazyColumn {
+            item {
+                Column(
+                    Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (wld.retrievingWorkouts
+                        || serverWorkoutManager.fetchingWorkouts
+                    ) {
+                        Text("Fetching your workouts...")
+                        LoadingIcon()
+                    } else IconButton(onClick = {
+                        wld.refreshWorkouts()
+                    }) {
+                        Icon(Icons.Default.Refresh, "Refresh Workout List")
+                    }
+                }
+            }
 
-        Row(
-            Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            if (wld.retrievingWorkouts) {
+            if (wld.workouts.isNotEmpty()) items(wld.workouts.size) {
+                WorkoutListViewItem(
+                    appState,
+                    wld,
+                    wld.workouts[it],
+                )
+            } // If list is empty and workouts are not being retrieved in any way
+            else if (!wld.retrievingWorkouts
+                && !serverWorkoutManager.fetchingWorkouts
+            ) item {
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Fetching your workouts...")
-                    LoadingIcon()
-                }
-            } else {
-                IconButton(onClick = {
-                    wld.refreshWorkouts()
-                }) {
-                    Icon(Icons.Default.Refresh, "Refresh Workout List")
-                }
-            }
-
-            if (!wld.retrievingWorkouts) {
-                LazyColumn {
-                    if (wld.workouts.isNotEmpty()) {
-                        items(wld.workouts.size) {
-                            WorkoutListViewItem(
-                                appState,
-                                wld,
-                                wld.workouts[it],
-                            )
-                        }
-                    } else {
-                        item {
-                            Column(
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text("You have no workouts", textAlign = TextAlign.Center)
-                                Button(onClick = {
-                                    appState.setView(ExviView.WorkoutCreation)
-                                }) {
-                                    Text(
-                                        if (appState.previousView == ExviView.Signup)
-                                            "Create your first workout" else
-                                            "Create a new workout"
-                                    )
-                                }
-                            }
-                        }
+                    Text("You have no workouts", textAlign = TextAlign.Center)
+                    Button(onClick = {
+                        appState.setView(ExviView.WorkoutCreation)
+                    }) {
+                        Text(
+                            if (appState.previousView == ExviView.Signup)
+                                "Create your first workout" else
+                                "Create a new workout"
+                        )
                     }
                 }
             }
@@ -363,8 +358,8 @@ object HomeView : Viewable {
                                         onFail = {
                                             ExviLogger.e("Error code ${it.statusCode}: ${it.body}", tag = "CLIENT")
                                         }, onComplete = {
-                                            deletingWorkout = false
                                             wld.refreshWorkouts()
+                                            deletingWorkout = false
                                         })
                                 }, enabled = !deletingWorkout) {
                                     Text("Delete")
@@ -429,7 +424,7 @@ object HomeView : Viewable {
                         activeWorkouts = it
                     },
                     onFail = {
-                        if (it.statusCode != 418)
+                        if (it.statusCode != 418 && it.statusCode != 504)
                             appState.error(Exception("getActiveWorkouts: code ${it.statusCode}: ${it.body}"))
                     },
                     onComplete = {
