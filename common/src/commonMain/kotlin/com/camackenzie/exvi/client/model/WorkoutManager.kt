@@ -148,13 +148,13 @@ class ServerWorkoutManager(
             coroutineScope = coroutineScope,
             coroutineDispatcher = dispatcher
         ) {
-            fetchingActiveWorkouts = false
             if (it.failed()) onFail(it) else {
                 val response = ExviSerializer.fromJson<ActiveWorkoutListResult>(it.body)
                 @Suppress("unchecked_cast")
                 onSuccess(response.workouts as Array<ActiveWorkout>)
             }
             onComplete()
+            fetchingActiveWorkouts = false
         }.join()
     }
 
@@ -177,13 +177,13 @@ class ServerWorkoutManager(
             coroutineScope = coroutineScope,
             coroutineDispatcher = dispatcher,
         ) {
-            fetchingWorkouts = false
             if (it.failed()) onFail(it) else {
                 val response = ExviSerializer.fromJson<WorkoutListResult>(it.body)
                 @Suppress("unchecked_cast")
                 onSuccess(response.workouts as Array<Workout>)
             }
             onComplete()
+            fetchingWorkouts = false
         }.join()
     }
 

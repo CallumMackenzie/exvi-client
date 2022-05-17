@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.camackenzie.exvi.client.components.LoadingIcon
 import com.camackenzie.exvi.client.components.RepList
 import com.camackenzie.exvi.client.icons.ExviIcons
 import com.camackenzie.exvi.client.model.ComposeActiveWorkout
@@ -26,6 +27,7 @@ import com.camackenzie.exvi.core.model.*
 import com.camackenzie.exvi.core.util.ExviLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 object ActiveWorkoutView : Viewable {
 
@@ -39,6 +41,7 @@ object ActiveWorkoutView : Viewable {
         var playing by mutableStateOf(playing)
         var currentExerciseIndex by mutableStateOf(currentExerciseIndex)
         var currentExerciseRemainingTime by mutableStateOf(currentExerciseRemainingTime)
+        var loadingExercises by mutableStateOf(false)
 
         companion object {
             fun saver(coroutineScope: CoroutineScope): Saver<WorkoutData, Any> = mapSaver(
@@ -68,12 +71,34 @@ object ActiveWorkoutView : Viewable {
             appState.setView(ExviView.Home)
         }
 
+
         val coroutineScope = rememberCoroutineScope()
         val workout = rememberSaveable(
             saver = WorkoutData.saver(coroutineScope)
         ) { WorkoutData(appState.provided as ActiveWorkout, coroutineScope = coroutineScope) }
 
-        Column(
+        // Load standard exercises
+        remember {
+            workout.loadingExercises = true
+            coroutineScope.launch {
+                appState.model.exerciseManager.loadStandardExercisesIfEmpty()
+                // Re-standardize exercises with possible placeholder delegates
+                if (workout.tryStandardize().isNotEmpty())
+                    ExviLogger.i(tag = "ACTIVE_WORKOUT") { "Active workout standardized" }
+                else ExviLogger.i(tag = "ACTIVE_WORKOUT") { "Active workout already standard" }
+                workout.loadingExercises = false
+            }
+        }
+
+        if (workout.loadingExercises) Column(
+            Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            LoadingIcon()
+            Text("Loading standard exercises")
+        }
+        else Column(
             Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -138,6 +163,7 @@ object ActiveWorkoutView : Viewable {
         }
     }
 
+
     @Composable
     private fun ActiveExerciseSetRow(
         appState: AppState,
@@ -181,5 +207,4 @@ object ActiveWorkoutView : Viewable {
             }
         }
     }
-
 }

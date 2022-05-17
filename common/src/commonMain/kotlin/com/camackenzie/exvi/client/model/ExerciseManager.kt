@@ -40,9 +40,7 @@ data class ExerciseManager(
     }
 
     fun loadStandardExercisesIfEmpty() {
-        if (!this.hasExercises()) {
-            this.loadStandardExercises()
-        }
+        if (!this.hasExercises()) this.loadStandardExercises()
     }
 
     fun hasExercises(): Boolean = exercises.size != 0

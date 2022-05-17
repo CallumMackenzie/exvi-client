@@ -42,75 +42,59 @@ object WorkoutCreationView : Viewable {
         val workoutSearchData = rememberSaveable(saver = WorkoutSearchData.saver()) { WorkoutSearchData() }
         val selectorViewData = rememberSaveable(saver = SelectorViewData.saver()) { SelectorViewData() }
 
+        // Load standard exercises
+        remember {
+            viewData.loadingExercises = true
+            viewData.coroutineScope.launch {
+                appState.model.exerciseManager.loadStandardExercisesIfEmpty()
+                // Re-standardize exercises with possible placeholder delegates
+                if (workoutData.tryStandardize().isNotEmpty())
+                    ExviLogger.i(tag = "WORKOUT_CREATION") { "Workout standardized" }
+                else ExviLogger.i(tag = "WORKOUT_CREATION") { "Workout already standard" }
+                viewData.loadingExercises = false
+            }
+        }
+
         // View
-        BoxWithConstraints(Modifier.fillMaxSize().padding(10.dp)) {
-            if (maxWidth < 600.dp) {
-                Column(
-                    Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Top)
-                ) {
-                    ExviBox {
-                        Column(
-                            Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Row(
+        if (viewData.loadingExercises) Column(
+            Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            LoadingIcon()
+            Text("Loading standard exercises")
+        } else
+            BoxWithConstraints(Modifier.fillMaxSize().padding(10.dp)) {
+                if (maxWidth < 600.dp) {
+                    Column(
+                        Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Top)
+                    ) {
+                        ExviBox {
+                            Column(
                                 Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
-                                verticalAlignment = Alignment.CenterVertically
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
                             ) {
-                                WorkoutNameField(workoutData, Modifier.fillMaxWidth(0.6f))
-                                FinishWorkoutButton(viewData, workoutData)
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    WorkoutNameField(workoutData, Modifier.fillMaxWidth(0.6f))
+                                    FinishWorkoutButton(viewData, workoutData)
+                                }
+                                CancelWorkoutButton(appState)
                             }
-                            CancelWorkoutButton(appState)
                         }
-                    }
-                    Box(
-                        Modifier.fillMaxWidth()
-                            .fillMaxHeight(0.4f)
-                    ) {
-                        WorkoutExerciseListView(workoutData, selectorViewData)
-                    }
-                    ExviBox(Modifier.fillMaxSize()) {
-                        ViewSetOne(
-                            viewData,
-                            workoutData,
-                            workoutSearchData,
-                            selectorViewData
-                        )
-                    }
-                }
-            } else {
-                Column(
-                    Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Top)
-                ) {
-                    ExviBox {
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
-                        ) {
-                            WorkoutNameField(workoutData, Modifier.fillMaxWidth(0.6f))
-                            FinishWorkoutButton(viewData, workoutData)
-                            CancelWorkoutButton(appState)
-                        }
-                    }
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.Top,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
-                    ) {
                         Box(
-                            Modifier.fillMaxWidth(0.5f)
-                                .fillMaxHeight()
+                            Modifier.fillMaxWidth()
+                                .fillMaxHeight(0.4f)
                         ) {
                             WorkoutExerciseListView(workoutData, selectorViewData)
                         }
-                        ExviBox(Modifier.fillMaxWidth()) {
+                        ExviBox(Modifier.fillMaxSize()) {
                             ViewSetOne(
                                 viewData,
                                 workoutData,
@@ -119,9 +103,46 @@ object WorkoutCreationView : Viewable {
                             )
                         }
                     }
+                } else {
+                    Column(
+                        Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Top)
+                    ) {
+                        ExviBox {
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
+                            ) {
+                                WorkoutNameField(workoutData, Modifier.fillMaxWidth(0.6f))
+                                FinishWorkoutButton(viewData, workoutData)
+                                CancelWorkoutButton(appState)
+                            }
+                        }
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.Top,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
+                        ) {
+                            Box(
+                                Modifier.fillMaxWidth(0.5f)
+                                    .fillMaxHeight()
+                            ) {
+                                WorkoutExerciseListView(workoutData, selectorViewData)
+                            }
+                            ExviBox(Modifier.fillMaxWidth()) {
+                                ViewSetOne(
+                                    viewData,
+                                    workoutData,
+                                    workoutSearchData,
+                                    selectorViewData
+                                )
+                            }
+                        }
+                    }
                 }
             }
-        }
     }
 
     @Composable
@@ -826,290 +847,292 @@ object WorkoutCreationView : Viewable {
             }
         }
     }
-}
 
-private val workoutNamePresets = arrayOf(
-    "Pull Day", "Push Day", "Leg Day", "Chest Day",
-    "Bicep Bonanza", "Quad Isolation", "Calf Cruncher",
-    "Forearm Fiesta", "The Quadfather", "Quadzilla",
-    "Shoulders", "Back Builder", "Core", "Cardio Day 1",
-    "Deltoid Destroyer", "Shoulder Shredder", "Core Killer",
-    "More Core", "Roko's Rhomboids"
-)
-
-private val generators = mapOf(
-    "Random" to { emptyArray() },
-    "Arms" to WorkoutGenerator::armPriorities,
-    "Legs" to WorkoutGenerator::legPriorities
-)
-
-private data class ViewData(
-    val appState: AppState,
-    val coroutineScope: CoroutineScope
-) {
-    val model
-        get() = appState.model
-}
-
-private class WorkoutGeneratorData(
-    params: WorkoutGeneratorParams,
-    generatorDropdownExpanded: Boolean = false,
-    minExercises: Int? = params.minExercises,
-    maxExercises: Int? = params.maxExercises,
-) {
-    var generatorDropdownExpanded by mutableStateOf(generatorDropdownExpanded)
-    var params by mutableStateOf(params)
-    var maxExercises by delegatedMutableStateOf(maxExercises, onSet = {
-        params.minExercises = it ?: 5
-    })
-    var minExercises by delegatedMutableStateOf(minExercises, onSet = {
-        params.maxExercises = it ?: 8
-    })
-}
-
-private class WorkoutData(
-    name: String,
-    description: String,
-    exercises: List<ExerciseSet>,
-    id: EncodedStringCache,
-    params: WorkoutGeneratorParams = WorkoutGeneratorParams(providers = generators["Arms"]!!.invoke()),
-    lockedExercises: Set<Int> = setOf(),
-    exerciseProcessRunning: Boolean = false,
-    editorExercise: Int? = null,
-    infoExercise: Exercise? = null,
-    generatorData: WorkoutGeneratorData = WorkoutGeneratorData(params = params)
-) : ComposeWorkout(name, description, exercises, id) {
-    constructor(base: Workout?) : this(
-        base?.name ?: "New Workout",
-        base?.description ?: "",
-        base?.exercises ?: emptyList(),
-        base?.id ?: Identifiable.generateId()
+    private val workoutNamePresets = arrayOf(
+        "Pull Day", "Push Day", "Leg Day", "Chest Day",
+        "Bicep Bonanza", "Quad Isolation", "Calf Cruncher",
+        "Forearm Fiesta", "The Quadfather", "Quadzilla",
+        "Shoulders", "Back Builder", "Core", "Cardio Day 1",
+        "Deltoid Destroyer", "Shoulder Shredder", "Core Killer",
+        "More Core", "Roko's Rhomboids"
     )
 
-    var infoExercise by mutableStateOf(infoExercise)
-    var editorExerciseIndex by mutableStateOf(editorExercise)
-    var lockedExercises by mutableStateOf(lockedExercises)
-    var exerciseProcessRunning by mutableStateOf(exerciseProcessRunning)
-    var generatorData by mutableStateOf(generatorData)
+    private val generators = mapOf(
+        "Random" to { emptyArray() },
+        "Arms" to WorkoutGenerator::armPriorities,
+        "Legs" to WorkoutGenerator::legPriorities
+    )
 
-    var editorExercise: ExerciseSet?
-        get() = if (editorExerciseIndex == null) null else exercises[editorExerciseIndex!!]
-        set(ex) = if (ex == null) throw Exception("Exercise was null")
-        else if (editorExerciseIndex == null) {
-            editorExerciseIndex = exercises.indexOf(ex)
-        } else {
-            exercises[editorExerciseIndex!!] = ex
+    private data class ViewData(
+        val appState: AppState,
+        val coroutineScope: CoroutineScope
+    ) {
+        var loadingExercises by mutableStateOf(false)
+
+        val model
+            get() = appState.model
+    }
+
+    private class WorkoutGeneratorData(
+        params: WorkoutGeneratorParams,
+        generatorDropdownExpanded: Boolean = false,
+        minExercises: Int? = params.minExercises,
+        maxExercises: Int? = params.maxExercises,
+    ) {
+        var generatorDropdownExpanded by mutableStateOf(generatorDropdownExpanded)
+        var params by mutableStateOf(params)
+        var maxExercises by delegatedMutableStateOf(maxExercises, onSet = {
+            params.minExercises = it ?: 5
+        })
+        var minExercises by delegatedMutableStateOf(minExercises, onSet = {
+            params.maxExercises = it ?: 8
+        })
+    }
+
+    private class WorkoutData(
+        name: String,
+        description: String,
+        exercises: List<ExerciseSet>,
+        id: EncodedStringCache,
+        params: WorkoutGeneratorParams = WorkoutGeneratorParams(providers = generators["Arms"]!!.invoke()),
+        lockedExercises: Set<Int> = setOf(),
+        exerciseProcessRunning: Boolean = false,
+        editorExercise: Int? = null,
+        infoExercise: Exercise? = null,
+        generatorData: WorkoutGeneratorData = WorkoutGeneratorData(params = params)
+    ) : ComposeWorkout(name, description, exercises, id) {
+        constructor(base: Workout?) : this(
+            base?.name ?: "New Workout",
+            base?.description ?: "",
+            base?.exercises ?: emptyList(),
+            base?.id ?: Identifiable.generateId()
+        )
+
+        var infoExercise by mutableStateOf(infoExercise)
+        var editorExerciseIndex by mutableStateOf(editorExercise)
+        var lockedExercises by mutableStateOf(lockedExercises)
+        var exerciseProcessRunning by mutableStateOf(exerciseProcessRunning)
+        var generatorData by mutableStateOf(generatorData)
+
+        var editorExercise: ExerciseSet?
+            get() = if (editorExerciseIndex == null) null else exercises[editorExerciseIndex!!]
+            set(ex) = if (ex == null) throw Exception("Exercise was null")
+            else if (editorExerciseIndex == null) {
+                editorExerciseIndex = exercises.indexOf(ex)
+            } else {
+                exercises[editorExerciseIndex!!] = ex
+            }
+
+        // Reload editor exercise for full recomposition
+        fun refreshEditorExercise() {
+            if (editorExercise != null)
+                editorExercise = editorExercise!!.toComposable()
         }
 
-    // Reload editor exercise for full recomposition
-    fun refreshEditorExercise() {
-        if (editorExercise != null)
-            editorExercise = editorExercise!!.toComposable()
-    }
+        // Append exercise to end of list
+        fun addExercise(ex: ExerciseSet) {
+            exercises.add(ex)
+        }
 
-    // Append exercise to end of list
-    fun addExercise(ex: ExerciseSet) {
-        exercises.add(ex)
-    }
+        // Swap exercises at index a and b
+        fun swapExercises(a: Int, b: Int) {
+            // If indexes equal, don't swap
+            if (a == b) return
 
-    // Swap exercises at index a and b
-    fun swapExercises(a: Int, b: Int) {
-        // If indexes equal, don't swap
-        if (a == b) return
+            // Switch actual exercises
+            val aVal = exercises[a]
+            exercises[a] = exercises[b]
+            exercises[b] = aVal
 
-        // Switch actual exercises
-        val aVal = exercises[a]
-        exercises[a] = exercises[b]
-        exercises[b] = aVal
+            // Sync exercise locking
+            val aLocked = lockedExercises.contains(a)
+            val bLocked = lockedExercises.contains(b)
+            lockExercise(a, bLocked)
+            lockExercise(b, aLocked)
 
-        // Sync exercise locking
-        val aLocked = lockedExercises.contains(a)
-        val bLocked = lockedExercises.contains(b)
-        lockExercise(a, bLocked)
-        lockExercise(b, aLocked)
+            // Sync exercise editor to new index if needed
+            if (a == editorExerciseIndex) editorExerciseIndex = b
+            else if (b == editorExerciseIndex) editorExerciseIndex = a
+        }
 
-        // Sync exercise editor to new index if needed
-        if (a == editorExerciseIndex) editorExerciseIndex = b
-        else if (b == editorExerciseIndex) editorExerciseIndex = a
-    }
-
-    // Remove exercise at index
-    fun removeExercise(index: Int) {
-        // Sync with exercise set editor
-        if (index == editorExerciseIndex) editorExerciseIndex = null
-        else if (editorExerciseIndex != null && index < editorExerciseIndex!!) editorExerciseIndex =
-            editorExerciseIndex!!.dec()
-        // Unlock exercise
-        lockExercise(index, false)
-        // Shift locked exercise indexes
-        lockedExercises = lockedExercises.map {
-            it - ((if (it >= index) 1 else 0) +
-                    (if (it >= (editorExerciseIndex ?: Int.MAX_VALUE)) 1 else 0))
-        }.toSet()
-        // Remove exercise
-        exercises.removeAt(index)
-    }
-
-    // Lock or unlock exercise at index
-    fun lockExercise(index: Int, lock: Boolean) {
-        lockedExercises = if (lock) // Lock exercise
-            setOf(*lockedExercises.toTypedArray(), index)
-        else // Unlock exercise
-            lockedExercises.filter {
-                it != index
+        // Remove exercise at index
+        fun removeExercise(index: Int) {
+            // Sync with exercise set editor
+            if (index == editorExerciseIndex) editorExerciseIndex = null
+            else if (editorExerciseIndex != null && index < editorExerciseIndex!!) editorExerciseIndex =
+                editorExerciseIndex!!.dec()
+            // Unlock exercise
+            lockExercise(index, false)
+            // Shift locked exercise indexes
+            lockedExercises = lockedExercises.map {
+                it - ((if (it >= index) 1 else 0) +
+                        (if (it >= (editorExerciseIndex ?: Int.MAX_VALUE)) 1 else 0))
             }.toSet()
-    }
+            // Remove exercise
+            exercises.removeAt(index)
+        }
 
-    companion object {
-        @Suppress("UNCHECKED_CAST")
-        fun saver(provided: SelfSerializable?): Saver<WorkoutData, Any> = mapSaver(
-            save = {
-                mapOf(
-                    "name" to it.name,
-                    "description" to it.description,
-                    "exercises" to it.exercises.toTypedArray(),
-                    "id" to it.id.getEncoded(),
-                    "lockedExercises" to it.lockedExercises.toTypedArray(),
-                    "editorExerciseIndex" to it.editorExerciseIndex,
-                    "infoExercise" to it.infoExercise?.toJson(),
-                    "params" to it.generatorData.params.toJson()
-                )
-            },
-            restore = {
-                val infoExerciseStr = it["infoExercise"] as String?
-                WorkoutData(
-                    name = it["name"] as String,
-                    description = it["description"] as String,
-                    exercises = listOf(*(it["exercises"] as Array<ExerciseSet>)),
-                    id = EncodedStringCache.fromEncoded(it["id"] as String),
-                    lockedExercises = (it["lockedExercises"] as Array<Int>).toSet(),
-                    editorExercise = it["editorExerciseIndex"] as Int?,
-                    infoExercise = if (infoExerciseStr == null) null else ExviSerializer.fromJson<Exercise>(
-                        infoExerciseStr
-                    ),
-                    generatorData = WorkoutGeneratorData(
-                        params = ExviSerializer.fromJson(it["params"] as String)
+        // Lock or unlock exercise at index
+        fun lockExercise(index: Int, lock: Boolean) {
+            lockedExercises = if (lock) // Lock exercise
+                setOf(*lockedExercises.toTypedArray(), index)
+            else // Unlock exercise
+                lockedExercises.filter {
+                    it != index
+                }.toSet()
+        }
+
+        companion object {
+            @Suppress("UNCHECKED_CAST")
+            fun saver(provided: SelfSerializable?): Saver<WorkoutData, Any> = mapSaver(
+                save = {
+                    mapOf(
+                        "name" to it.name,
+                        "description" to it.description,
+                        "exercises" to it.exercises.toTypedArray(),
+                        "id" to it.id.getEncoded(),
+                        "lockedExercises" to it.lockedExercises.toTypedArray(),
+                        "editorExerciseIndex" to it.editorExerciseIndex,
+                        "infoExercise" to it.infoExercise?.toJson(),
+                        "params" to it.generatorData.params.toJson()
                     )
-                )
-            }
-        )
-    }
-}
-
-private class WorkoutSearchData(
-    searchContent: String = "",
-    exercisesSorted: Boolean = false,
-    searchExercises: Array<Exercise> = emptyArray(),
-    processRunning: Boolean = false,
-    muscleWorked: Muscle? = null,
-    experienceLevel: ExerciseExperienceLevel? = null,
-    mechanics: ExerciseMechanics? = null,
-) {
-    var exercisesSorted by mutableStateOf(exercisesSorted)
-    var searchExercises by mutableStateOf(searchExercises)
-    var processRunning by mutableStateOf(processRunning)
-
-    var searchContent by mutableStateOf(searchContent)
-
-    var muscleWorked by mutableStateOf(muscleWorked)
-    var muscleDropdownExpanded by mutableStateOf(false)
-
-    var experienceLevel by mutableStateOf(experienceLevel)
-    var experienceLevelDropdownExtended by mutableStateOf(false)
-
-    var mechanics by mutableStateOf(mechanics)
-    var mechanicsDropdownExtended by mutableStateOf(false)
-
-    var searchJob: Job? = null
-
-    fun ensureExercisesSorted(exerciseManager: ExerciseManager, coroutineScope: CoroutineScope) {
-        // Ensure exercises are loaded into memory
-        if (!processRunning && searchExercises.isEmpty()) {
-            coroutineScope.launch(Dispatchers.Default) {
-                processRunning = true
-                exerciseManager.loadStandardExercisesIfEmpty()
-                searchExercises = exerciseManager.exercises.toTypedArray()
-                exercisesSorted = false
-                processRunning = false
-            }
-        }
-
-        // Sort exercises if they need to be sorted, and they are not already being sorted
-        if (!processRunning
-            && searchExercises.isNotEmpty()
-            && !exercisesSorted
-        ) {
-            searchJob?.cancel()
-            searchJob = coroutineScope.launch(Dispatchers.Default) {
-                processRunning = true
-                searchExercises.sortBy {
-                    var sum = 0
-                    // Sort by keywords
-                    for (word in searchContent.split("\\s+"))
-                        if (!it.name.contains(word, true)) sum += 1
-                    // By muscle
-                    if (muscleWorked != null &&
-                        !it.musclesWorked.contains(muscleWorked!!.workData(1.0))
-                    ) sum += 1
-                    // By experience level
-                    if (it.experienceLevel != experienceLevel) sum += 1
-                    // By mechanics
-                    if (it.mechanics != mechanics) sum += 1
-                    sum
+                },
+                restore = {
+                    val infoExerciseStr = it["infoExercise"] as String?
+                    WorkoutData(
+                        name = it["name"] as String,
+                        description = it["description"] as String,
+                        exercises = listOf(*(it["exercises"] as Array<ExerciseSet>)),
+                        id = EncodedStringCache.fromEncoded(it["id"] as String),
+                        lockedExercises = (it["lockedExercises"] as Array<Int>).toSet(),
+                        editorExercise = it["editorExerciseIndex"] as Int?,
+                        infoExercise = if (infoExerciseStr == null) null else ExviSerializer.fromJson<Exercise>(
+                            infoExerciseStr
+                        ),
+                        generatorData = WorkoutGeneratorData(
+                            params = ExviSerializer.fromJson(it["params"] as String)
+                        )
+                    )
                 }
-                processRunning = false
-                exercisesSorted = true
-            }
+            )
         }
     }
 
-    companion object {
-        fun saver(): Saver<WorkoutSearchData, Any> = mapSaver(
-            save = {
-                mapOf(
-                    "searchContent" to it.searchContent,
-                    "muscleWorked" to it.muscleWorked,
-                    "experienceLevel" to it.experienceLevel,
-                    "mechanics" to it.mechanics,
-                )
-            }, restore = {
-                WorkoutSearchData(
-                    searchContent = it["searchContent"] as String,
-                    muscleWorked = it["muscleWorked"] as Muscle?,
-                    experienceLevel = it["experienceLevel"] as ExerciseExperienceLevel?,
-                    mechanics = it["mechanics"] as ExerciseMechanics?,
-                )
+    private class WorkoutSearchData(
+        searchContent: String = "",
+        exercisesSorted: Boolean = false,
+        searchExercises: Array<Exercise> = emptyArray(),
+        processRunning: Boolean = false,
+        muscleWorked: Muscle? = null,
+        experienceLevel: ExerciseExperienceLevel? = null,
+        mechanics: ExerciseMechanics? = null,
+    ) {
+        var exercisesSorted by mutableStateOf(exercisesSorted)
+        var searchExercises by mutableStateOf(searchExercises)
+        var processRunning by mutableStateOf(processRunning)
+
+        var searchContent by mutableStateOf(searchContent)
+
+        var muscleWorked by mutableStateOf(muscleWorked)
+        var muscleDropdownExpanded by mutableStateOf(false)
+
+        var experienceLevel by mutableStateOf(experienceLevel)
+        var experienceLevelDropdownExtended by mutableStateOf(false)
+
+        var mechanics by mutableStateOf(mechanics)
+        var mechanicsDropdownExtended by mutableStateOf(false)
+
+        var searchJob: Job? = null
+
+        fun ensureExercisesSorted(exerciseManager: ExerciseManager, coroutineScope: CoroutineScope) {
+            // Ensure exercises are loaded into memory
+            if (!processRunning && searchExercises.isEmpty()) {
+                coroutineScope.launch(Dispatchers.Default) {
+                    processRunning = true
+                    exerciseManager.loadStandardExercisesIfEmpty()
+                    searchExercises = exerciseManager.exercises.toTypedArray()
+                    exercisesSorted = false
+                    processRunning = false
+                }
             }
-        )
-    }
-}
 
-private class SelectorViewData(
-    rightPane: String = RightPaneView.Info.str
-) {
-    var rightPane by mutableStateOf(rightPane)
-
-    companion object {
-        fun saver(): Saver<SelectorViewData, Any> = mapSaver(
-            save = {
-                mapOf(
-                    "rightPane" to it.rightPane
-                )
-            }, restore = {
-                SelectorViewData(
-                    rightPane = it["rightPane"] as String
-                )
+            // Sort exercises if they need to be sorted, and they are not already being sorted
+            if (!processRunning
+                && searchExercises.isNotEmpty()
+                && !exercisesSorted
+            ) {
+                searchJob?.cancel()
+                searchJob = coroutineScope.launch(Dispatchers.Default) {
+                    processRunning = true
+                    searchExercises.sortBy {
+                        var sum = 0
+                        // Sort by keywords
+                        for (word in searchContent.split("\\s+"))
+                            if (!it.name.contains(word, true)) sum += 1
+                        // By muscle
+                        if (muscleWorked != null &&
+                            !it.musclesWorked.contains(muscleWorked!!.workData(1.0))
+                        ) sum += 1
+                        // By experience level
+                        if (it.experienceLevel != experienceLevel) sum += 1
+                        // By mechanics
+                        if (it.mechanics != mechanics) sum += 1
+                        sum
+                    }
+                    processRunning = false
+                    exercisesSorted = true
+                }
             }
-        )
+        }
+
+        companion object {
+            fun saver(): Saver<WorkoutSearchData, Any> = mapSaver(
+                save = {
+                    mapOf(
+                        "searchContent" to it.searchContent,
+                        "muscleWorked" to it.muscleWorked,
+                        "experienceLevel" to it.experienceLevel,
+                        "mechanics" to it.mechanics,
+                    )
+                }, restore = {
+                    WorkoutSearchData(
+                        searchContent = it["searchContent"] as String,
+                        muscleWorked = it["muscleWorked"] as Muscle?,
+                        experienceLevel = it["experienceLevel"] as ExerciseExperienceLevel?,
+                        mechanics = it["mechanics"] as ExerciseMechanics?,
+                    )
+                }
+            )
+        }
     }
-}
 
-private enum class RightPaneView(val str: String) {
-    Info("Info"),
-    Search("Search"),
-    Generator("Generator"),
-    Editor("Editor"),
-    Workout("Workout");
+    private class SelectorViewData(
+        rightPane: String = RightPaneView.Info.str
+    ) {
+        var rightPane by mutableStateOf(rightPane)
 
-    override fun toString(): String = str
+        companion object {
+            fun saver(): Saver<SelectorViewData, Any> = mapSaver(
+                save = {
+                    mapOf(
+                        "rightPane" to it.rightPane
+                    )
+                }, restore = {
+                    SelectorViewData(
+                        rightPane = it["rightPane"] as String
+                    )
+                }
+            )
+        }
+    }
+
+    private enum class RightPaneView(val str: String) {
+        Info("Info"),
+        Search("Search"),
+        Generator("Generator"),
+        Editor("Editor"),
+        Workout("Workout");
+
+        override fun toString(): String = str
+    }
 }

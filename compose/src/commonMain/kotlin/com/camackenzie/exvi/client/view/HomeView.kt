@@ -34,6 +34,8 @@ object HomeView : Viewable {
         val coroutineScope = rememberCoroutineScope()
         val workoutListData = remember { WorkoutListData(appState = appState, coroutineScope = coroutineScope) }
 
+        remember { workoutListData.refreshWorkouts() }
+
         Column(
             Modifier.padding(5.dp).fillMaxSize(),
             verticalArrangement = Arrangement.Top,
@@ -160,7 +162,6 @@ object HomeView : Viewable {
         appState: AppState, wld: WorkoutListData
     ) {
         val serverWorkoutManager = appState.model.workoutManager!!.serverManager
-        wld.ensureWorkoutsSynced()
 
         if (wld.retrievingActiveWorkouts
             || serverWorkoutManager.fetchingActiveWorkouts
@@ -249,7 +250,6 @@ object HomeView : Viewable {
         wld: WorkoutListData
     ) {
         val serverWorkoutManager = appState.model.workoutManager!!.serverManager
-        wld.ensureWorkoutsSynced()
         LazyColumn {
             item {
                 Column(
@@ -388,7 +388,6 @@ object HomeView : Viewable {
         activeWorkouts: Array<ActiveWorkout> = emptyArray(),
         retrievingWorkouts: Boolean = false,
         retrievingActiveWorkouts: Boolean = false,
-        workoutsSynced: Boolean = false,
         val appState: AppState,
         val coroutineScope: CoroutineScope
     ) {
@@ -396,15 +395,6 @@ object HomeView : Viewable {
         var activeWorkouts by mutableStateOf(activeWorkouts)
         var retrievingWorkouts by mutableStateOf(retrievingWorkouts)
         var retrievingActiveWorkouts by mutableStateOf(retrievingActiveWorkouts)
-        var workoutsSynced by mutableStateOf(workoutsSynced)
-
-        fun ensureWorkoutsSynced() {
-            // Called during the first composition only
-            if (!workoutsSynced) {
-                refreshWorkouts()
-                workoutsSynced = true
-            }
-        }
 
         fun refreshWorkouts() {
             retrievingWorkouts = true
