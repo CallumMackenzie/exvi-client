@@ -171,9 +171,7 @@ object WorkoutCreationView : Viewable {
                 }
             ),
             currentView = selectorData.rightPane,
-            onCurrentViewChange = {
-                selectorData.rightPane = it
-            }
+            onCurrentViewChange = { selectorData.rightPane = it }
         )
     }
 
@@ -181,12 +179,8 @@ object WorkoutCreationView : Viewable {
     private fun WorkoutDescriptionEditor(workoutData: WorkoutData) {
         TextField(
             value = workoutData.description,
-            onValueChange = {
-                workoutData.description = it
-            },
-            label = {
-                Text("Workout Description")
-            },
+            onValueChange = { workoutData.description = it },
+            label = { Text("Workout Description") },
             placeholder = { Text("Description") }
         )
     }
@@ -267,18 +261,14 @@ object WorkoutCreationView : Viewable {
                 OptIntField(
                     modifier = Modifier.fillMaxWidth(0.333f),
                     value = generatorData.minExercises,
-                    onValueChange = {
-                        generatorData.minExercises = it
-                    },
+                    onValueChange = { generatorData.minExercises = it },
                     maxDigits = 3,
                     label = { Text("Min. Exercises") }
                 )
                 OptIntField(
                     modifier = Modifier.fillMaxWidth(0.5f),
                     value = generatorData.maxExercises,
-                    onValueChange = {
-                        generatorData.maxExercises = it
-                    },
+                    onValueChange = { generatorData.maxExercises = it },
                     maxDigits = 3,
                     label = { Text("Max. Exercises") }
                 )
@@ -308,9 +298,7 @@ object WorkoutCreationView : Viewable {
                 Text(workoutNamePresets[(SecureRandom.nextDouble() * workoutNamePresets.size).toInt()])
             },
             onValueChange = {
-                if (it.length <= 30 && it.matches(regex)) {
-                    workoutData.name = it
-                }
+                if (it.length <= 30 && it.matches(regex)) workoutData.name = it
             })
     }
 
@@ -342,26 +330,14 @@ object WorkoutCreationView : Viewable {
     private fun CancelWorkoutButton(appState: AppState) {
         var promptCancel by rememberSaveable { mutableStateOf(false) }
         if (!promptCancel) {
-            Button(onClick = {
-                promptCancel = true
-            }) {
-                Text("Cancel")
-            }
+            Button(onClick = { promptCancel = true }) { Text("Cancel") }
         } else {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(onClick = {
-                    promptCancel = false
-                }) {
-                    Text("Keep Editing")
-                }
-                Button(onClick = {
-                    appState.setView(ExviView.Home)
-                }) {
-                    Text("Exit")
-                }
+                Button(onClick = { promptCancel = false }) { Text("Keep Editing") }
+                Button(onClick = { appState.setView(ExviView.Home) }) { Text("Exit") }
             }
         }
     }
@@ -409,9 +385,7 @@ object WorkoutCreationView : Viewable {
                             // Remove element at index index "setIdx"
                             workoutData.editorExercise!!.sets.removeAt(setIdx)
                             workoutData.refreshEditorExercise()
-                        }) {
-                            Icon(Icons.Default.Delete, "Remove Set")
-                        }
+                        }) { Icon(Icons.Default.Delete, "Remove Set") }
                     }
                 }
                 IconButton(onClick = {
@@ -659,22 +633,12 @@ object WorkoutCreationView : Viewable {
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (!workoutData.exerciseProcessRunning) {
-                    items(workoutData.exercises.size) {
-                        WorkoutExerciseListViewItem(workoutData, selectorViewData, it)
-                    }
-                } else {
-                    item {
-                        LoadingIcon()
-                    }
-                }
+                if (!workoutData.exerciseProcessRunning) items(workoutData.exercises.size) {
+                    WorkoutExerciseListViewItem(workoutData, selectorViewData, it)
+                } else item { LoadingIcon() }
                 if (workoutData.exercises.isEmpty()
                     && !workoutData.exerciseProcessRunning
-                ) {
-                    item {
-                        Text("There are no exercises in this workout")
-                    }
-                }
+                ) item { Text("There are no exercises in this workout") }
             }
         }
     }
@@ -693,16 +657,10 @@ object WorkoutCreationView : Viewable {
             IconButton(onClick = {
                 workoutData.infoExercise = exercise
                 selectorViewData.rightPane = "Info"
-            }) {
-                Icon(Icons.Default.Info, "Exercise Info")
-            }
+            }) { Icon(Icons.Default.Info, "Exercise Info") }
             IconButton(onClick = {
-                workoutData.addExercise(
-                    ExerciseSet(exercise, "rep", arrayOf(8, 8, 8))
-                )
-            }) {
-                Icon(ExviIcons.Add, "Add Exercise")
-            }
+                workoutData.addExercise(ExerciseSet(exercise, "rep", arrayOf(8, 8, 8)))
+            }) { Icon(ExviIcons.Add, "Add Exercise") }
         }
     }
 
@@ -854,7 +812,7 @@ object WorkoutCreationView : Viewable {
         "Forearm Fiesta", "The Quadfather", "Quadzilla",
         "Shoulders", "Back Builder", "Core", "Cardio Day 1",
         "Deltoid Destroyer", "Shoulder Shredder", "Core Killer",
-        "More Core", "Roko's Rhomboids"
+        "More Core", "Roko's Rhomboids", "Jacked Jake"
     )
 
     private val generators = mapOf(
@@ -1044,6 +1002,22 @@ object WorkoutCreationView : Viewable {
 
         var searchJob: Job? = null
 
+        fun exerciseSortFun(ex: Exercise): Int {
+            var sum = 0
+            // Sort by keywords
+            for (word in searchContent.split("\\s+"))
+                if (!it.name.contains(word, true)) sum += 1
+            // By muscle
+            if (muscleWorked != null &&
+                !it.musclesWorked.contains(muscleWorked!!.workData(1.0))
+            ) sum += 1
+            // By experience level
+            if (it.experienceLevel != experienceLevel) sum += 1
+            // By mechanics
+            if (it.mechanics != mechanics) sum += 1
+            return sum
+        }
+
         fun ensureExercisesSorted(exerciseManager: ExerciseManager, coroutineScope: CoroutineScope) {
             // Ensure exercises are loaded into memory
             if (!processRunning && searchExercises.isEmpty()) {
@@ -1061,24 +1035,15 @@ object WorkoutCreationView : Viewable {
                 && searchExercises.isNotEmpty()
                 && !exercisesSorted
             ) {
-                searchJob?.cancel()
+                val oldJob = searchJob
                 searchJob = coroutineScope.launch(Dispatchers.Default) {
+                    oldJob?.cancelAndJoin()
                     processRunning = true
-                    searchExercises.sortBy {
-                        var sum = 0
-                        // Sort by keywords
-                        for (word in searchContent.split("\\s+"))
-                            if (!it.name.contains(word, true)) sum += 1
-                        // By muscle
-                        if (muscleWorked != null &&
-                            !it.musclesWorked.contains(muscleWorked!!.workData(1.0))
-                        ) sum += 1
-                        // By experience level
-                        if (it.experienceLevel != experienceLevel) sum += 1
-                        // By mechanics
-                        if (it.mechanics != mechanics) sum += 1
-                        sum
-                    }
+
+                    // Get by name
+                    // Get by muscle
+                    // Get by experience level
+
                     processRunning = false
                     exercisesSorted = true
                 }

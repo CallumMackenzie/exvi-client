@@ -5,22 +5,37 @@
  */
 package com.camackenzie.exvi.client.model
 
-import com.camackenzie.exvi.core.model.ActualExercise
-import com.camackenzie.exvi.core.model.Exercise
-import com.camackenzie.exvi.core.model.ExviSerializer
-import com.camackenzie.exvi.core.model.StandardExercise
+import com.camackenzie.exvi.core.model.*
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
 
+private typealias SearchFun = (Exercise) -> Int
+
 @Serializable
 @Suppress("unused", "UNCHECKED_CAST")
-data class ExerciseManager(
+class ExerciseManager(
     @Transient
     var exercises: HashSet<Exercise> = HashSet()
 ) : SelfSerializable {
+
+    @Transient
+    var exercisesByName: MutableList<Exercise> = ArrayList(exercises.size)
+        private set
+
+    @Transient
+    var exercisesByMuscle: MutableList<Exercise> = ArrayList(exercises.size)
+        private set
+
+    @Transient
+    var exercisesByExperience: MutableList<Exercise> = ArrayList(exercises.size)
+        private set
+
+    @Transient
+    var exercisesByMechanics: MutableList<Exercise> = ArrayList(exercises.size)
+        private set
 
     override val serializer: KSerializer<SelfSerializable>
         get() = serializer() as KSerializer<SelfSerializable>
@@ -31,7 +46,16 @@ data class ExerciseManager(
 
     constructor() : this(HashSet())
 
-    fun addAll(exs: Array<Exercise>) = exercises.addAll(exs)
+    fun addAll(exs: Array<Exercise>) {
+        exercises.addAll(exs)
+        for (ex in exs) {
+            ListUtils.addToSortedArray(ex, exercisesByName, exercisesByNameComparator(ex.name))
+            ListUtils.addToSortedArray(ex, exercisesByExperience, exercisesByExperienceComparator(ex.experienceLevel))
+            ListUtils.addToSortedArray(ex, exercisesByMechanics, exercisesByMechanicsComparator(ex.mechanics))
+            ListUtils.addToSortedArray(ex, exercisesByMuscle, exercisesByMuscleComparator(ex.musclesWorked))
+        }
+    }
+
 
     fun loadStandardExercises() {
         val actualExercises = ExviSerializer.fromJson<Array<ActualExercise>>(readTextFile("exercises.json"))
@@ -62,5 +86,26 @@ data class ExerciseManager(
             }
         }
         return null
+    }
+
+    companion object {
+
+        inline fun exercisesByMuscleComparator(muscles: Array<MuscleWorkData>): SearchFun = {
+            if (it.musclesWorked.isEmpty() && muscles.isEmpty()) 0
+            else if (it.musclesWorked.isEmpty()) 1
+            else if (muscles.isEmpty()) -1
+            else it.musclesWorked[0].muscle.compareTo(muscles[0].muscle)
+        }
+
+        inline fun exercisesByExperienceComparator(experienceLevel: ExerciseExperienceLevel): SearchFun = {
+            it.experienceLevel.compareTo(experienceLevel)
+        }
+
+        inline fun exercisesByMechanicsComparator(mechanics: ExerciseMechanics): SearchFun = {
+            it.mechanics.compareTo(mechanics)
+        }
+
+        inline fun exercisesByNameComparator(name: String): SearchFun = { it.name.compareTo(name) }
+
     }
 }
