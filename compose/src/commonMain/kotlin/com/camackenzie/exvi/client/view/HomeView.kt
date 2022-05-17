@@ -281,6 +281,7 @@ object HomeView : Viewable {
                 && !serverWorkoutManager.fetchingWorkouts
             ) item {
                 Column(
+                    Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
