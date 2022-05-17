@@ -993,7 +993,7 @@ object WorkoutCreationView : Viewable {
                         "id" to it.id.getEncoded(),
                         "lockedExercises" to it.lockedExercises.toTypedArray(),
                         "editorExerciseIndex" to it.editorExerciseIndex,
-                        "infoExercise" to it.infoExercise?.toJson(),
+                        "infoExercise" to if (it.infoExercise == null) null else ExviSerializer.toJson(it.infoExercise!!),
                         "params" to it.generatorData.params.toJson()
                     )
                 },
