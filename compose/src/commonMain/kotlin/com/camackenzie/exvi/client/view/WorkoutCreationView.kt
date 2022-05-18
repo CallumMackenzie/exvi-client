@@ -26,6 +26,7 @@ import com.soywiz.krypto.SecureRandom
 import kotlinx.coroutines.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import java.util.Comparator
 
 // TODO: Clean up this code
 object WorkoutCreationView : Viewable {
@@ -1002,25 +1003,13 @@ object WorkoutCreationView : Viewable {
 
         var searchJob: Job? = null
 
-        fun exerciseSortFun(ex: Exercise): Int {
-            var sum = 0
-            // Sort by keywords
-            for (word in searchContent.split("\\s+"))
-                if (!it.name.contains(word, true)) sum += 1
-            // By muscle
-            if (muscleWorked != null &&
-                !it.musclesWorked.contains(muscleWorked!!.workData(1.0))
-            ) sum += 1
-            // By experience level
-            if (it.experienceLevel != experienceLevel) sum += 1
-            // By mechanics
-            if (it.mechanics != mechanics) sum += 1
-            return sum
+        private class ExerciseSearchPriority(exercise: Exercise) : Exercise by exercise {
+            var matches: Int = 0
         }
 
         fun ensureExercisesSorted(exerciseManager: ExerciseManager, coroutineScope: CoroutineScope) {
             // Ensure exercises are loaded into memory
-            if (!processRunning && searchExercises.isEmpty()) {
+            if (!processRunning && searchExercises.isEmpty() && !exercisesSorted) {
                 coroutineScope.launch(Dispatchers.Default) {
                     processRunning = true
                     exerciseManager.loadStandardExercisesIfEmpty()
@@ -1040,9 +1029,17 @@ object WorkoutCreationView : Viewable {
                     oldJob?.cancelAndJoin()
                     processRunning = true
 
-                    // Get by name
-                    // Get by muscle
-                    // Get by experience level
+                    val searchKeywords = searchContent.split("\\s+")
+                    exerciseManager.exercisesByName.sortBy {
+                        var sum = 0
+                        for (word in searchKeywords)
+                            if (!it.name.contains(word, true)) sum += 1
+                        if (it.mechanics == mechanics) sum += 1
+                        if (it.experienceLevel == experienceLevel) sum += 1
+                        if (muscleWorked != null && exerciseManager.exercisesByMuscle[muscleWorked]?.contains(it) ?: false)
+                            sum += 1
+                        sum
+                    }
 
                     processRunning = false
                     exercisesSorted = true

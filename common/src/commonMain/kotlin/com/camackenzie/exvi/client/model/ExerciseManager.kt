@@ -26,15 +26,15 @@ class ExerciseManager(
         private set
 
     @Transient
-    var exercisesByMuscle: MutableList<Exercise> = ArrayList(exercises.size)
+    var exercisesByMuscle: Map<Muscle?, Set<Exercise>> = emptyMap()
         private set
 
     @Transient
-    var exercisesByExperience: MutableList<Exercise> = ArrayList(exercises.size)
+    var exercisesByExperience: Map<ExerciseExperienceLevel, List<Exercise>> = emptyMap()
         private set
 
     @Transient
-    var exercisesByMechanics: MutableList<Exercise> = ArrayList(exercises.size)
+    var exercisesByMechanics: Map<ExerciseMechanics, List<Exercise>> = emptyMap()
         private set
 
     override val serializer: KSerializer<SelfSerializable>
@@ -48,14 +48,14 @@ class ExerciseManager(
 
     fun addAll(exs: Array<Exercise>) {
         exercises.addAll(exs)
-        for (ex in exs) {
-            ListUtils.addToSortedArray(ex, exercisesByName, exercisesByNameComparator(ex.name))
-            ListUtils.addToSortedArray(ex, exercisesByExperience, exercisesByExperienceComparator(ex.experienceLevel))
-            ListUtils.addToSortedArray(ex, exercisesByMechanics, exercisesByMechanicsComparator(ex.mechanics))
-            ListUtils.addToSortedArray(ex, exercisesByMuscle, exercisesByMuscleComparator(ex.musclesWorked))
+        ListUtils.addAllToSortedArray(exs, exercisesByName) { a, b -> b.name.compareTo(a.name) }
+        exercisesByMuscle = ListUtils.groupByToSet(exs) {
+            if (it.musclesWorked.isEmpty()) null
+            else it.musclesWorked[0].muscle
         }
+        exercisesByExperience = ListUtils.groupBy(exs) { it.experienceLevel }
+        exercisesByMechanics = ListUtils.groupBy(exs) { it.mechanics }
     }
-
 
     fun loadStandardExercises() {
         val actualExercises = ExviSerializer.fromJson<Array<ActualExercise>>(readTextFile("exercises.json"))
@@ -86,26 +86,5 @@ class ExerciseManager(
             }
         }
         return null
-    }
-
-    companion object {
-
-        inline fun exercisesByMuscleComparator(muscles: Array<MuscleWorkData>): SearchFun = {
-            if (it.musclesWorked.isEmpty() && muscles.isEmpty()) 0
-            else if (it.musclesWorked.isEmpty()) 1
-            else if (muscles.isEmpty()) -1
-            else it.musclesWorked[0].muscle.compareTo(muscles[0].muscle)
-        }
-
-        inline fun exercisesByExperienceComparator(experienceLevel: ExerciseExperienceLevel): SearchFun = {
-            it.experienceLevel.compareTo(experienceLevel)
-        }
-
-        inline fun exercisesByMechanicsComparator(mechanics: ExerciseMechanics): SearchFun = {
-            it.mechanics.compareTo(mechanics)
-        }
-
-        inline fun exercisesByNameComparator(name: String): SearchFun = { it.name.compareTo(name) }
-
     }
 }
