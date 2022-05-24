@@ -9,6 +9,7 @@ import com.camackenzie.exvi.core.api.*
 import com.camackenzie.exvi.core.model.ActualBodyStats
 import com.camackenzie.exvi.core.model.BodyStats
 import com.camackenzie.exvi.core.model.ExviSerializer
+import com.camackenzie.exvi.core.model.FriendedUser
 import com.camackenzie.exvi.core.util.*
 import com.soywiz.krypto.encoding.fromBase64
 import kotlinx.coroutines.CoroutineDispatcher
@@ -36,6 +37,27 @@ class Account private constructor(
 
     @Transient
     val workoutManager: SyncedWorkoutManager = SyncedWorkoutManager(username, accessKey.get())
+
+    fun getFriends(
+        coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+        dispatcher: CoroutineDispatcher = Dispatchers.Default,
+        onFail: (APIResult<String>) -> Unit = {},
+        onSuccess: (Array<FriendedUser>) -> Unit = {},
+        onComplete: () -> Unit = {}
+    ): Job = APIRequest.requestAsync(
+        APIInfo.ENDPOINT,
+        body = GetFriendedUsersRequest(EncodedStringCache(username), accessKey),
+        coroutineScope = coroutineScope,
+        coroutineDispatcher = dispatcher,
+        callback = {
+            if (it.failed()) onFail(it)
+            else {
+                val response = ExviSerializer.fromJson<GetFriendedUsersResponse>(it.body)
+                onSuccess(response.users)
+            }
+            onComplete()
+        }
+    )
 
     fun getBodyStats(
         coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
