@@ -25,8 +25,9 @@ object FriendView : Viewable {
             // TODO: Add text field for friending users
 
             LazyColumn(Modifier.fillMaxWidth()) {
-                items(viewData.friendedUsers) {
-                    Text(it.username)
+                items(viewData.friendedUsers.size) { index ->
+                    val user = viewData.friendedUsers[index]
+                    Text(user.username.get())
                 }
             }
         }

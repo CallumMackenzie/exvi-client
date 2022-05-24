@@ -18,7 +18,8 @@ open class ComposeWorkout(
     name: String,
     description: String = "",
     exercises: List<ExerciseSet>,
-    id: EncodedStringCache = Identifiable.generateId()
+    id: EncodedStringCache = Identifiable.generateId(),
+    public: Boolean = false
 ) : Workout {
     constructor(other: Workout?) : this(
         other?.name ?: "New Workout",
@@ -36,6 +37,7 @@ open class ComposeWorkout(
     override val exercises: MutableList<ExerciseSet> = mutableStateListOf(*exercises.map {
         it.toComposable()
     }.toTypedArray())
+    override var public: Boolean by mutableStateOf(public)
 
     override fun newActiveWorkout(): ActiveWorkout = ActiveWorkout(this).toComposable()
 }
