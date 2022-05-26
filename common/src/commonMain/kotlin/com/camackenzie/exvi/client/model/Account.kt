@@ -38,6 +38,25 @@ class Account private constructor(
     @Transient
     val workoutManager: SyncedWorkoutManager = SyncedWorkoutManager(username, accessKey.get())
 
+    fun removeFriends(
+        friends: Array<EncodedStringCache>,
+        coroutineScope: CoroutineScope,
+        dispatcher: CoroutineDispatcher = Dispatchers.Default,
+        onFail: (APIResult<String>) -> Unit = {},
+        onSuccess: () -> Unit = {},
+        onComplete: () -> Unit = {}
+    ): Job = APIRequest.requestAsync(
+        APIInfo.ENDPOINT,
+        body = FriendUserRequest(EncodedStringCache(username), accessKey, friends, false),
+        coroutineScope = coroutineScope,
+        coroutineDispatcher = dispatcher,
+        callback = {
+            if (it.failed()) onFail(it)
+            else onSuccess()
+            onComplete()
+        }
+    )
+
     fun addFriends(
         friends: Array<EncodedStringCache>,
         coroutineScope: CoroutineScope,

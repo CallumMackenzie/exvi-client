@@ -26,10 +26,12 @@ import com.camackenzie.exvi.core.model.SingleExerciseSet
 fun UsernameField(
     username: String,
     onUsernameChange: (String) -> Unit,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier,
 ) {
     val usernameRegex = Regex("([0-9a-z]|[._-])*")
     TextField(
+        modifier = modifier,
         value = username,
         onValueChange = {
             val lower = it.lowercase()
