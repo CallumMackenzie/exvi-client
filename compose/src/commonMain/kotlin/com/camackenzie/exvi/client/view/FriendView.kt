@@ -83,15 +83,17 @@ object FriendView : Viewable {
                         RefreshFriendsButton(Modifier.fillMaxWidth())
                     }
                 else if (maxWidth > 300.dp) {
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        UserSearchField(Modifier.fillMaxWidth(2f / 3f))
-                        AddFriendButton(Modifier.fillMaxWidth())
+                    Column(Modifier.fillMaxWidth()) {
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            UserSearchField(Modifier.fillMaxWidth(2f / 3f))
+                            AddFriendButton(Modifier.fillMaxWidth())
+                        }
+                        RefreshFriendsButton(Modifier.fillMaxWidth())
                     }
-                    RefreshFriendsButton(Modifier.fillMaxWidth())
                 } else Column(
                     Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
