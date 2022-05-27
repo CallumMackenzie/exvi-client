@@ -249,6 +249,7 @@ object HomeView : Viewable {
         appState: AppState,
         wld: WorkoutListData
     ) {
+        if (appState.model.activeAccount == null) return
         val serverWorkoutManager = appState.model.workoutManager!!.serverManager
         LazyColumn {
             item {

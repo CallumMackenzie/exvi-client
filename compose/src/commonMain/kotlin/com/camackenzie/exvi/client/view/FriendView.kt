@@ -1,6 +1,7 @@
 package com.camackenzie.exvi.client.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +14,7 @@ import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
@@ -156,12 +158,12 @@ object FriendView : Viewable {
 
         BoxWithConstraints(
             Modifier.padding(5.dp)
+                .border(1.dp, Color.Black.copy(alpha = 0.5f))
                 .fillMaxWidth()
-                .clickable { }
         ) {
             if (maxWidth > 500.dp)
                 Row(
-                    Modifier.padding(10.dp).fillMaxWidth(),
+                    Modifier.padding(5.dp).fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
                 ) {
@@ -171,7 +173,7 @@ object FriendView : Viewable {
                 }
             else
                 Column(
-                    Modifier.fillMaxWidth(),
+                    Modifier.padding(5.dp).fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     UsernameText(Modifier.fillMaxWidth())

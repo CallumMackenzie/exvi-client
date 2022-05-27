@@ -66,7 +66,7 @@ object WorkoutCreationView : Viewable {
             Text("Loading standard exercises")
         } else
             BoxWithConstraints(Modifier.fillMaxSize().padding(10.dp)) {
-                if (maxWidth < 600.dp) {
+                if (maxWidth < 740.dp) {
                     Column(
                         Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -1030,14 +1030,14 @@ object WorkoutCreationView : Viewable {
                     processRunning = true
 
                     val searchKeywords = searchContent.split("\\s+")
-                    exerciseManager.exercisesByName.sortBy {
-                        var sum = 0
+                    searchExercises.sortBy {
+                        var sum = Int.MAX_VALUE
                         for (word in searchKeywords)
-                            if (!it.name.contains(word, true)) sum += 1
-                        if (it.mechanics == mechanics) sum += 1
-                        if (it.experienceLevel == experienceLevel) sum += 1
+                            if (it.name.contains(word, true)) sum -= 1
+                        if (it.mechanics == mechanics) sum -= 1
+                        if (it.experienceLevel == experienceLevel) sum -= 1
                         if (muscleWorked != null && exerciseManager.exercisesByMuscle[muscleWorked]?.contains(it) ?: false)
-                            sum += 1
+                            sum -= 1
                         sum
                     }
 
