@@ -1,5 +1,7 @@
 package com.camackenzie.exvi.client.view
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
@@ -8,6 +10,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.text.style.TextAlign
@@ -30,7 +33,7 @@ object FriendView : Viewable {
         val viewData = remember { ViewData(appState, coroutineScope, appState.model) }
 
         remember { viewData.fetchFriends() }
-        BoxWithConstraints(Modifier.fillMaxSize()) {
+        BoxWithConstraints(Modifier.padding(5.dp).fillMaxSize()) {
             Column(Modifier.fillMaxWidth()) {
                 Row(
                     Modifier.fillMaxWidth(),
@@ -113,36 +116,68 @@ object FriendView : Viewable {
                 } else if (viewData.friendedUsers.isEmpty()) item {
                     Text("You have no friends")
                 } else items(viewData.friendedUsers.size) { index ->
-                    val user = viewData.friendedUsers[index]
-                    Row(
-                        Modifier.padding(10.dp).fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
-                    ) {
-                        Text(user.username.get(), modifier = Modifier.fillMaxWidth(1f / 4f))
-                        if (user.acceptedRequest) Button(onClick = {
-                            // TODO: View user workouts
-                        }, modifier = Modifier.fillMaxWidth(1f / 3f)) {
-                            Text("View Public Workouts")
-                        } else {
-                            if (user.incomingRequest) Button(onClick = {
-                                viewData.addFriends(arrayOf(user.username))
-                            }) {
-                                Text("Accept Request")
-                            } else Button({}, enabled = false) { Text("Request Sent") }
-                        }
-                        Button(onClick = {
-                            viewData.removeFriends(arrayOf(user.username))
-                        }, modifier = Modifier.fillMaxWidth(1f / 2f)) {
-                            Text(
-                                if (user.acceptedRequest) "Remove Friend"
-                                else if (user.incomingRequest) "Reject Request"
-                                else "Cancel Request"
-                            )
-                        }
-                    }
+                    FriendCard(viewData, viewData.friendedUsers[index])
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun FriendCard(
+        viewData: ViewData,
+        user: FriendedUser,
+    ) {
+        @Composable
+        fun UsernameText(modifier: Modifier) = Text(user.username.get(), modifier = modifier)
+
+        @Composable
+        fun FriendControl1(modifier: Modifier) = if (user.acceptedRequest) Button(onClick = {
+            // TODO: View user workouts
+        }, modifier = modifier) {
+            Text("View Public Workouts")
+        } else {
+            if (user.incomingRequest) Button(onClick = {
+                viewData.addFriends(arrayOf(user.username))
+            }, modifier = modifier) {
+                Text("Accept Request")
+            } else Button({}, enabled = false, modifier = modifier) { Text("Request Sent") }
+        }
+
+        @Composable
+        fun FriendControl2(modifier: Modifier) = Button(onClick = {
+            viewData.removeFriends(arrayOf(user.username))
+        }, modifier = modifier) {
+            Text(
+                if (user.acceptedRequest) "Remove Friend"
+                else if (user.incomingRequest) "Reject Request"
+                else "Cancel Request"
+            )
+        }
+
+        BoxWithConstraints(
+            Modifier.padding(5.dp)
+                .fillMaxWidth()
+                .clickable { }
+        ) {
+            if (maxWidth > 500.dp)
+                Row(
+                    Modifier.padding(10.dp).fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
+                ) {
+                    UsernameText(Modifier.fillMaxWidth(1f / 4f))
+                    FriendControl1(Modifier.fillMaxWidth(1f / 3f))
+                    FriendControl2(Modifier.fillMaxWidth(1f / 2f))
+                }
+            else
+                Column(
+                    Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    UsernameText(Modifier.fillMaxWidth())
+                    FriendControl1(Modifier.fillMaxWidth())
+                    FriendControl2(Modifier.fillMaxWidth())
+                }
         }
     }
 
