@@ -12,7 +12,7 @@ import com.camackenzie.exvi.core.util.Identifiable
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlinx.serialization.KSerializer
 
-fun Workout.toComposable() = ComposeWorkout(name, description, exercises, id.copy())
+fun Workout.toComposable() = ComposeWorkout(name, description, exercises, id.copy(), public)
 
 open class ComposeWorkout(
     name: String,

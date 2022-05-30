@@ -1,8 +1,7 @@
 package com.camackenzie.exvi.client.view
 
-import androidx.compose.foundation.background
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
@@ -11,7 +10,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.Text
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
@@ -22,6 +20,7 @@ import com.camackenzie.exvi.core.model.FriendedUser
 import com.camackenzie.exvi.client.components.*
 import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.api.toJson
+import com.camackenzie.exvi.core.model.RemoteWorkout
 import com.camackenzie.exvi.core.util.EncodedStringCache
 import com.camackenzie.exvi.core.util.ExviLogger
 import kotlinx.coroutines.*
@@ -47,14 +46,69 @@ object FriendView : Viewable {
                         Icon(Icons.Default.Home, "Home")
                     }
                 }
-                FriendList(viewData)
+                if (this@BoxWithConstraints.maxWidth < 450.dp) {
+                    FriendList(viewData, Modifier.fillMaxWidth())
+                    FriendWorkoutView(viewData, Modifier.fillMaxWidth())
+                } else Row(Modifier.fillMaxWidth()) {
+                    FriendList(viewData, Modifier.fillMaxWidth(1f / 2f))
+                    FriendWorkoutView(viewData, Modifier.fillMaxWidth())
+                }
             }
+        }
+    }
+
+    @Composable
+    private fun FriendWorkoutView(
+        viewData: ViewData,
+        modifier: Modifier
+    ) {
+
+        Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+            if (viewData.friendSelected != null) {
+                val friend = viewData.friendSelected!!
+                Row(
+                    Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
+                ) {
+                    Text(friend.username.get(), fontSize = 25.sp)
+                    Button(onClick = viewData::fetchFriendWorkouts) {
+                        Text("Refresh")
+                    }
+                }
+                LazyColumn(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    if (viewData.fetchingFriendWorkouts) item {
+                        LoadingIcon()
+                    } else if (viewData.friendWorkouts.isEmpty()) item {
+                        Text("This friend has no public workouts")
+                    } else items(viewData.friendWorkouts.size) {
+                        val workout = viewData.friendWorkouts[it]
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.Start)
+                        ) {
+                            Text(
+                                workout.name.get(),
+                                overflow = TextOverflow.Ellipsis,
+                                fontSize = 20.sp,
+                                modifier = Modifier.padding(5.dp)
+                            )
+                            Button(onClick = {
+                                // TODO: Copy workout to this account
+                            }) {
+                                Text("Copy")
+                            }
+                        }
+                    }
+                }
+            } else Text("No friend selected")
         }
     }
 
     @Composable
     private fun FriendList(
         viewData: ViewData,
+        modifier: Modifier,
     ) {
         @Composable
         fun UserSearchField(modifier: Modifier) = Column {
@@ -66,6 +120,7 @@ object FriendView : Viewable {
         @Composable
         fun RefreshFriendsButton(modifier: Modifier) = Button(onClick = {
             viewData.fetchFriends()
+            viewData.friendSelected = null
         }, enabled = !viewData.fetchingFriends, modifier = modifier) { Text("Refresh") }
 
         @Composable
@@ -75,7 +130,7 @@ object FriendView : Viewable {
             Text("Friend User")
         }
 
-        Column(Modifier.fillMaxWidth()) {
+        Column(modifier) {
             BoxWithConstraints(Modifier.fillMaxWidth()) {
                 if (maxWidth > 500.dp)
                     Row(
@@ -134,6 +189,7 @@ object FriendView : Viewable {
 
         @Composable
         fun FriendControl1(modifier: Modifier) = if (user.acceptedRequest) Button(onClick = {
+            viewData.friendSelected = user
             // TODO: View user workouts
         }, modifier = modifier) {
             Text("View Public Workouts")
@@ -148,6 +204,7 @@ object FriendView : Viewable {
         @Composable
         fun FriendControl2(modifier: Modifier) = Button(onClick = {
             viewData.removeFriends(arrayOf(user.username))
+            if (viewData.friendSelected == user) viewData.friendSelected = null
         }, modifier = modifier) {
             Text(
                 if (user.acceptedRequest) "Remove Friend"
@@ -189,13 +246,20 @@ object FriendView : Viewable {
         val model: Model = appState.model,
         userSearchText: String = "",
         friendUserError: String? = null,
-        friendedUsers: Array<FriendedUser> = emptyArray()
+        friendedUsers: Array<FriendedUser> = emptyArray(),
+        friendSelected: FriendedUser? = null
     ) {
         var friendedUsers by mutableStateOf(friendedUsers)
         var fetchingFriends by mutableStateOf(false)
         var userSearchText by mutableStateOf(userSearchText)
         var friendingUser by mutableStateOf(false)
         var friendUserError by mutableStateOf(friendUserError)
+        var friendSelected by delegatedMutableStateOf(friendSelected, onSet = {
+            fetchFriendWorkouts(it)
+        })
+        var fetchingFriendWorkouts by mutableStateOf(false)
+        var friendWorkouts by mutableStateOf(emptyArray<RemoteWorkout>())
+        var friendSelectedJob: Job? = null
 
         fun removeFriends(toRemove: Array<EncodedStringCache>) {
             friendingUser = true
@@ -231,6 +295,30 @@ object FriendView : Viewable {
                 }, onComplete = {
                     friendingUser = false
                 })
+        }
+
+        fun fetchFriendWorkouts(friend: FriendedUser? = friendSelected) {
+            if (!fetchingFriendWorkouts && friend != null) {
+                friendSelectedJob?.cancel()
+                fetchingFriendWorkouts = true
+                friendSelectedJob = model.activeAccount!!.getFriendWorkouts(
+                    friend!!.username,
+                    coroutineScope = coroutineScope,
+                    onFail = {
+                        ExviLogger.e(tag = LOG_TAG) { "Could not get friend workouts: ${it.toJson()}" }
+                    },
+                    onSuccess = {
+                        if (friend == null) ExviLogger.e(tag = LOG_TAG) { "Retrieved workouts for past selected user!" }
+                        else {
+                            ExviLogger.i(tag = LOG_TAG) { "Retrieved friend workouts: ${friend!!.username.get()}" }
+                            friendWorkouts = it
+                        }
+                    },
+                    onComplete = {
+                        fetchingFriendWorkouts = false
+                    }
+                )
+            }
         }
 
         fun fetchFriends() {

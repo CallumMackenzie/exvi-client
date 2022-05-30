@@ -178,12 +178,25 @@ object WorkoutCreationView : Viewable {
 
     @Composable
     private fun WorkoutDescriptionEditor(workoutData: WorkoutData) {
-        TextField(
-            value = workoutData.description,
-            onValueChange = { workoutData.description = it },
-            label = { Text("Workout Description") },
-            placeholder = { Text("Description") }
-        )
+        Column(
+            Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = workoutData.description,
+                onValueChange = { workoutData.description = it },
+                label = { Text("Workout Description") },
+                placeholder = { Text("Description") }
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Visible to Friends")
+                Switch(checked = workoutData.public, onCheckedChange = { workoutData.public = it })
+            }
+        }
     }
 
     @Composable

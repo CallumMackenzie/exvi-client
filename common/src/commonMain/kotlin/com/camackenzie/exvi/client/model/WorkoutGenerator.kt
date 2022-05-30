@@ -32,11 +32,11 @@ class WorkoutGenerator(
     ): Workout = this.generateWorkout(wkr, List(lockedExercises.size) { index -> index }.toTypedArray())
 
     fun generateWorkout(
-        workout: Workout = Workout("New Workout", "", arrayListOf()),
+        workout: Workout = ActualWorkout("New Workout", "", arrayListOf()),
         lockedIndexes: Array<Int> = emptyArray()
     ): Workout {
         // Create a new workout
-        val wkr = Workout(workout)
+        val wkr = ActualWorkout(workout)
         val workoutExers: ArrayList<ExerciseSet> = wkr.exercises
 
         // Retrieve the exercises

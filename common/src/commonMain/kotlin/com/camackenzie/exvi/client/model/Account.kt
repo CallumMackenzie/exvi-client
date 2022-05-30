@@ -6,10 +6,7 @@
 package com.camackenzie.exvi.client.model
 
 import com.camackenzie.exvi.core.api.*
-import com.camackenzie.exvi.core.model.ActualBodyStats
-import com.camackenzie.exvi.core.model.BodyStats
-import com.camackenzie.exvi.core.model.ExviSerializer
-import com.camackenzie.exvi.core.model.FriendedUser
+import com.camackenzie.exvi.core.model.*
 import com.camackenzie.exvi.core.util.*
 import com.soywiz.krypto.encoding.fromBase64
 import kotlinx.coroutines.CoroutineDispatcher
@@ -27,16 +24,21 @@ import kotlinx.serialization.Transient
 @Serializable
 @Suppress("unused", "UNCHECKED_CAST")
 class Account private constructor(
-    val username: String,
+    val username: EncodedStringCache,
     private var accessKey: EncodedStringCache,
     private var bodyStats: BodyStats = ActualBodyStats.average(),
 ) : SelfSerializable, Identifiable {
+
+    constructor(
+        username: String, accessKey: EncodedStringCache,
+        bodyStats: BodyStats = ActualBodyStats.average()
+    ) : this(EncodedStringCache(username), accessKey, bodyStats)
 
     override val serializer: KSerializer<SelfSerializable>
         get() = serializer() as KSerializer<SelfSerializable>
 
     @Transient
-    val workoutManager: SyncedWorkoutManager = SyncedWorkoutManager(username, accessKey.get())
+    val workoutManager: SyncedWorkoutManager = SyncedWorkoutManager(username.get(), accessKey.get())
 
     fun removeFriends(
         friends: Array<EncodedStringCache>,
@@ -47,12 +49,34 @@ class Account private constructor(
         onComplete: () -> Unit = {}
     ): Job = APIRequest.requestAsync(
         APIInfo.ENDPOINT,
-        body = FriendUserRequest(EncodedStringCache(username), accessKey, friends, false),
+        body = FriendUserRequest(username, accessKey, friends, false),
         coroutineScope = coroutineScope,
         coroutineDispatcher = dispatcher,
         callback = {
             if (it.failed()) onFail(it)
             else onSuccess()
+            onComplete()
+        }
+    )
+
+    fun getFriendWorkouts(
+        friend: EncodedStringCache,
+        coroutineScope: CoroutineScope,
+        dispatcher: CoroutineDispatcher = Dispatchers.Default,
+        onFail: (APIResult<String>) -> Unit = {},
+        onSuccess: (Array<RemoteWorkout>) -> Unit = {},
+        onComplete: () -> Unit = {}
+    ): Job = APIRequest.requestAsync(
+        APIInfo.ENDPOINT,
+        body = GetFriendWorkouts(username, accessKey, friend),
+        coroutineScope = coroutineScope,
+        coroutineDispatcher = dispatcher,
+        callback = {
+            if (it.failed()) onFail(it)
+            else {
+                val response = ExviSerializer.fromJson<RemoteWorkoutResponse>(it.body)
+                onSuccess(response.workouts)
+            }
             onComplete()
         }
     )
@@ -66,7 +90,7 @@ class Account private constructor(
         onComplete: () -> Unit = {}
     ): Job = APIRequest.requestAsync(
         APIInfo.ENDPOINT,
-        body = FriendUserRequest(EncodedStringCache(username), accessKey, friends, true),
+        body = FriendUserRequest(username, accessKey, friends, true),
         coroutineScope = coroutineScope,
         coroutineDispatcher = dispatcher,
         callback = {
@@ -84,7 +108,7 @@ class Account private constructor(
         onComplete: () -> Unit = {}
     ): Job = APIRequest.requestAsync(
         APIInfo.ENDPOINT,
-        body = GetFriendedUsersRequest(EncodedStringCache(username), accessKey),
+        body = GetFriendedUsersRequest(username, accessKey),
         coroutineScope = coroutineScope,
         coroutineDispatcher = dispatcher,
         callback = {
@@ -138,7 +162,7 @@ class Account private constructor(
     )
 
     val formattedUsername: String
-        get() = (username.substring(0, 1).uppercase() + username.substring(1))
+        get() = (username.get().substring(0, 1).uppercase() + username.get().substring(1))
 
     private val fileName: String
         get() = getIdentifier().get() + ".user"
@@ -147,7 +171,8 @@ class Account private constructor(
         get() = CryptographyUtils.encodeString(this.toJson())
 
     // A unique identifier for this user based on their username
-    override fun getIdentifier(): EncodedStringCache = (CryptographyUtils.hashSHA256(username) + username).cached()
+    override fun getIdentifier(): EncodedStringCache =
+        (CryptographyUtils.hashSHA256(username.get()) + username).cached()
 
     override fun toString(): String = StringBuilder()
         .append("User: ").append(username).append(": ").append(
@@ -267,6 +292,6 @@ class Account private constructor(
             ExviSerializer.fromJson(CryptographyUtils.decodeString(s))
 
         fun fromAccessKey(username: String, accessKey: String): Account =
-            Account(username, accessKey.cached())
+            Account(EncodedStringCache(username), accessKey.cached())
     }
 }

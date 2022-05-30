@@ -93,7 +93,7 @@ class AppState(
             // then restore the active user and set the view to their home
             if (!processRestartInit && settings.hasKey("activeUser")) {
                 model.accountManager.activeAccount = Account.fromCrendentialsString(settings.getString("activeUser"))
-                ExviLogger.i { "Restored user session for ${model.activeAccount!!.username}" }
+                ExviLogger.i { "Restored user session for ${model.activeAccount!!.username.get()}" }
                 setView(ExviView.Home)
             }
 

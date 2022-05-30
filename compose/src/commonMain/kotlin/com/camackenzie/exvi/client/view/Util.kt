@@ -36,8 +36,8 @@ fun waitUntilTrue(
 
 fun <T> delegatedMutableStateOf(
     value: T,
-    onGet: () -> kotlin.Unit = {},
-    onSet: (T) -> kotlin.Unit = {}
+    onGet: () -> Unit = {},
+    onSet: (T) -> Unit = {}
 ): MutableState<T> =
     object : MutableState<T> {
         var mutableState = mutableStateOf(value)
