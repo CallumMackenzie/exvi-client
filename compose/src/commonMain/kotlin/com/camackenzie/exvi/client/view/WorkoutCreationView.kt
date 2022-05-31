@@ -39,10 +39,7 @@ object WorkoutCreationView : Viewable {
         val workoutData = rememberSaveable(
             saver = WorkoutData.saver(appState.provided)
         ) {
-            WorkoutData(
-                if (appState.provided is Workout) (appState.provided as Workout) else null,
-                isFriendWorkout = appState.provided is FriendWorkout
-            )
+            WorkoutData(if (appState.provided is Workout) (appState.provided as Workout) else null)
         }
         val workoutSearchData = rememberSaveable(saver = WorkoutSearchData.saver()) { WorkoutSearchData() }
         val selectorViewData = rememberSaveable(saver = SelectorViewData.saver()) { SelectorViewData() }
@@ -874,14 +871,12 @@ object WorkoutCreationView : Viewable {
         editorExercise: Int? = null,
         infoExercise: Exercise? = null,
         generatorData: WorkoutGeneratorData = WorkoutGeneratorData(params = params),
-        val isFriendWorkout: Boolean = false,
     ) : ComposeWorkout(name, description, exercises, id) {
-        constructor(base: Workout?, isFriendWorkout: Boolean = false) : this(
+        constructor(base: Workout?) : this(
             base?.name ?: "New Workout",
             base?.description ?: "",
             base?.exercises ?: emptyList(),
             base?.id ?: Identifiable.generateId(),
-            isFriendWorkout = isFriendWorkout,
         )
 
         var infoExercise by mutableStateOf(infoExercise)

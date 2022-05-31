@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
-import com.camackenzie.exvi.core.model.FriendedUser
+import com.camackenzie.exvi.core.model.*
 import com.camackenzie.exvi.client.components.*
 import com.camackenzie.exvi.client.model.*
 import com.camackenzie.exvi.core.api.toJson
@@ -258,7 +258,7 @@ object FriendView : Viewable {
             fetchFriendWorkouts(it)
         })
         var fetchingFriendWorkouts by mutableStateOf(false)
-        var friendWorkouts by mutableStateOf(emptyArray<FriendWorkout>())
+        var friendWorkouts by mutableStateOf(emptyArray<ActualWorkout>())
         var friendSelectedJob: Job? = null
 
         fun removeFriends(toRemove: Array<EncodedStringCache>) {

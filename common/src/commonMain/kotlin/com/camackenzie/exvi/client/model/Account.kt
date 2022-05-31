@@ -64,7 +64,7 @@ class Account private constructor(
         coroutineScope: CoroutineScope,
         dispatcher: CoroutineDispatcher = Dispatchers.Default,
         onFail: (APIResult<String>) -> Unit = {},
-        onSuccess: (Array<FriendWorkout>) -> Unit = {},
+        onSuccess: (Array<ActualWorkout>) -> Unit = {},
         onComplete: () -> Unit = {}
     ): Job = APIRequest.requestAsync(
         APIInfo.ENDPOINT,
@@ -75,7 +75,7 @@ class Account private constructor(
             if (it.failed()) onFail(it)
             else {
                 val response = ExviSerializer.fromJson<WorkoutListResult>(it.body)
-                onSuccess(response.workouts.map { wk -> FriendWorkout(friend.copy(), wk) }.toTypedArray())
+                onSuccess(response.workouts)
             }
             onComplete()
         }
