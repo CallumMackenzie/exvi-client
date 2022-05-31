@@ -23,7 +23,7 @@ object ListUtils {
         return ret
     }
 
-    inline fun <T> getExerciseBy(sorted: List<T>, crossinline comparator: (T) -> Int): T? {
+    inline fun <T> getBy(sorted: List<T>, crossinline comparator: (T) -> Int): T? {
         val idx = sorted.binarySearch { comparator(it) }
         return if (idx < 0) null
         else sorted[idx]

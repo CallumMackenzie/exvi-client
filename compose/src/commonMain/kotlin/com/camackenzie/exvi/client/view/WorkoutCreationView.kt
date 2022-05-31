@@ -26,7 +26,6 @@ import com.soywiz.krypto.SecureRandom
 import kotlinx.coroutines.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import java.util.Comparator
 
 // TODO: Clean up this code
 object WorkoutCreationView : Viewable {
@@ -39,7 +38,12 @@ object WorkoutCreationView : Viewable {
         val viewData = ViewData(appState, rememberCoroutineScope())
         val workoutData = rememberSaveable(
             saver = WorkoutData.saver(appState.provided)
-        ) { WorkoutData(if (appState.provided is Workout) (appState.provided as Workout) else null) }
+        ) {
+            WorkoutData(
+                if (appState.provided is Workout) (appState.provided as Workout) else null,
+                isFriendWorkout = appState.provided is FriendWorkout
+            )
+        }
         val workoutSearchData = rememberSaveable(saver = WorkoutSearchData.saver()) { WorkoutSearchData() }
         val selectorViewData = rememberSaveable(saver = SelectorViewData.saver()) { SelectorViewData() }
 
@@ -92,9 +96,7 @@ object WorkoutCreationView : Viewable {
                         Box(
                             Modifier.fillMaxWidth()
                                 .fillMaxHeight(0.4f)
-                        ) {
-                            WorkoutExerciseListView(workoutData, selectorViewData)
-                        }
+                        ) { WorkoutExerciseListView(workoutData, selectorViewData) }
                         ExviBox(Modifier.fillMaxSize()) {
                             ViewSetOne(
                                 viewData,
@@ -871,13 +873,15 @@ object WorkoutCreationView : Viewable {
         exerciseProcessRunning: Boolean = false,
         editorExercise: Int? = null,
         infoExercise: Exercise? = null,
-        generatorData: WorkoutGeneratorData = WorkoutGeneratorData(params = params)
+        generatorData: WorkoutGeneratorData = WorkoutGeneratorData(params = params),
+        val isFriendWorkout: Boolean = false,
     ) : ComposeWorkout(name, description, exercises, id) {
-        constructor(base: Workout?) : this(
+        constructor(base: Workout?, isFriendWorkout: Boolean = false) : this(
             base?.name ?: "New Workout",
             base?.description ?: "",
             base?.exercises ?: emptyList(),
-            base?.id ?: Identifiable.generateId()
+            base?.id ?: Identifiable.generateId(),
+            isFriendWorkout = isFriendWorkout,
         )
 
         var infoExercise by mutableStateOf(infoExercise)

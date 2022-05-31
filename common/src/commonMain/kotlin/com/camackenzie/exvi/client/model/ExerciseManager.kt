@@ -6,6 +6,7 @@
 package com.camackenzie.exvi.client.model
 
 import com.camackenzie.exvi.core.model.*
+import com.camackenzie.exvi.core.util.ExviLogger
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -58,6 +59,7 @@ class ExerciseManager(
     }
 
     fun loadStandardExercises() {
+        ExviLogger.i(tag = "EXERCISE_MANAGER") { "Loading standard exercise set" }
         val actualExercises = ExviSerializer.fromJson<Array<ActualExercise>>(readTextFile("exercises.json"))
         addAll(actualExercises as Array<Exercise>)
         StandardExercise.setStandardExerciseSet(actualExercises)
@@ -65,6 +67,7 @@ class ExerciseManager(
 
     fun loadStandardExercisesIfEmpty() {
         if (!this.hasExercises()) this.loadStandardExercises()
+        else ExviLogger.i(tag = "EXERCISE_MANAGER") { "Standard exercises already loaded" }
     }
 
     fun hasExercises(): Boolean = exercises.size != 0

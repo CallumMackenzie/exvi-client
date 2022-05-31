@@ -18,9 +18,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import com.camackenzie.exvi.core.model.FriendedUser
 import com.camackenzie.exvi.client.components.*
-import com.camackenzie.exvi.client.model.Model
+import com.camackenzie.exvi.client.model.*
 import com.camackenzie.exvi.core.api.toJson
-import com.camackenzie.exvi.core.model.RemoteWorkout
 import com.camackenzie.exvi.core.util.EncodedStringCache
 import com.camackenzie.exvi.core.util.ExviLogger
 import kotlinx.coroutines.*
@@ -30,6 +29,8 @@ object FriendView : Viewable {
 
     @Composable
     override fun View(appState: AppState) {
+        ensureActiveAccount(appState)
+
         val coroutineScope = rememberCoroutineScope()
         val viewData = remember { ViewData(appState, coroutineScope, appState.model) }
 
@@ -62,7 +63,6 @@ object FriendView : Viewable {
         viewData: ViewData,
         modifier: Modifier
     ) {
-
         Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
             if (viewData.friendSelected != null) {
                 val friend = viewData.friendSelected!!
@@ -88,15 +88,15 @@ object FriendView : Viewable {
                             horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.Start)
                         ) {
                             Text(
-                                workout.name.get(),
+                                workout.name,
                                 overflow = TextOverflow.Ellipsis,
                                 fontSize = 20.sp,
                                 modifier = Modifier.padding(5.dp)
                             )
                             Button(onClick = {
-                                // TODO: Copy workout to this account
+                                viewData.appState.setView(ExviView.WorkoutCreation) { workout }
                             }) {
-                                Text("Copy")
+                                Text("Copy & Edit")
                             }
                         }
                     }
@@ -258,7 +258,7 @@ object FriendView : Viewable {
             fetchFriendWorkouts(it)
         })
         var fetchingFriendWorkouts by mutableStateOf(false)
-        var friendWorkouts by mutableStateOf(emptyArray<RemoteWorkout>())
+        var friendWorkouts by mutableStateOf(emptyArray<FriendWorkout>())
         var friendSelectedJob: Job? = null
 
         fun removeFriends(toRemove: Array<EncodedStringCache>) {
@@ -302,17 +302,14 @@ object FriendView : Viewable {
                 friendSelectedJob?.cancel()
                 fetchingFriendWorkouts = true
                 friendSelectedJob = model.activeAccount!!.getFriendWorkouts(
-                    friend!!.username,
+                    friend.username,
                     coroutineScope = coroutineScope,
                     onFail = {
                         ExviLogger.e(tag = LOG_TAG) { "Could not get friend workouts: ${it.toJson()}" }
                     },
                     onSuccess = {
-                        if (friend == null) ExviLogger.e(tag = LOG_TAG) { "Retrieved workouts for past selected user!" }
-                        else {
-                            ExviLogger.i(tag = LOG_TAG) { "Retrieved friend workouts: ${friend!!.username.get()}" }
-                            friendWorkouts = it
-                        }
+                        ExviLogger.i(tag = LOG_TAG) { "Retrieved friend workouts: ${friend!!.username.get()}" }
+                        friendWorkouts = it
                     },
                     onComplete = {
                         fetchingFriendWorkouts = false
