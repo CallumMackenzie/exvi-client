@@ -82,6 +82,8 @@ fun RepField(
     placeholder: @Composable (() -> Unit)? = null
 ) {
     val reps = if ((set?.reps ?: -1) <= 0) null else set?.reps
+    val unitHeader = if (unit.length <= 1) unit
+    else "${unit.substring(0, 1).uppercase()}${unit.substring(1)}s"
     OptIntField(
         modifier = modifier,
         value = reps,
@@ -89,16 +91,10 @@ fun RepField(
         onValueChange = {
             onValueChange(it ?: 0)
         },
-        label = label ?: {
-            Text(
-                if (unit.length <= 1) unit
-                else "${unit.substring(0, 1).uppercase()}${unit.substring(1)}s"
-            )
-        },
+        label = label ?: { Text(unitHeader) },
         placeholder = placeholder ?: {
-            if (target != null) {
+            if (target != null)
                 Text(target.reps.toString())
-            }
         },
         enabled = enabled
     )

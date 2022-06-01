@@ -55,18 +55,6 @@ object WorkoutCreationView : Viewable {
                 if (workoutData.tryStandardize().isNotEmpty())
                     ExviLogger.i(tag = LOG_TAG) { "Workout standardized" }
                 else ExviLogger.i(tag = LOG_TAG) { "Workout already standard" }
-
-//                workoutData.exercises = workoutData.exercises.copy()
-
-                val sb = StringBuilder()
-                for (exercise in workoutData.exercises) {
-                    sb.append("\n\tName: ")
-                        .append(exercise.exercise.name)
-                        .append("\t\tStandard: ")
-                        .append(StandardExercise.standardExerciseSet?.get(exercise.exercise.name)?.name ?: "null")
-                }
-                ExviLogger.v(tag = LOG_TAG) { "Workout: $sb" }
-
                 viewData.loadingExercises = false
             }
         }

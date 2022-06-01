@@ -123,12 +123,12 @@ object ActiveWorkoutView : Viewable {
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = {
-                        workout.playing = !workout.playing
-                    }) {
-                        if (!workout.playing) Icon(Icons.Default.PlayArrow, "Play Workout")
-                        else Icon(ExviIcons.Stop, "Pause Workout")
-                    }
+//                    IconButton(onClick = {
+//                        workout.playing = !workout.playing
+//                    }) {
+//                        if (!workout.playing) Icon(Icons.Default.PlayArrow, "Play Workout")
+//                        else Icon(ExviIcons.Stop, "Pause Workout")
+//                    }
                     Button(onClick = {
                         appState.model.workoutManager!!.putActiveWorkouts(
                             arrayOf(workout),
