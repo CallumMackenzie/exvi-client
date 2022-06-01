@@ -6,7 +6,7 @@ import androidx.compose.material.*
 import androidx.compose.ui.Modifier
 
 @Composable
-fun <T : Enum<T>> EnumSelector(
+fun <T> VariantSelector(
     variants: Array<T>,
     value: T?,
     onValueChanged: (T?) -> Unit,

@@ -25,7 +25,8 @@ open class ComposeWorkout(
         other?.name ?: "New Workout",
         other?.description ?: "",
         other?.exercises ?: emptyList(),
-        other?.id ?: Identifiable.generateId()
+        other?.id ?: Identifiable.generateId(),
+        other?.public ?: false,
     )
 
     override val serializer: KSerializer<SelfSerializable>

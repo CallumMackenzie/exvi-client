@@ -329,7 +329,7 @@ object WorkoutCreationView : Viewable {
                 arrayOf(toAdd),
                 coroutineScope = viewData.appState.coroutineScope,
                 onFail = {
-                    ExviLogger.e(tag = LOG_TAG) {"Updating workout failed with code ${it.statusCode}: ${it.body}"}
+                    ExviLogger.e(tag = LOG_TAG) { "Updating workout failed with code ${it.statusCode}: ${it.body}" }
                 },
                 onSuccess = {
                     ExviLogger.i(tag = LOG_TAG) { "Workout \"${workoutData.name}\" updated successfully" }
@@ -517,9 +517,23 @@ object WorkoutCreationView : Viewable {
             }
         )
 
+        @Composable
+        fun EquipmentSearchField(modifier: Modifier) = VariantSelector(modifier = modifier,
+            variants = viewData.model.exerciseManager.standardEquipment,
+            value = searchData.equipment,
+            onValueChanged = {
+                searchData.equipment = it
+                searchData.exercisesSorted = false
+            }, content = @Composable {
+                Text(it?.name ?: "Any equipment")
+            },
+            dropdownExpanded = searchData.equipmentDropdownExtended,
+            onDropdownExpandedChanged = { searchData.equipmentDropdownExtended = it }
+        )
+
         // Search field for muscles
         @Composable
-        fun MuscleSearchField(modifier: Modifier) = EnumSelector(modifier = modifier,
+        fun MuscleSearchField(modifier: Modifier) = VariantSelector(modifier = modifier,
             variants = Muscle.values(),
             value = searchData.muscleWorked,
             onValueChanged = {
@@ -533,7 +547,7 @@ object WorkoutCreationView : Viewable {
 
         // Search field for experience level
         @Composable
-        fun ExperienceSearchField(modifier: Modifier) = EnumSelector(modifier = modifier,
+        fun ExperienceSearchField(modifier: Modifier) = VariantSelector(modifier = modifier,
             variants = ExerciseExperienceLevel.values(),
             value = searchData.experienceLevel,
             onValueChanged = {
@@ -547,7 +561,7 @@ object WorkoutCreationView : Viewable {
 
         // Search field for mechanics
         @Composable
-        fun MechanicsSearchField(modifier: Modifier) = EnumSelector(modifier = modifier,
+        fun MechanicsSearchField(modifier: Modifier) = VariantSelector(modifier = modifier,
             variants = ExerciseMechanics.values(),
             value = searchData.mechanics,
             onValueChanged = {
@@ -565,15 +579,29 @@ object WorkoutCreationView : Viewable {
             verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically)
         ) {
             BoxWithConstraints {
-                if (maxWidth > 700.dp) Row(
+                if (maxWidth > 900.dp) Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
                 ) {
                     // Exercise name search input
-                    TextSearchField(Modifier.fillMaxWidth(1f / 4f))
-                    MuscleSearchField(Modifier.fillMaxWidth(1f / 3f))
-                    ExperienceSearchField(Modifier.fillMaxWidth(1f / 2f))
-                    MechanicsSearchField(Modifier.fillMaxWidth())
+                    TextSearchField(Modifier.fillMaxWidth(1f / 5f))
+                    MuscleSearchField(Modifier.fillMaxWidth(1f / 4f))
+                    ExperienceSearchField(Modifier.fillMaxWidth(1f / 3f))
+                    MechanicsSearchField(Modifier.fillMaxWidth(1f / 2f))
+                    EquipmentSearchField(Modifier.fillMaxWidth())
+                }
+                else if (maxWidth > 650.dp) Column(
+                    Modifier.fillMaxWidth()
+                ) {
+                    Row(Modifier.fillMaxWidth()) {
+                        TextSearchField(Modifier.fillMaxWidth(1f / 2f))
+                        MuscleSearchField(Modifier.fillMaxWidth())
+                    }
+                    Row(Modifier.fillMaxWidth()) {
+                        ExperienceSearchField(Modifier.fillMaxWidth(1f / 3f))
+                        MechanicsSearchField(Modifier.fillMaxWidth(1f / 2f))
+                        EquipmentSearchField(Modifier.fillMaxWidth())
+                    }
                 }
                 else if (maxWidth > 500.dp && maxHeight > 250.dp) Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -590,8 +618,9 @@ object WorkoutCreationView : Viewable {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
                     ) {
-                        ExperienceSearchField(Modifier.fillMaxWidth(1f / 2f))
-                        MechanicsSearchField(Modifier.fillMaxWidth())
+                        ExperienceSearchField(Modifier.fillMaxWidth(1f / 3f))
+                        MechanicsSearchField(Modifier.fillMaxWidth(1f / 2f))
+                        EquipmentSearchField(Modifier.fillMaxWidth())
                     }
                 }
                 else if (maxWidth > 400.dp && maxHeight > 350.dp) Column(
@@ -600,12 +629,14 @@ object WorkoutCreationView : Viewable {
                 ) {
                     TextSearchField(Modifier.fillMaxWidth())
                     Row(
+                        Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
                     ) {
-                        MuscleSearchField(Modifier.fillMaxWidth(1f / 3f))
-                        ExperienceSearchField(Modifier.fillMaxWidth(1f / 2f))
-                        MechanicsSearchField(Modifier.fillMaxWidth())
+                        MuscleSearchField(Modifier.fillMaxWidth(1f / 4f))
+                        ExperienceSearchField(Modifier.fillMaxWidth(1f / 3f))
+                        MechanicsSearchField(Modifier.fillMaxWidth(1f / 2f))
+                        EquipmentSearchField(Modifier.fillMaxWidth())
                     }
                 }
                 else Expandable(header = @Composable { Text("Filters") }) {
@@ -618,6 +649,7 @@ object WorkoutCreationView : Viewable {
                         MuscleSearchField(Modifier.fillMaxWidth())
                         ExperienceSearchField(Modifier.fillMaxWidth())
                         MechanicsSearchField(Modifier.fillMaxWidth())
+                        EquipmentSearchField(Modifier.fillMaxWidth())
                     }
                 }
             }
@@ -838,7 +870,7 @@ object WorkoutCreationView : Viewable {
 
     private data class ViewData(
         val appState: AppState,
-        val coroutineScope: CoroutineScope
+        val coroutineScope: CoroutineScope,
     ) {
         var loadingExercises by mutableStateOf(false)
 
@@ -999,6 +1031,7 @@ object WorkoutCreationView : Viewable {
         muscleWorked: Muscle? = null,
         experienceLevel: ExerciseExperienceLevel? = null,
         mechanics: ExerciseMechanics? = null,
+        equipment: ExerciseEquipment? = null
     ) {
         var exercisesSorted by mutableStateOf(exercisesSorted)
         var searchExercises by mutableStateOf(searchExercises)
@@ -1015,11 +1048,10 @@ object WorkoutCreationView : Viewable {
         var mechanics by mutableStateOf(mechanics)
         var mechanicsDropdownExtended by mutableStateOf(false)
 
-        var searchJob: Job? = null
+        var equipment by mutableStateOf(equipment)
+        var equipmentDropdownExtended by mutableStateOf(false)
 
-        private class ExerciseSearchPriority(exercise: Exercise) : Exercise by exercise {
-            var matches: Int = 0
-        }
+        var searchJob: Job? = null
 
         fun ensureExercisesSorted(exerciseManager: ExerciseManager, coroutineScope: CoroutineScope) {
             // Ensure exercises are loaded into memory
@@ -1052,6 +1084,7 @@ object WorkoutCreationView : Viewable {
                         if (it.experienceLevel == experienceLevel) sum -= 1
                         if (muscleWorked != null && exerciseManager.exercisesByMuscle[muscleWorked]?.contains(it) ?: false)
                             sum -= 1
+                        if (it.equipment.contains(equipment)) sum -= 1
                         sum
                     }
 
@@ -1069,6 +1102,7 @@ object WorkoutCreationView : Viewable {
                         "muscleWorked" to it.muscleWorked,
                         "experienceLevel" to it.experienceLevel,
                         "mechanics" to it.mechanics,
+                        "equipment" to it.equipment?.name,
                     )
                 }, restore = {
                     WorkoutSearchData(
@@ -1076,6 +1110,8 @@ object WorkoutCreationView : Viewable {
                         muscleWorked = it["muscleWorked"] as Muscle?,
                         experienceLevel = it["experienceLevel"] as ExerciseExperienceLevel?,
                         mechanics = it["mechanics"] as ExerciseMechanics?,
+                        equipment = if (it["equipment"] == null) null else
+                            ExerciseEquipment(it["equipment"] as String),
                     )
                 }
             )

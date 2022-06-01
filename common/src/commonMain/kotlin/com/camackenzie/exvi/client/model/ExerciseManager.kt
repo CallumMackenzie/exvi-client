@@ -15,6 +15,8 @@ import kotlinx.serialization.Transient
 
 private typealias SearchFun = (Exercise) -> Int
 
+private const val LOG_TAG = "EXERCISE_MANAGER"
+
 @Serializable
 @Suppress("unused", "UNCHECKED_CAST")
 class ExerciseManager(
@@ -23,19 +25,11 @@ class ExerciseManager(
 ) : SelfSerializable {
 
     @Transient
-    var exercisesByName: MutableList<Exercise> = ArrayList(exercises.size)
-        private set
-
-    @Transient
     var exercisesByMuscle: Map<Muscle?, Set<Exercise>> = emptyMap()
         private set
 
     @Transient
-    var exercisesByExperience: Map<ExerciseExperienceLevel, List<Exercise>> = emptyMap()
-        private set
-
-    @Transient
-    var exercisesByMechanics: Map<ExerciseMechanics, List<Exercise>> = emptyMap()
+    var standardEquipment: Array<ExerciseEquipment> = emptyArray()
         private set
 
     override val serializer: KSerializer<SelfSerializable>
@@ -49,17 +43,17 @@ class ExerciseManager(
 
     fun addAll(exs: Array<Exercise>) {
         exercises.addAll(exs)
-        ListUtils.addAllToSortedArray(exs, exercisesByName) { a, b -> b.name.compareTo(a.name) }
         exercisesByMuscle = ListUtils.groupByToSet(exs) {
             if (it.musclesWorked.isEmpty()) null
             else it.musclesWorked[0].muscle
         }
-        exercisesByExperience = ListUtils.groupBy(exs) { it.experienceLevel }
-        exercisesByMechanics = ListUtils.groupBy(exs) { it.mechanics }
+        val stdEquipment = HashSet<ExerciseEquipment>()
+        for (exercise in exs) stdEquipment.addAll(exercise.equipment)
+        standardEquipment = stdEquipment.toTypedArray()
     }
 
     fun loadStandardExercises() {
-        ExviLogger.i(tag = "EXERCISE_MANAGER") { "Loading standard exercise set" }
+        ExviLogger.i(tag = LOG_TAG) { "Loading standard exercise set" }
         val actualExercises = ExviSerializer.fromJson<Array<ActualExercise>>(readTextFile("exercises.json"))
         addAll(actualExercises as Array<Exercise>)
         StandardExercise.setStandardExerciseSet(actualExercises)
@@ -67,7 +61,7 @@ class ExerciseManager(
 
     fun loadStandardExercisesIfEmpty() {
         if (!this.hasExercises()) this.loadStandardExercises()
-        else ExviLogger.i(tag = "EXERCISE_MANAGER") { "Standard exercises already loaded" }
+        else ExviLogger.i(tag = LOG_TAG) { "Standard exercises already loaded" }
     }
 
     fun hasExercises(): Boolean = exercises.size != 0
