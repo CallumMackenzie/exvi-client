@@ -30,6 +30,8 @@ import kotlinx.serialization.json.*
 // TODO: Clean up this code
 object WorkoutCreationView : Viewable {
 
+    private const val LOG_TAG = "WORKOUT_CREATION"
+
     @Composable
     override fun View(appState: AppState) {
         ensureActiveAccount(appState)
@@ -51,8 +53,20 @@ object WorkoutCreationView : Viewable {
                 appState.model.exerciseManager.loadStandardExercisesIfEmpty()
                 // Re-standardize exercises with possible placeholder delegates
                 if (workoutData.tryStandardize().isNotEmpty())
-                    ExviLogger.i(tag = "WORKOUT_CREATION") { "Workout standardized" }
-                else ExviLogger.i(tag = "WORKOUT_CREATION") { "Workout already standard" }
+                    ExviLogger.i(tag = LOG_TAG) { "Workout standardized" }
+                else ExviLogger.i(tag = LOG_TAG) { "Workout already standard" }
+
+//                workoutData.exercises = workoutData.exercises.copy()
+
+                val sb = StringBuilder()
+                for (exercise in workoutData.exercises) {
+                    sb.append("\n\tName: ")
+                        .append(exercise.exercise.name)
+                        .append("\t\tStandard: ")
+                        .append(StandardExercise.standardExerciseSet?.get(exercise.exercise.name)?.name ?: "null")
+                }
+                ExviLogger.v(tag = LOG_TAG) { "Workout: $sb" }
+
                 viewData.loadingExercises = false
             }
         }
@@ -327,10 +341,10 @@ object WorkoutCreationView : Viewable {
                 arrayOf(toAdd),
                 coroutineScope = viewData.appState.coroutineScope,
                 onFail = {
-                    ExviLogger.e("Updating workout failed with code ${it.statusCode}: ${it.body}")
+                    ExviLogger.e(tag = LOG_TAG) {"Updating workout failed with code ${it.statusCode}: ${it.body}"}
                 },
                 onSuccess = {
-                    ExviLogger.i(tag = "WORKOUT_CREATION") { "Workout \"${workoutData.name}\" updated successfully" }
+                    ExviLogger.i(tag = LOG_TAG) { "Workout \"${workoutData.name}\" updated successfully" }
                 }
             )
             viewData.appState.setView(ExviView.Home)

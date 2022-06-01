@@ -35,7 +35,7 @@ open class ComposeWorkout(
     override var description: String by mutableStateOf(description)
     override val id: EncodedStringCache = id
     override val exercises: MutableList<ExerciseSet> = mutableStateListOf(*exercises.map {
-        it.toComposable()
+        it.toActual()
     }.toTypedArray())
     override var public: Boolean by mutableStateOf(public)
 
