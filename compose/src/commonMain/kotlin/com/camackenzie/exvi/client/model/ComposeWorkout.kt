@@ -12,8 +12,6 @@ import com.camackenzie.exvi.core.util.Identifiable
 import com.camackenzie.exvi.core.util.SelfSerializable
 import kotlinx.serialization.KSerializer
 
-fun Workout.toComposable() = ComposeWorkout(name, description, exercises, id.copy(), public)
-
 open class ComposeWorkout(
     name: String,
     description: String = "",
@@ -42,9 +40,6 @@ open class ComposeWorkout(
 
     override fun newActiveWorkout(): ActiveWorkout = ActiveWorkout(this).toComposable()
 }
-
-fun ActiveWorkout.toActual() =
-    ActualActiveWorkout(name, baseWorkoutId, exercises, activeWorkoutId, startTimeMillis, endTimeMillis)
 
 fun ActiveWorkout.toComposable() =
     ComposeActiveWorkout(name, baseWorkoutId, exercises, activeWorkoutId, startTimeMillis, endTimeMillis)

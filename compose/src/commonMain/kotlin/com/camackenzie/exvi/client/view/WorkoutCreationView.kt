@@ -160,7 +160,7 @@ object WorkoutCreationView : Viewable {
                     ExerciseSearchView(viewData, workoutData, searchData, selectorData)
                 },
                 RightPaneView.Info.str to {
-                    ExerciseInfoView(workoutData.infoExercise)
+                    ExerciseInfoView(workoutData, workoutData.infoExercise)
                 },
                 RightPaneView.Generator.str to {
                     WorkoutGeneratorView(viewData, workoutData)
@@ -421,6 +421,7 @@ object WorkoutCreationView : Viewable {
 
     @Composable
     private fun ExerciseInfoView(
+        workoutData: WorkoutData,
         exercise: Exercise?
     ) {
         if (exercise != null) {
@@ -429,12 +430,17 @@ object WorkoutCreationView : Viewable {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top,
             ) {
-                Text(
-                    exercise.name,
-                    fontSize = 25.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(10.dp)
-                )
+                Row {
+                    Text(
+                        exercise.name,
+                        fontSize = 25.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                    IconButton(onClick = {
+                        workoutData.addExercise(ExerciseSet(exercise, "rep", arrayOf(8, 8, 8)))
+                    }) { Icon(ExviIcons.Add, "Add Exercise") }
+                }
 
                 Column(horizontalAlignment = Alignment.Start) {
                     Text("Exercise Type(s): ${exercise.exerciseTypes.toFormattedString()}")
@@ -525,7 +531,7 @@ object WorkoutCreationView : Viewable {
                 searchData.equipment = it
                 searchData.exercisesSorted = false
             }, content = @Composable {
-                Text(it?.name ?: "Any equipment")
+                Text(it?.name ?: "any equipment")
             },
             dropdownExpanded = searchData.equipmentDropdownExtended,
             onDropdownExpandedChanged = { searchData.equipmentDropdownExtended = it }
@@ -534,7 +540,7 @@ object WorkoutCreationView : Viewable {
         // Search field for muscles
         @Composable
         fun MuscleSearchField(modifier: Modifier) = VariantSelector(modifier = modifier,
-            variants = Muscle.values(),
+            variants = Muscle.values().sortedWith { a, b -> a.toString().compareTo(b.toString()) }.toTypedArray(),
             value = searchData.muscleWorked,
             onValueChanged = {
                 searchData.muscleWorked = it
@@ -548,7 +554,7 @@ object WorkoutCreationView : Viewable {
         // Search field for experience level
         @Composable
         fun ExperienceSearchField(modifier: Modifier) = VariantSelector(modifier = modifier,
-            variants = ExerciseExperienceLevel.values(),
+            variants = ExerciseExperienceLevel.values().sortedWith { a, b -> a.toString().compareTo(b.toString()) }.toTypedArray(),
             value = searchData.experienceLevel,
             onValueChanged = {
                 searchData.experienceLevel = it
@@ -562,7 +568,7 @@ object WorkoutCreationView : Viewable {
         // Search field for mechanics
         @Composable
         fun MechanicsSearchField(modifier: Modifier) = VariantSelector(modifier = modifier,
-            variants = ExerciseMechanics.values(),
+            variants = ExerciseMechanics.values().sortedWith { a, b -> a.toString().compareTo(b.toString()) }.toTypedArray(),
             value = searchData.mechanics,
             onValueChanged = {
                 searchData.mechanics = it
@@ -633,8 +639,14 @@ object WorkoutCreationView : Viewable {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
                     ) {
-                        MuscleSearchField(Modifier.fillMaxWidth(1f / 4f))
-                        ExperienceSearchField(Modifier.fillMaxWidth(1f / 3f))
+                        MuscleSearchField(Modifier.fillMaxWidth(1f / 2f))
+                        ExperienceSearchField(Modifier.fillMaxWidth())
+                    }
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                    ) {
                         MechanicsSearchField(Modifier.fillMaxWidth(1f / 2f))
                         EquipmentSearchField(Modifier.fillMaxWidth())
                     }
@@ -905,12 +917,14 @@ object WorkoutCreationView : Viewable {
         editorExercise: Int? = null,
         infoExercise: Exercise? = null,
         generatorData: WorkoutGeneratorData = WorkoutGeneratorData(params = params),
-    ) : ComposeWorkout(name, description, exercises, id) {
+        public: Boolean = false
+    ) : ComposeWorkout(name, description, exercises, id, public) {
         constructor(base: Workout?) : this(
             base?.name ?: "New Workout",
             base?.description ?: "",
             base?.exercises ?: emptyList(),
             base?.id ?: Identifiable.generateId(),
+            public = base?.public ?: false
         )
 
         var infoExercise by mutableStateOf(infoExercise)
@@ -994,12 +1008,13 @@ object WorkoutCreationView : Viewable {
                     mapOf(
                         "name" to it.name,
                         "description" to it.description,
-                        "exercises" to it.exercises.toTypedArray(),
+                        "exercises" to ExviSerializer.toJson(it.exercises.toTypedArray()),
                         "id" to it.id.getEncoded(),
-                        "lockedExercises" to it.lockedExercises.toTypedArray(),
+                        "lockedExercises" to ExviSerializer.toJson(it.lockedExercises.toTypedArray()),
                         "editorExerciseIndex" to it.editorExerciseIndex,
                         "infoExercise" to if (it.infoExercise == null) null else ExviSerializer.toJson(it.infoExercise!!),
-                        "params" to it.generatorData.params.toJson()
+                        "params" to it.generatorData.params.toJson(),
+                        "public" to it.public,
                     )
                 },
                 restore = {
@@ -1007,16 +1022,17 @@ object WorkoutCreationView : Viewable {
                     WorkoutData(
                         name = it["name"] as String,
                         description = it["description"] as String,
-                        exercises = listOf(*(it["exercises"] as Array<ExerciseSet>)),
+                        exercises = listOf(*ExviSerializer.fromJson<Array<ExerciseSet>>(it["exercises"] as String)),
                         id = EncodedStringCache.fromEncoded(it["id"] as String),
-                        lockedExercises = (it["lockedExercises"] as Array<Int>).toSet(),
+                        lockedExercises = (ExviSerializer.fromJson<Array<Int>>(it["lockedExercises"] as String)).toSet(),
                         editorExercise = it["editorExerciseIndex"] as Int?,
                         infoExercise = if (infoExerciseStr == null) null else ExviSerializer.fromJson<Exercise>(
                             infoExerciseStr
                         ),
                         generatorData = WorkoutGeneratorData(
                             params = ExviSerializer.fromJson(it["params"] as String)
-                        )
+                        ),
+                        public = it["public"] as Boolean
                     )
                 }
             )
