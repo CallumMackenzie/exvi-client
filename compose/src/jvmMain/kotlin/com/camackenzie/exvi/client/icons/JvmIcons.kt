@@ -10,4 +10,6 @@ internal actual fun visibilityIcon(): ImageVector = Icons.Default.Visibility
 internal actual fun visibilityOffIcon(): ImageVector = Icons.Default.VisibilityOff
 internal actual fun arrowDownIcon(): ImageVector = Icons.Default.KeyboardArrowDown
 internal actual fun arrowUpIcon(): ImageVector = Icons.Default.KeyboardArrowUp
+internal actual fun arrowLeftIcon(): ImageVector = Icons.Default.KeyboardArrowLeft
+internal actual fun arrowRightIcon(): ImageVector = Icons.Default.KeyboardArrowRight
 internal actual fun targetIcon(): ImageVector = Icons.Default.CheckCircle

@@ -1,6 +1,8 @@
 package com.camackenzie.exvi.client.components
 
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -21,6 +23,8 @@ import com.camackenzie.exvi.client.icons.ExviIcons
 import com.camackenzie.exvi.client.rendering.RenderedSpinner
 import com.camackenzie.exvi.core.model.ExerciseSet
 import com.camackenzie.exvi.core.model.SingleExerciseSet
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun UsernameField(
@@ -296,37 +300,37 @@ fun StringSelectionView(
     views: Map<String, @Composable () -> Unit>,
     onCurrentViewChange: (String) -> Unit,
     currentView: String,
+    coroutineScope: CoroutineScope,
     modifier: Modifier = Modifier.fillMaxSize(),
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top
-) {
-    SelectionView(
-        views,
-        views.keys.associateWith {
-            {
-                Button(onClick = {
-                    onCurrentViewChange(it)
-                }) {
-                    Text(it)
-                }
-            }
-        },
-        currentView,
-        modifier,
-        horizontalAlignment,
-        verticalArrangement
-    )
-}
+) = SelectionView(
+    views,
+    views.keys.associateWith {
+        {
+            Button(onClick = {
+                onCurrentViewChange(it)
+            }) { Text(it) }
+        }
+    },
+    currentView,
+    coroutineScope,
+    modifier,
+    horizontalAlignment,
+    verticalArrangement
+)
 
 @Composable
 fun <T> SelectionView(
     views: Map<T, @Composable () -> Unit>,
     headers: Map<T, @Composable () -> Unit>,
     currentView: T,
+    coroutineScope: CoroutineScope,
     modifier: Modifier = Modifier.fillMaxSize(),
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top
 ) {
+    val scrollState = rememberScrollState()
     Column(
         modifier = modifier,
         horizontalAlignment = horizontalAlignment,
@@ -334,17 +338,25 @@ fun <T> SelectionView(
     ) {
         // TODO: Make this a flow row
         // TODO: Improve selected page styling
-        Row(
-            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.Start),
-            verticalAlignment = Alignment.Top
-        ) {
-            for ((_, comp) in headers) {
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    comp()
+        Row(Modifier.fillMaxWidth()) {
+            val scrollDiff = 45f
+            IconButton(onClick = {
+                coroutineScope.launch {
+                    scrollState.animateScrollBy(-scrollDiff)
                 }
+            }) { Icon(ExviIcons.ArrowLeft, "Scroll left") }
+            IconButton(onClick = {
+                coroutineScope.launch {
+                    scrollState.animateScrollBy(scrollDiff)
+                }
+            }) { Icon(ExviIcons.ArrowRight, "Scroll right") }
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(scrollState),
+                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.Start),
+                verticalAlignment = Alignment.Top
+            ) {
+                for ((_, comp) in headers)
+                    Box(contentAlignment = Alignment.Center) { comp() }
             }
         }
         views[currentView]?.invoke()

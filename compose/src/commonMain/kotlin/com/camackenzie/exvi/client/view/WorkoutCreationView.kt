@@ -173,7 +173,8 @@ object WorkoutCreationView : Viewable {
                 }
             ),
             currentView = selectorData.rightPane,
-            onCurrentViewChange = { selectorData.rightPane = it }
+            onCurrentViewChange = { selectorData.rightPane = it },
+            coroutineScope = viewData.coroutineScope,
         )
     }
 
