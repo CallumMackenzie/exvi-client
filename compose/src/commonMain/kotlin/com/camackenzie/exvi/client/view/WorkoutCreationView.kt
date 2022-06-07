@@ -1,7 +1,7 @@
 package com.camackenzie.exvi.client.view
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -274,14 +274,14 @@ object WorkoutCreationView : Viewable {
                 horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
             ) {
                 OptIntField(
-                    modifier = Modifier.fillMaxWidth(0.333f),
+                    modifier = Modifier.fillMaxWidth(1f / 3f),
                     value = generatorData.minExercises,
                     onValueChange = { generatorData.minExercises = it },
                     maxDigits = 3,
                     label = { Text("Min. Exercises") }
                 )
                 OptIntField(
-                    modifier = Modifier.fillMaxWidth(0.5f),
+                    modifier = Modifier.fillMaxWidth(1f / 2f),
                     value = generatorData.maxExercises,
                     onValueChange = { generatorData.maxExercises = it },
                     maxDigits = 3,
@@ -297,7 +297,7 @@ object WorkoutCreationView : Viewable {
                     },
                     placeholder = { Text("${generatorData.minExercises ?: "*"}-${generatorData.maxExercises ?: "*"}") },
                     maxDigits = 3,
-                    label = { Text("N. Exercises") }
+                    label = { Text("Num. Exercises") }
                 )
             }
         }
@@ -554,7 +554,8 @@ object WorkoutCreationView : Viewable {
         // Search field for experience level
         @Composable
         fun ExperienceSearchField(modifier: Modifier) = VariantSelector(modifier = modifier,
-            variants = ExerciseExperienceLevel.values().sortedWith { a, b -> a.toString().compareTo(b.toString()) }.toTypedArray(),
+            variants = ExerciseExperienceLevel.values().sortedWith { a, b -> a.toString().compareTo(b.toString()) }
+                .toTypedArray(),
             value = searchData.experienceLevel,
             onValueChanged = {
                 searchData.experienceLevel = it
@@ -568,7 +569,8 @@ object WorkoutCreationView : Viewable {
         // Search field for mechanics
         @Composable
         fun MechanicsSearchField(modifier: Modifier) = VariantSelector(modifier = modifier,
-            variants = ExerciseMechanics.values().sortedWith { a, b -> a.toString().compareTo(b.toString()) }.toTypedArray(),
+            variants = ExerciseMechanics.values().sortedWith { a, b -> a.toString().compareTo(b.toString()) }
+                .toTypedArray(),
             value = searchData.mechanics,
             onValueChanged = {
                 searchData.mechanics = it

@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @Suppress("unused", "UNCHECKED_CAST")
-class WorkoutGeneratorParams(
+data class WorkoutGeneratorParams(
     var minExercises: Int = 6,
     var maxExercises: Int = 9,
     var priorityRange: Double = 0.1,
@@ -59,6 +59,30 @@ class WorkoutGeneratorParams(
     fun withExerciseCount(n: Int): WorkoutGeneratorParams {
         setExerciseCount(n)
         return this
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as WorkoutGeneratorParams
+
+        if (minExercises != other.minExercises) return false
+        if (maxExercises != other.maxExercises) return false
+        if (priorityRange != other.priorityRange) return false
+        if (bodyStats != other.bodyStats) return false
+        if (!providers.contentEquals(other.providers)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = minExercises
+        result = 31 * result + maxExercises
+        result = 31 * result + priorityRange.hashCode()
+        result = 31 * result + bodyStats.hashCode()
+        result = 31 * result + providers.contentHashCode()
+        return result
     }
 
 }
