@@ -50,6 +50,7 @@ class ExerciseManager(
         val stdEquipment = HashSet<ExerciseEquipment>()
         for (exercise in exs) stdEquipment.addAll(exercise.equipment)
         standardEquipment = stdEquipment.toTypedArray()
+        standardEquipment.sortWith { a, b -> a.name.compareTo(b.name) }
     }
 
     fun loadStandardExercises() {
