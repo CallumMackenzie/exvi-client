@@ -532,7 +532,7 @@ object WorkoutCreationView : Viewable {
                 searchData.equipment = it
                 searchData.exercisesSorted = false
             }, content = @Composable {
-                Text(it?.name ?: "any equipment")
+                Text(it?.name?.lowercase() ?: "any equipment")
             },
             dropdownExpanded = searchData.equipmentDropdownExtended,
             onDropdownExpandedChanged = { searchData.equipmentDropdownExtended = it }
