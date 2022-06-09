@@ -307,10 +307,10 @@ fun StringSelectionView(
 ) = SelectionView(
     views,
     views.keys.associateWith {
-        {
+        { selected ->
             Button(onClick = {
                 onCurrentViewChange(it)
-            }) { Text(it) }
+            }, enabled = !selected) { Text(it) }
         }
     },
     currentView,
@@ -323,7 +323,7 @@ fun StringSelectionView(
 @Composable
 fun <T> SelectionView(
     views: Map<T, @Composable () -> Unit>,
-    headers: Map<T, @Composable () -> Unit>,
+    headers: Map<T, @Composable (Boolean) -> Unit>,
     currentView: T,
     coroutineScope: CoroutineScope,
     modifier: Modifier = Modifier.fillMaxSize(),
@@ -339,7 +339,7 @@ fun <T> SelectionView(
         // TODO: Make this a flow row
         // TODO: Improve selected page styling
         Row(Modifier.fillMaxWidth()) {
-            val scrollDiff = 45f
+            val scrollDiff = 80f
             IconButton(onClick = {
                 coroutineScope.launch {
                     scrollState.animateScrollBy(-scrollDiff)
@@ -355,8 +355,8 @@ fun <T> SelectionView(
                 horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.Start),
                 verticalAlignment = Alignment.Top
             ) {
-                for ((_, comp) in headers)
-                    Box(contentAlignment = Alignment.Center) { comp() }
+                for ((view, comp) in headers)
+                    Box(contentAlignment = Alignment.Center) { comp(view == currentView) }
             }
         }
         views[currentView]?.invoke()
