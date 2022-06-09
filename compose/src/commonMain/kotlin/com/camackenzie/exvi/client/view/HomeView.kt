@@ -27,6 +27,8 @@ import kotlinx.coroutines.launch
 
 object HomeView : Viewable {
 
+    val LOG_TAG = "HOME_VIEW"
+
     @Composable
     override fun View(appState: AppState) {
         ensureActiveAccount(appState)
@@ -138,7 +140,7 @@ object HomeView : Viewable {
             verticalAlignment = Alignment.Top
         ) {
             Text(
-                "Welcome, ${appState.model.activeAccount!!.formattedUsername}!",
+                "Welcome, ${appState.model.activeAccount?.formattedUsername ?: "User"}!",
                 fontSize = 30.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(10.dp)
@@ -161,7 +163,7 @@ object HomeView : Viewable {
     private fun ActiveWorkoutListView(
         appState: AppState, wld: WorkoutListData
     ) {
-        val serverWorkoutManager = appState.model.workoutManager!!.serverManager
+        val serverWorkoutManager = appState.model.workoutManager?.serverManager ?: return
 
         if (wld.retrievingActiveWorkouts
             || serverWorkoutManager.fetchingActiveWorkouts
@@ -217,16 +219,16 @@ object HomeView : Viewable {
                                 Button(onClick = {
                                     deletingWorkout = true
                                     deleteConfirmEnabled = false
-                                    appState.model.workoutManager!!.deleteActiveWorkouts(arrayOf(wk.activeWorkoutId.get()),
+                                    appState.model.workoutManager?.deleteActiveWorkouts(arrayOf(wk.activeWorkoutId.get()),
                                         onFail = {
                                             ExviLogger.e(
                                                 "Error code ${it.statusCode}: ${it.body}",
-                                                tag = "CLIENT"
+                                                tag = LOG_TAG
                                             )
                                         }, onComplete = {
                                             deletingWorkout = false
                                             wld.refreshWorkouts()
-                                        })
+                                        }) ?: ExviLogger.w(tag = LOG_TAG) { "Workout manager was null for deletion" }
                                 }) {
                                     Text("Delete")
                                 }
@@ -250,7 +252,7 @@ object HomeView : Viewable {
         wld: WorkoutListData
     ) {
         if (appState.model.activeAccount == null) return
-        val serverWorkoutManager = appState.model.workoutManager!!.serverManager
+        val serverWorkoutManager = appState.model.workoutManager?.serverManager ?: return
         LazyColumn {
             item {
                 Column(
@@ -363,13 +365,13 @@ object HomeView : Viewable {
                                 Button(onClick = {
                                     deleteConfirmEnabled = false
                                     deletingWorkout = true
-                                    appState.model.workoutManager!!.deleteWorkouts(arrayOf(workout.id.get()),
+                                    appState.model.workoutManager?.deleteWorkouts(arrayOf(workout.id.get()),
                                         onFail = {
-                                            ExviLogger.e("Error code ${it.statusCode}: ${it.body}", tag = "CLIENT")
+                                            ExviLogger.e("Error code ${it.statusCode}: ${it.body}", tag = LOG_TAG)
                                         }, onComplete = {
                                             wld.refreshWorkouts()
                                             deletingWorkout = false
-                                        })
+                                        }) ?: ExviLogger.w(tag = LOG_TAG) { "Workout manager was null for deletion" }
                                 }, enabled = !deletingWorkout) {
                                     Text("Delete")
                                 }
@@ -401,7 +403,7 @@ object HomeView : Viewable {
             retrievingWorkouts = true
             retrievingActiveWorkouts = true
             coroutineScope.launch {
-                joinAll(appState.model.workoutManager!!.getWorkouts(
+                arrayOf(appState.model.workoutManager?.getWorkouts(
                     type = WorkoutListRequest.Type.ListAllTemplates,
                     dispatcher = Dispatchers.Default,
                     coroutineScope = coroutineScope,
@@ -415,7 +417,7 @@ object HomeView : Viewable {
                     onComplete = {
                         retrievingWorkouts = false
                     }
-                ), appState.model.workoutManager!!.getActiveWorkouts(
+                ), appState.model.workoutManager?.getActiveWorkouts(
                     type = WorkoutListRequest.Type.ListAllActive,
                     dispatcher = Dispatchers.Default,
                     coroutineScope = coroutineScope,
@@ -429,7 +431,7 @@ object HomeView : Viewable {
                     onComplete = {
                         retrievingActiveWorkouts = false
                     }
-                ))
+                )).filterNotNull().joinAll()
             }
         }
     }

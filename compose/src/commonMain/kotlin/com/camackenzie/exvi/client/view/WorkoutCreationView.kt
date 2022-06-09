@@ -326,7 +326,7 @@ object WorkoutCreationView : Viewable {
         Button(onClick = {
             val toAdd = workoutData.toActual()
             toAdd.tryStandardize()
-            viewData.model.workoutManager!!.putWorkouts(
+            viewData.model.workoutManager?.putWorkouts(
                 arrayOf(toAdd),
                 coroutineScope = viewData.appState.coroutineScope,
                 onFail = {
@@ -335,7 +335,7 @@ object WorkoutCreationView : Viewable {
                 onSuccess = {
                     ExviLogger.i(tag = LOG_TAG) { "Workout \"${workoutData.name}\" updated successfully" }
                 }
-            )
+            ) ?: ExviLogger.w(tag = LOG_TAG) { "Workout manager was null when putting workout" }
             viewData.appState.setView(ExviView.Home)
         }) {
             Text("Finish")
