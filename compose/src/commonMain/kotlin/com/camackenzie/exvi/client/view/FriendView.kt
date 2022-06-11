@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.camackenzie.exvi.client.components.AlertDialog
+import com.camackenzie.exvi.client.components.ExviBox
 import com.camackenzie.exvi.client.components.LoadingIcon
 import com.camackenzie.exvi.client.components.UsernameField
 import com.camackenzie.exvi.client.model.Model
@@ -50,8 +51,8 @@ object FriendView : Viewable {
                     }
                 }
                 if (this@BoxWithConstraints.maxWidth < 450.dp) {
-                    FriendList(viewData, Modifier.fillMaxWidth())
-                    FriendWorkoutView(viewData, Modifier.fillMaxWidth())
+                    FriendList(viewData, Modifier.fillMaxWidth().fillMaxHeight(1f / 2f))
+                    FriendWorkoutView(viewData, Modifier.fillMaxWidth().fillMaxHeight())
                 } else Row(Modifier.fillMaxWidth()) {
                     FriendList(viewData, Modifier.fillMaxWidth(1f / 2f))
                     FriendWorkoutView(viewData, Modifier.fillMaxWidth())
@@ -132,50 +133,52 @@ object FriendView : Viewable {
             Text("Friend User")
         }
 
-        Column(modifier) {
-            BoxWithConstraints(Modifier.fillMaxWidth()) {
-                if (maxWidth > 500.dp)
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        UserSearchField(Modifier.fillMaxWidth(1f / 2f))
-                        AddFriendButton(Modifier.fillMaxWidth(1f / 2f))
-                        RefreshFriendsButton(Modifier.fillMaxWidth())
-                    }
-                else if (maxWidth > 300.dp) {
-                    Column(Modifier.fillMaxWidth()) {
+        ExviBox(modifier) {
+            Column(Modifier.fillMaxSize()) {
+                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    if (maxWidth > 500.dp)
                         Row(
                             Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            UserSearchField(Modifier.fillMaxWidth(2f / 3f))
-                            AddFriendButton(Modifier.fillMaxWidth())
+                            UserSearchField(Modifier.fillMaxWidth(1f / 2f))
+                            AddFriendButton(Modifier.fillMaxWidth(1f / 2f))
+                            RefreshFriendsButton(Modifier.fillMaxWidth())
                         }
+                    else if (maxWidth > 300.dp) {
+                        Column(Modifier.fillMaxWidth()) {
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                UserSearchField(Modifier.fillMaxWidth(2f / 3f))
+                                AddFriendButton(Modifier.fillMaxWidth())
+                            }
+                            RefreshFriendsButton(Modifier.fillMaxWidth())
+                        }
+                    } else Column(
+                        Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically)
+                    ) {
+                        UserSearchField(Modifier.fillMaxWidth())
+                        AddFriendButton(Modifier.fillMaxWidth())
                         RefreshFriendsButton(Modifier.fillMaxWidth())
                     }
-                } else Column(
-                    Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically)
-                ) {
-                    UserSearchField(Modifier.fillMaxWidth())
-                    AddFriendButton(Modifier.fillMaxWidth())
-                    RefreshFriendsButton(Modifier.fillMaxWidth())
                 }
-            }
-            LazyColumn(
-                Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (viewData.fetchingFriends || viewData.friendingUser) item {
-                    LoadingIcon()
-                } else if (viewData.friendedUsers.isEmpty()) item {
-                    Text("You have no friends")
-                } else items(viewData.friendedUsers.size) { index ->
-                    FriendCard(viewData, viewData.friendedUsers[index])
+                LazyColumn(
+                    Modifier.fillMaxWidth().fillMaxHeight(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (viewData.fetchingFriends || viewData.friendingUser) item {
+                        LoadingIcon()
+                    } else if (viewData.friendedUsers.isEmpty()) item {
+                        Text("You have no friends")
+                    } else items(viewData.friendedUsers.size) { index ->
+                        FriendCard(viewData, viewData.friendedUsers[index])
+                    }
                 }
             }
         }
@@ -192,7 +195,6 @@ object FriendView : Viewable {
         @Composable
         fun FriendControl1(modifier: Modifier) = if (user.acceptedRequest) Button(onClick = {
             viewData.friendSelected = user
-            // TODO: View user workouts
         }, modifier = modifier) {
             Text("View Public Workouts")
         } else {
