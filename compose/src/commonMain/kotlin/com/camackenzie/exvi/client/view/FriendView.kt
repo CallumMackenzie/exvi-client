@@ -1,28 +1,30 @@
 package com.camackenzie.exvi.client.view
 
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Button
-import androidx.compose.material.IconButton
-import androidx.compose.material.Icon
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.camackenzie.exvi.core.model.*
-import com.camackenzie.exvi.client.components.*
-import com.camackenzie.exvi.client.model.*
+import androidx.compose.ui.unit.sp
+import com.camackenzie.exvi.client.components.AlertDialog
+import com.camackenzie.exvi.client.components.LoadingIcon
+import com.camackenzie.exvi.client.components.UsernameField
+import com.camackenzie.exvi.client.model.Model
 import com.camackenzie.exvi.core.api.toJson
+import com.camackenzie.exvi.core.model.ActualWorkout
+import com.camackenzie.exvi.core.model.FriendedUser
 import com.camackenzie.exvi.core.util.EncodedStringCache
 import com.camackenzie.exvi.core.util.ExviLogger
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 
 object FriendView : Viewable {
     private const val LOG_TAG = "FRIENDS"
@@ -91,12 +93,12 @@ object FriendView : Viewable {
                                 workout.name,
                                 overflow = TextOverflow.Ellipsis,
                                 fontSize = 20.sp,
-                                modifier = Modifier.padding(5.dp)
+                                modifier = Modifier.padding(5.dp).fillMaxWidth(1f / 2f)
                             )
-                            Button(onClick = {
+                            Button(modifier = Modifier.fillMaxWidth(), onClick = {
                                 viewData.appState.setView(ExviView.WorkoutCreation) { workout }
                             }) {
-                                Text("Copy & Edit")
+                                Text("Open")
                             }
                         }
                     }
@@ -202,14 +204,45 @@ object FriendView : Viewable {
         }
 
         @Composable
-        fun FriendControl2(modifier: Modifier) = Button(onClick = {
-            viewData.removeFriends(arrayOf(user.username))
-            if (viewData.friendSelected == user) viewData.friendSelected = null
-        }, modifier = modifier) {
-            Text(
-                if (user.acceptedRequest) "Remove Friend"
-                else if (user.incomingRequest) "Reject Request"
-                else "Cancel Request"
+        fun FriendControl2(modifier: Modifier) {
+            val username = user.username.get()
+            Button(
+                onClick = { viewData.removeFriendPrompt = username },
+                modifier = modifier
+            ) {
+                Text(
+                    if (user.acceptedRequest) "Remove Friend"
+                    else if (user.incomingRequest) "Reject Request"
+                    else "Cancel Request"
+                )
+            }
+            if (viewData.removeFriendPrompt == username) AlertDialog(
+                modifier = Modifier.border(1.dp, MaterialTheme.colors.primary),
+                onDismissRequest = { viewData.removeFriendPrompt = "" },
+                title = {
+                    Text(
+                        if (user.acceptedRequest) "Remove friend $username?"
+                        else if (user.incomingRequest) "Reject request from $username?"
+                        else "Cancel request to $username?"
+                    )
+                },
+                buttons = {
+                    Row(
+                        Modifier.padding(5.dp),
+                        horizontalArrangement = Arrangement.spacedBy(
+                            5.dp,
+                            Alignment.CenterHorizontally
+                        ),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Button(onClick = { viewData.removeFriendPrompt = "" }) { Text("Cancel") }
+                        Button(onClick = {
+                            viewData.removeFriendPrompt = ""
+                            viewData.removeFriends(arrayOf(user.username))
+                            if (viewData.friendSelected == user) viewData.friendSelected = null
+                        }) { Text("Confirm") }
+                    }
+                }
             )
         }
 
@@ -260,6 +293,7 @@ object FriendView : Viewable {
         var fetchingFriendWorkouts by mutableStateOf(false)
         var friendWorkouts by mutableStateOf(emptyArray<ActualWorkout>())
         var friendSelectedJob: Job? = null
+        var removeFriendPrompt by mutableStateOf("")
 
         fun removeFriends(toRemove: Array<EncodedStringCache>) {
             friendingUser = true
@@ -308,7 +342,7 @@ object FriendView : Viewable {
                         ExviLogger.e(tag = LOG_TAG) { "Could not get friend workouts: ${it.toJson()}" }
                     },
                     onSuccess = {
-                        ExviLogger.i(tag = LOG_TAG) { "Retrieved friend workouts: ${friend!!.username.get()}" }
+                        ExviLogger.i(tag = LOG_TAG) { "Retrieved friend workouts: ${friend.username.get()}" }
                         friendWorkouts = it
                     },
                     onComplete = {

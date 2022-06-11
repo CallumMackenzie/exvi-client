@@ -29,10 +29,10 @@ actual fun VideoPlayer(url: String, modifier: Modifier): Boolean {
         }) { Text("Open In Youtube") }
         return true
     } else {
+        val dataSourceFactory = DefaultDataSource.Factory(context)
 
         val exoPlayer = remember {
             ExoPlayer.Builder(context).build().apply {
-                val dataSourceFactory = DefaultDataSource.Factory(context)
                 this.setMediaSource(
                     ProgressiveMediaSource.Factory(dataSourceFactory)
                         .createMediaSource(MediaItem.fromUri(url))
@@ -41,6 +41,10 @@ actual fun VideoPlayer(url: String, modifier: Modifier): Boolean {
                 this.prepare()
             }
         }
+        exoPlayer.setMediaSource(
+            ProgressiveMediaSource.Factory(dataSourceFactory)
+                .createMediaSource(MediaItem.fromUri(url))
+        )
 
         AndroidView(
             modifier = modifier,

@@ -1,5 +1,6 @@
 package com.camackenzie.exvi.client.view
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.rememberScrollState
@@ -345,17 +346,26 @@ object WorkoutCreationView : Viewable {
     @Composable
     private fun CancelWorkoutButton(appState: AppState) {
         var promptCancel by rememberSaveable { mutableStateOf(false) }
-        if (!promptCancel) {
-            Button(onClick = { promptCancel = true }) { Text("Cancel") }
-        } else {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(onClick = { promptCancel = false }) { Text("Keep Editing") }
-                Button(onClick = { appState.setView(ExviView.Home) }) { Text("Exit") }
-            }
-        }
+        Button(onClick = { promptCancel = true }) { Text("Cancel") }
+        if (promptCancel) AlertDialog(
+            modifier = Modifier.border(1.dp, MaterialTheme.colors.primary),
+            onDismissRequest = { promptCancel = false },
+            title = { Text("Exit and lose unsaved changes?") },
+            buttons = {
+                Row(
+                    Modifier.padding(5.dp),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        5.dp,
+                        Alignment.CenterHorizontally
+                    ),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Button(modifier = Modifier.fillMaxWidth(1f / 2f),
+                        onClick = { promptCancel = false }) { Text("Keep Editing") }
+                    Button(modifier = Modifier.fillMaxWidth(),
+                        onClick = { appState.setView(ExviView.Home) }) { Text("Exit") }
+                }
+            })
     }
 
     @Composable
@@ -436,7 +446,7 @@ object WorkoutCreationView : Viewable {
                         exercise.name,
                         fontSize = 25.sp,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(10.dp)
+                        modifier = Modifier.padding(10.dp).fillMaxSize(3f / 4f)
                     )
                     IconButton(onClick = {
                         workoutData.addExercise(ExerciseSet(exercise, "rep", arrayOf(8, 8, 8)))
@@ -1013,7 +1023,7 @@ object WorkoutCreationView : Viewable {
                         "description" to it.description,
                         "exercises" to ExviSerializer.toJson(it.exercises.toTypedArray()),
                         "id" to it.id.getEncoded(),
-                        "lockedExercises" to ExviSerializer.toJson(it.lockedExercises.toTypedArray()),
+                        "lockedExercises" to ExviSerializer.toJson(it.lockedExercises),
                         "editorExerciseIndex" to it.editorExerciseIndex,
                         "infoExercise" to if (it.infoExercise == null) null else ExviSerializer.toJson(it.infoExercise!!),
                         "params" to it.generatorData.params.toJson(),
@@ -1027,7 +1037,7 @@ object WorkoutCreationView : Viewable {
                         description = it["description"] as String,
                         exercises = listOf(*ExviSerializer.fromJson<Array<ExerciseSet>>(it["exercises"] as String)),
                         id = EncodedStringCache.fromEncoded(it["id"] as String),
-                        lockedExercises = (ExviSerializer.fromJson<Array<Int>>(it["lockedExercises"] as String)).toSet(),
+                        lockedExercises = ExviSerializer.fromJson<Set<Int>>(it["lockedExercises"] as String),
                         editorExercise = it["editorExerciseIndex"] as Int?,
                         infoExercise = if (infoExerciseStr == null) null else ExviSerializer.fromJson<Exercise>(
                             infoExerciseStr
