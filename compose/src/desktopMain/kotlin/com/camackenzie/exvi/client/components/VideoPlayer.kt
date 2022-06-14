@@ -8,6 +8,7 @@ import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.graphics.Color
 import com.camackenzie.exvi.core.util.ExviLogger
 import uk.co.caprica.vlcj.factory.discovery.NativeDiscovery
+import uk.co.caprica.vlcj.factory.discovery.strategy.NativeDiscoveryStrategy
 import uk.co.caprica.vlcj.player.base.MediaPlayer
 import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent
 import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent
@@ -23,10 +24,23 @@ actual fun VideoPlayer(url: String, modifier: Modifier): Boolean {
     }
 
     try {
-        NativeDiscovery().discover()
+        if (!NativeDiscovery(object : NativeDiscoveryStrategy {
+                override fun supported(): Boolean = System.getenv("VLC_PLUGIN_PATH") != null
+
+                override fun discover(): String =
+                    System.getenv("VLC_PLUGIN_PATH")?.plus("")
+                        ?.replace(Regex("\\+"), "/")
+                        ?: throw Exception("DEAD PATH SHOULD NOT THROW")
+
+                override fun onFound(path: String?): Boolean {
+                    ExviLogger.i(tag = "VIDEO") { "Using env for VLC lib (VLC_PLUGIN_PATH): $path" }
+                    return true
+                }
+
+                override fun onSetPluginPath(path: String?): Boolean = true
+            }).discover()) throw Exception("Could not find VLC")
     } catch (e: Throwable) {
         ExviLogger.e(e, tag = "VIDEO") { "Video player native lib discovery error" }
-        return false
     }
 
     val mediaPlayerComponent = remember {
@@ -39,9 +53,13 @@ actual fun VideoPlayer(url: String, modifier: Modifier): Boolean {
         }
     } ?: return false
 
+    remember {
+//        mediaPlayerComponent.mediaPlayer().media().prepare(url)
+    }
+
     SideEffect {
-        val ok = mediaPlayerComponent.mediaPlayer().media().play(url)
-        ExviLogger.i(tag = "VIDEO") { "Video player: $ok" }
+        mediaPlayerComponent.mediaPlayer().media().prepare(url)
+        mediaPlayerComponent.mediaPlayer().controls().play()
     }
     SwingPanel(
         background = Color.Transparent,

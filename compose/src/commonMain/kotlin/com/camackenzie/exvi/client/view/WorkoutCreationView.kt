@@ -497,7 +497,7 @@ object WorkoutCreationView : Viewable {
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(10.dp)
                     )
-                    val created = VideoPlayer(exercise.videoLink, Modifier.fillMaxWidth().requiredHeight(300.dp))
+                    val created = VideoPlayer(exercise.videoLink, Modifier.fillMaxWidth().height(300.dp))
                     if (!created) Text("Video player error")
                 }
             }
