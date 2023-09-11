@@ -2,6 +2,8 @@
 
 The client portion of my high school capstone project.
 
+View the project overview at [CS 30 Capstone Poster Report.pdf](https://github.com/CallumMackenzie/exvi-client/blob/kotlin/CS%2030%20Capstone%20Poster%20Report.pdf)!
+
 ## Technologies
 - Jetpack Compose
   - Full app functionality on OSX, Windows, Linux, and Android with JVM builds
